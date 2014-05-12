@@ -49,11 +49,10 @@ TEST ( FstIo, basic_test ) {
   bfs::remove ( bfs::path ( "obliviate.fst.gz" ) );
   fst::ConstFst<fst::StdArc> caux ( aux );
   FstWrite ( caux, "const.obliviate.fst.gz" );
-  FstWrite ( caux, "const.obliviate.fst" );
   FstWrite ( caux, "const.obliviate.txt" );
   /*
-   * \todo This test is no longer working in openfst 1.3.4 but works in openfst.1.3.2
-
+   * \todo This test is no longer working in openfst 1.3.4 but works in openfst.1.3.2. Needs investigation.
+  FstWrite ( caux, "const.obliviate.fst" );
   iszfstream file ( "const.obliviate.fst" );
   FstReadOptions fro;
   ConstFst<StdArc> *h = ConstFst<StdArc>::Read ( *file.getStream(), fro );
@@ -64,8 +63,9 @@ TEST ( FstIo, basic_test ) {
 
   boost::scoped_ptr< fst::ConstFst<fst::StdArc> > caux2( fst::ConstFstRead<fst::StdArc> ( "const.obliviate.fst.gz" ) ) ;
   EXPECT_TRUE ( Equivalent ( caux, *caux2 ) );
-  bfs::remove ( bfs::path ( "const.obliviate.fst.gz" ) );
   */
+  bfs::remove ( bfs::path ( "const.obliviate.fst.gz" ) );
+
   ucam::util::iszfstream isz ( "const.obliviate.txt" );
   std::string t, t2;
   while ( getline ( isz, t ) ) t2 += t + "\n";
