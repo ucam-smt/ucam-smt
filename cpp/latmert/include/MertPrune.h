@@ -9,7 +9,6 @@
 //
 //THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 #ifndef MERT_PRUNE_H_
 #define MERT_PRUNE_H_
 
@@ -21,22 +20,23 @@
 
 typedef pair<FunctionArc::StateId, FunctionArc::StateId> StatePair;
 
-struct PruneStats
-{
-	PruneStats();
+struct PruneStats {
+  PruneStats();
 
-	unsigned int before;
-	unsigned int after;
+  unsigned int before;
+  unsigned int after;
 };
 
-void Prune(fst::MutableFst<FunctionArc> *, PruneStats &);
+void Prune (fst::MutableFst<FunctionArc> *, PruneStats&);
 
-void Prune(fst::MutableFst<FunctionArc> *);
+void Prune (fst::MutableFst<FunctionArc> *);
 
-void FullPrune(fst::MutableFst<FunctionArc> *, const std::vector<FunctionWeight> &);
+void FullPrune (fst::MutableFst<FunctionArc> *,
+                const std::vector<FunctionWeight>&);
 
-void FullPrune(fst::MutableFst<FunctionArc> *, const std::vector<FunctionWeight> &, PruneStats &);
+void FullPrune (fst::MutableFst<FunctionArc> *,
+                const std::vector<FunctionWeight>&, PruneStats&);
 
-int ArcCount(const fst::Fst<FunctionArc> &);
+int ArcCount (const fst::Fst<FunctionArc>&);
 
 #endif /* MERT_PRUNE_H_ */

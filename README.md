@@ -2,7 +2,7 @@ Cambridge SMT
 =============
 
 This package contains the Cambridge SMT system.
-[...]
+
 
 GETTING STARTED
  + Requirements: You need to install the following libraries: OpenFST 1.3.*, boost_1_53_0+, and google tests 1.4.0+. 
@@ -19,15 +19,14 @@ LICENSING
  See COPYING file for more details.
 
 CONTENTS DESCRIPTION 
-+ bin/ : binaries and libraries (after installing)
 + doc/: doxygen documentation. 
 + cpp/: All c++ code
 + cpp/fsttools   : code for several basic fst tools 
 + cpp/hifst      : hifst-related binaries 
 + cpp/latmert    : lattice-mert related binaries
 + cpp/tests      : Unit testing
-+ scripts	 : Any auxiliary scripts (bash, pl,...)
-+ scripts/tests/ : Regression testing of installed binaries
++ scripts	 : Auxiliary scripts (bash, pl,...)
++ scripts/tests/ : Regression testing
 + externals      : contains KenLM (http://kheafield.com/code/kenlm/)
 
 

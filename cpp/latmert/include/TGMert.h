@@ -14,25 +14,22 @@
 
 #include "function-weight.h"
 
+MertList ComputeFromFunctionArc (const fst::VectorFst<FunctionArc>&);
 
-MertList ComputeFromFunctionArc(const fst::VectorFst<FunctionArc>&);
-
-template<class Arc, class T=double>
+template<class Arc, class T = double>
 class TGMertAlgorithm {
 
-public:
-	typedef MertList Lines;
+ public:
+  typedef MertList Lines;
 
-	static const MertList ComputeLatticeEnvelope(fst::VectorFst<Arc>* vec,
-			const typename std::vector<T>& lambda,
-			const typename std::vector<T>& direction) {
-		fst::VectorFst<FunctionArc> fst;
-		Map(*vec, &fst, VectorToFunctionMapper<Arc, T>(direction, lambda));
-		return ComputeFromFunctionArc(fst);
-	}
-
+  static const MertList ComputeLatticeEnvelope (fst::VectorFst<Arc>* vec,
+      const typename std::vector<T>& lambda,
+      const typename std::vector<T>& direction) {
+    fst::VectorFst<FunctionArc> fst;
+    Map (*vec, &fst, VectorToFunctionMapper<Arc, T> (direction, lambda) );
+    return ComputeFromFunctionArc (fst);
+  }
 
 };
-
 
 #endif /* TGMERT_H_ */

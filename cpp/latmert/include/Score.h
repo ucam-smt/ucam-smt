@@ -16,63 +16,66 @@
 #include "TuneSet.h"
 #include "function-weight.h"
 
-Sentence GetBestHypothesis(const TupleArcFst*, const PARAMS&);
+Sentence GetBestHypothesis (const TupleArcFst*, const PARAMS&);
 
 template<typename RefData>
-typename RefData::ErrorStats::Error ComputeError(RefData& refData,
-		const TuneSet& lats, const PARAMS& lambda) {
-	typename RefData::ErrorStats aggregate;
-	for (std::vector<Sid>::const_iterator sit = lats.ids.begin();
-			sit != lats.ids.end(); ++sit) {
-		if (opts.verbose) {
-			tracer << "sentence s=" << *sit << '\n';
-		}
-		TupleArcFst* fst = lats.GetVectorLattice(*sit, opts.useCache);
-		if (!fst) {
-			cerr << "ERROR: invalid vector lattice for sentence s=" << *sit
-					<< '\n';
-			exit(1);
-		}
-		Sentence h = GetBestHypothesis(fst, lambda);
-		typename RefData::ErrorStats es = refData.ComputeErrorStats(*sit, h);
-		if (opts.verbose) {
-			tracer << "best hypothesis=" << h << " " << es << '\n';
-		}
-		aggregate = aggregate + es;
-		if (!opts.useCache) {
-			delete fst;
-		}
-	}
-	return aggregate.ComputeError();
+typename RefData::ErrorStats::Error ComputeError (RefData& refData,
+    const TuneSet& lats, const PARAMS& lambda) {
+  typename RefData::ErrorStats aggregate;
+  for (std::vector<Sid>::const_iterator sit = lats.ids.begin();
+       sit != lats.ids.end(); ++sit) {
+    if (opts.verbose) {
+      tracer << "sentence s=" << *sit << '\n';
+    }
+    TupleArcFst* fst = lats.GetVectorLattice (*sit, opts.useCache);
+    if (!fst) {
+      cerr << "ERROR: invalid vector lattice for sentence s=" << *sit
+           << '\n';
+      exit (1);
+    }
+    Sentence h = GetBestHypothesis (fst, lambda);
+    typename RefData::ErrorStats es = refData.ComputeErrorStats (*sit, h);
+    if (opts.verbose) {
+      tracer << "best hypothesis=" << h << " " << es << '\n';
+    }
+    aggregate = aggregate + es;
+    if (!opts.useCache) {
+      delete fst;
+    }
+  }
+  return aggregate.ComputeError();
 }
 
 template<typename RefData>
-std::string Score(RefData& refData, const TuneSet& lats, const PARAMS& lambda) {
-	typename RefData::ErrorStats::Error error = ComputeError<RefData>(refData,
-			lats, lambda);
-	std::stringstream ss;
-	ss << error;
-	return ss.str();
+std::string Score (RefData& refData, const TuneSet& lats,
+                   const PARAMS& lambda) {
+  typename RefData::ErrorStats::Error error = ComputeError<RefData> (refData,
+      lats, lambda);
+  std::stringstream ss;
+  ss << error;
+  return ss.str();
 }
 
 class Scorer {
-public:
-	virtual std::string operator()(const std::vector<std::string>& refFilenames,const TuneSet& lats,
-			const PARAMS& lambda) = 0;
-	virtual ~Scorer() {
-	}
-	;
+ public:
+  virtual std::string operator() (const std::vector<std::string>& refFilenames,
+                                  const TuneSet& lats,
+                                  const PARAMS& lambda) = 0;
+  virtual ~Scorer() {
+  }
+  ;
 };
 
 template<typename RefData>
 class ScorerImpl: public Scorer {
 
-	virtual std::string operator()(const std::vector<std::string>& refFilenames, const TuneSet& lats,
-			const PARAMS& lambda) {
-		RefData refData;
-		refData.LoadRefData(refFilenames);
-		return Score(refData, lats, lambda);
-	}
+  virtual std::string operator() (const std::vector<std::string>& refFilenames,
+                                  const TuneSet& lats,
+                                  const PARAMS& lambda) {
+    RefData refData;
+    refData.LoadRefData (refFilenames);
+    return Score (refData, lats, lambda);
+  }
 };
 
 #endif /* SCORE_H_ */

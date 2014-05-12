@@ -12,7 +12,6 @@
 #ifndef TROPICALSPARSETUPLEWEIGHTDECLS_H_
 #define TROPICALSPARSETUPLEWEIGHTDECLS_H_
 
-
 typedef std::vector<double> PARAMS;
 
 typedef fst::TropicalWeightTpl<double> FeatureWeight;
@@ -32,6 +31,5 @@ typedef fst::TropicalSparseTupleWeight<float> TupleW32;
 typedef fst::ArcTpl<TupleW32> TupleArc32;
 
 typedef fst::VectorFst<TupleArc32> TupleArcFst32;
-
 
 #endif /* TROPICALSPARSETUPLEWEIGHTDECLS_H_ */

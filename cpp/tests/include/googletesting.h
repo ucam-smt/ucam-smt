@@ -3,7 +3,7 @@
 // You may obtain a copy of the License at
 //
 //    http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,11 +24,12 @@
 #define TESTING
 #define USER_CHECK_DEBUG
 
-
-namespace ucam { namespace util {
+namespace ucam {
+namespace util {
 extern bool user_check_ok;
 extern const bool detailed;
-  }}
+}
+}
 #include <gtest/gtest.h>
 
 #include "global_incls.hpp"
@@ -46,11 +47,11 @@ extern const bool detailed;
 #include <constants-fsttools.hpp>
 #include <constants-hifst.hpp>
 
-inline void ucam::util::init_param_options ( int argc, const char* argv[], boost::program_options::variables_map *vm ) {};
+inline void ucam::util::init_param_options ( int argc, const char* argv[],
+    boost::program_options::variables_map *vm ) {};
 
 #define KENLM_MAX_ORDER 6
 
 namespace uu = ucam::util;
-
 
 #endif

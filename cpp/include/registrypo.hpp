@@ -74,19 +74,19 @@ inline void parseOptionsGeneric ( bpo::options_description& desc
     cout << cmdline_options << "\n";
     exit ( EXIT_SUCCESS );
   }
-
   if ( config_file != "" ) {
     std::vector<std::string> configFiles;
-    boost::algorithm::split(configFiles,config_file,boost::algorithm::is_any_of(","));
+    boost::algorithm::split (configFiles, config_file,
+                             boost::algorithm::is_any_of (",") );
     for (int k = configFiles.size() - 1 ; k >= 0; --k) {
-      LINFO("Reading config file" << configFiles[k] );
+      LINFO ("Reading config file" << configFiles[k] );
       std::ifstream ifs ( configFiles[k].c_str() );
       if ( !ifs ) {
-	LERROR( "can not open config file: " << configFiles[k] );
-	exit ( EXIT_FAILURE );
+        LERROR ( "can not open config file: " << configFiles[k] );
+        exit ( EXIT_FAILURE );
       } else {
-	bpo::store ( parse_config_file ( ifs, config_file_options ), *vm );
-	bpo::notify ( *vm );
+        bpo::store ( parse_config_file ( ifs, config_file_options ), *vm );
+        bpo::notify ( *vm );
       }
     }
   }

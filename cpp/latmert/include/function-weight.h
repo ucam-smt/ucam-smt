@@ -19,7 +19,6 @@
 #include <iterator>
 #include <ostream>
 
-
 typedef long long Wid;
 
 typedef std::vector<Wid> SentenceIdx;
@@ -27,292 +26,292 @@ typedef std::vector<Wid> SentenceIdx;
 typedef double F;
 
 class MertLine {
-public:
-	MertLine() :
-          x(-std::numeric_limits<double>::infinity()), y(0.0), m(0.0) {
-	}
+ public:
+  MertLine() :
+    x (-std::numeric_limits<double>::infinity() ), y (0.0), m (0.0) {
+  }
 
-	MertLine(double y, double m, Wid word) :
-          x(-std::numeric_limits<double>::infinity()), y(y), m(m) {
-		//t.push_back(word);
-	}
-	double x; // x-intercept of left-adjacent line
-	double y; // y-intercept of line
-	double m; // slope of line
-	SentenceIdx t; // partial translation hypothesis associated with line
-	double score; //translation score
+  MertLine (double y, double m, Wid word) :
+    x (-std::numeric_limits<double>::infinity() ), y (y), m (m) {
+    //t.push_back(word);
+  }
+  double x; // x-intercept of left-adjacent line
+  double y; // y-intercept of line
+  double m; // slope of line
+  SentenceIdx t; // partial translation hypothesis associated with line
+  double score; //translation score
 };
 
 typedef std::list<MertLine> MertList;
 typedef MertList::iterator MertIter;
 
-const MertLine zeroLine(std::numeric_limits<double>::infinity(), 0, 0);
-const MertLine oneLine(0, 0, 0);
+const MertLine zeroLine (std::numeric_limits<double>::infinity(), 0, 0);
+const MertLine oneLine (0, 0, 0);
 
-static MertList InitFW(MertLine l) {
-	MertList ml;
-	ml.push_back(l);
-	return ml;
+static MertList InitFW (MertLine l) {
+  MertList ml;
+  ml.push_back (l);
+  return ml;
 }
 
-const MertList zeroList = InitFW(zeroLine);
-const MertList oneList = InitFW(oneLine);
+const MertList zeroList = InitFW (zeroLine);
+const MertList oneList = InitFW (oneLine);
 
-std::ostream& operator<<(std::ostream&, const MertLine&);
+std::ostream& operator<< (std::ostream&, const MertLine&);
 
-std::ostream& operator<<(std::ostream&, const MertList&);
+std::ostream& operator<< (std::ostream&, const MertList&);
 
-std::istream& operator>>(std::istream&, MertList&);
+std::istream& operator>> (std::istream&, MertList&);
 
-bool operator==(const MertLine&, const MertLine&);
+bool operator== (const MertLine&, const MertLine&);
 
 /*
  * Holds two sorted lists and returns the correct value
  */
 class CompositeList {
 
-public:
-	CompositeList(const MertList& l1, const MertList& l2);
+ public:
+  CompositeList (const MertList& l1, const MertList& l2);
 
-	class cl_iterator: std::iterator<std::input_iterator_tag, MertLine> {
-	public:
-		cl_iterator(MertIter, MertIter, MertIter, MertIter);
-		MertLine& operator*();
-		cl_iterator& operator++();
-		cl_iterator operator++(int);
-		bool operator==(const cl_iterator&);
-		bool operator!=(const cl_iterator&);
+  class cl_iterator: std::iterator<std::input_iterator_tag, MertLine> {
+   public:
+    cl_iterator (MertIter, MertIter, MertIter, MertIter);
+    MertLine& operator*();
+    cl_iterator& operator++();
+    cl_iterator operator++ (int);
+    bool operator== (const cl_iterator&);
+    bool operator!= (const cl_iterator&);
 
-	private:
-		MertIter i1;
-		MertIter i2;
-		MertIter i1end;
-		MertIter i2end;
-		int currList;
-		MertIter currIter;
-		bool isEnd() const;
-	};
+   private:
+    MertIter i1;
+    MertIter i2;
+    MertIter i1end;
+    MertIter i2end;
+    int currList;
+    MertIter currIter;
+    bool isEnd() const;
+  };
 
-	cl_iterator begin();
-	cl_iterator end();
+  cl_iterator begin();
+  cl_iterator end();
 
-private:
-	MertList l1;
-	MertList l2;
+ private:
+  MertList l1;
+  MertList l2;
 };
 
 typedef CompositeList::cl_iterator CompIter;
 
 class FunctionWeight {
-public:
+ public:
 
-	typedef FunctionWeight ReverseWeight;
+  typedef FunctionWeight ReverseWeight;
 
-	static const FunctionWeight& Zero() {
-		static FunctionWeight zero(zeroList);
-		return zero;
-	}
+  static const FunctionWeight& Zero() {
+    static FunctionWeight zero (zeroList);
+    return zero;
+  }
 
-	static const FunctionWeight& One() {
-		static FunctionWeight one(oneList);
-		return one;
-	}
+  static const FunctionWeight& One() {
+    static FunctionWeight one (oneList);
+    return one;
+  }
 
-	FunctionWeight() :
-			values(FunctionWeight::Zero().values) {
+  FunctionWeight() :
+    values (FunctionWeight::Zero().values) {
+  }
 
-	}
+  FunctionWeight (MertList& values) :
+    values (values) {
+  }
 
-	FunctionWeight(MertList& values) :
-			values(values) {
-	}
+  FunctionWeight (const MertList& values) {
+    this->values = values;
+  }
 
-	FunctionWeight(const MertList& values) {
-		this->values = values;
-	}
+  const MertList& Value() const {
+    return values;
+  }
 
-	const MertList& Value() const {
-		return values;
-	}
+  bool operator== (const FunctionWeight&) const;
 
-	bool operator==(const FunctionWeight&) const;
+  bool operator!= (const FunctionWeight&) const;
 
-	bool operator!=(const FunctionWeight&) const;
+  FunctionWeight Divide (const FunctionWeight& fw1, const FunctionWeight&,
+                         fst::DivideType t = fst::DIVIDE_ANY);
 
-	FunctionWeight Divide(const FunctionWeight& fw1, const FunctionWeight&,
-			      fst::DivideType t = fst::DIVIDE_ANY);
+  std::size_t Hash() const;
 
-	std::size_t Hash() const;
+  bool Member() const;
 
-	bool Member() const;
+  ReverseWeight Reverse() const;
 
-	ReverseWeight Reverse() const;
+  std::istream& Read (std::istream& strm);
 
-	std::istream& Read(std::istream &strm);
+  std::ostream& Write (std::ostream& strm) const;
 
-	std::ostream& Write(std::ostream &strm) const;
+  fst::TropicalWeightTpl<F> Map (F) const;
 
-	fst::TropicalWeightTpl<F> Map(F) const;
+  static uint64 Properties() {
+    return fst::kLeftSemiring | fst::kRightSemiring | fst::kCommutative |
+           fst::kIdempotent;
+  }
+  ;
 
-	static uint64 Properties() {
-	  return fst::kLeftSemiring | fst::kRightSemiring | fst::kCommutative | fst::kIdempotent;
-	}
-	;
+  friend std::istream& operator>> (std::istream& strm, FunctionWeight& w);
 
-	friend std::istream& operator>>(std::istream &strm, FunctionWeight& w);
+  friend FunctionWeight Plus (const FunctionWeight&, const FunctionWeight&);
 
-	friend FunctionWeight Plus(const FunctionWeight&, const FunctionWeight&);
+  friend FunctionWeight Times (const FunctionWeight&, const FunctionWeight&);
 
-	friend FunctionWeight Times(const FunctionWeight&, const FunctionWeight&);
+  static const std::string& Type() {
+    static const std::string type = "Function";
+    return type;
+  }
 
-	static const std::string& Type() {
-		static const std::string type = "Function";
-		return type;
-	}
-
-private:
-	MertList values;
+ private:
+  MertList values;
 
 };
 
-bool ApproxEqual(const FunctionWeight&, const FunctionWeight&, float);
+bool ApproxEqual (const FunctionWeight&, const FunctionWeight&, float);
 
-FunctionWeight Plus(const FunctionWeight&, const FunctionWeight&);
+FunctionWeight Plus (const FunctionWeight&, const FunctionWeight&);
 
-FunctionWeight Times(const FunctionWeight&, const FunctionWeight&);
+FunctionWeight Times (const FunctionWeight&, const FunctionWeight&);
 
-std::ostream& operator<<(std::ostream &strm, const FunctionWeight& w);
+std::ostream& operator<< (std::ostream& strm, const FunctionWeight& w);
 
-fst::TropicalWeightTpl<F> Map(double);
+fst::TropicalWeightTpl<F> Map (double);
 
 struct FunctionArc {
-	typedef int Label;
-	typedef FunctionWeight Weight;
-	typedef int StateId;
+  typedef int Label;
+  typedef FunctionWeight Weight;
+  typedef int StateId;
 
-	// Vector arc initialised from a function weight
-	FunctionArc(Label i, Label o, Weight w, StateId s) :
-			ilabel(i), olabel(o), weight(w), nextstate(s) {
-	}
+  // Vector arc initialised from a function weight
+  FunctionArc (Label i, Label o, Weight w, StateId s) :
+    ilabel (i), olabel (o), weight (w), nextstate (s) {
+  }
 
-	FunctionArc() {
-	}
+  FunctionArc() {
+  }
 
-	static const std::string& Type() {
-		static const std::string type = "Function";
-		return type;
-	}
+  static const std::string& Type() {
+    static const std::string type = "Function";
+    return type;
+  }
 
-	Label ilabel; // Transition input label
-	Label olabel; // Transition output label
-	Weight weight; // Transition weight
-	StateId nextstate; // Transition destination state
+  Label ilabel; // Transition input label
+  Label olabel; // Transition output label
+  Weight weight; // Transition weight
+  StateId nextstate; // Transition destination state
 };
 
 template<class W, unsigned int n>
-  F DotProduct(const W &, const fst::TupleWeight<fst::TropicalWeightTpl<F>, n> &);
+F DotProduct (const W&, const fst::TupleWeight<fst::TropicalWeightTpl<F>, n>&);
 
 template<unsigned int n>
-F DotProduct(const fst::TupleWeight<fst::TropicalWeightTpl<F>, n> & features
-		, const std::vector<F> & params) {
-	F result = 0.0;
-	for (unsigned int i = 0; i < features.Length(); ++i) {
-		result += features.Value(i).Value() * params[i];
-	}
-	return result;
+F DotProduct (const fst::TupleWeight<fst::TropicalWeightTpl<F>, n>& features
+              , const std::vector<F>& params) {
+  F result = 0.0;
+  for (unsigned int i = 0; i < features.Length(); ++i) {
+    result += features.Value (i).Value() * params[i];
+  }
+  return result;
 }
 
 template<class FromArc, class T>
 class VectorToFunctionMapper {
 
-public:
-	typedef FunctionArc ToArc;
-	typedef typename FromArc::Weight FW; // From weight (vector)
-	typedef ToArc::Weight TW; // To weight (Function)
-	explicit VectorToFunctionMapper(const std::vector<T> &direction, const std::vector<T> &initial) :
+ public:
+  typedef FunctionArc ToArc;
+  typedef typename FromArc::Weight FW; // From weight (vector)
+  typedef ToArc::Weight TW; // To weight (Function)
+  explicit VectorToFunctionMapper (const std::vector<T>& direction,
+                                   const std::vector<T>& initial) :
 
-			direction(direction), initial(initial) {
-	}
-	ToArc operator()(const FromArc& arc) const {
-		//FW features = arc.weight.Value();
-		FW features = arc.weight;
-		if (features == FW::Zero()) {
-			return ToArc(arc.ilabel, arc.olabel, TW::Zero(), arc.nextstate);
-		}
-		if (features == FW::One()) {
-			return ToArc(arc.ilabel, arc.olabel, TW::One(), arc.nextstate);
-		}
-		F m = DotProduct(features, direction);
-		F y = DotProduct(features, initial);
+    direction (direction), initial (initial) {
+  }
+  ToArc operator() (const FromArc& arc) const {
+    //FW features = arc.weight.Value();
+    FW features = arc.weight;
+    if (features == FW::Zero() ) {
+      return ToArc (arc.ilabel, arc.olabel, TW::Zero(), arc.nextstate);
+    }
+    if (features == FW::One() ) {
+      return ToArc (arc.ilabel, arc.olabel, TW::One(), arc.nextstate);
+    }
+    F m = DotProduct (features, direction);
+    F y = DotProduct (features, initial);
+    MertList mlist;
+    mlist.push_back (MertLine (y, m, arc.ilabel) );
+    //    cout << mlist << endl;
+    TW mapped (mlist);
+    return ToArc (arc.ilabel, arc.olabel, mapped, arc.nextstate);
+  }
+  fst::MapSymbolsAction InputSymbolsAction() const {
+    return fst::MAP_COPY_SYMBOLS;
+  }
+  fst::MapSymbolsAction OutputSymbolsAction() const {
+    return fst::MAP_COPY_SYMBOLS;
+  }
+  fst::MapFinalAction FinalAction() const {
+    return fst::MAP_NO_SUPERFINAL;
+  }
+  uint Properties (uint props) const {
+    return props;
+  }
 
-		MertList mlist;
-		mlist.push_back(MertLine(y, m, arc.ilabel));
-		//		cout << mlist << endl;
-		TW mapped(mlist);
-		return ToArc(arc.ilabel, arc.olabel, mapped, arc.nextstate);
-	}
-	fst::MapSymbolsAction InputSymbolsAction() const {
-	  return fst::MAP_COPY_SYMBOLS;
-	}
-	fst::MapSymbolsAction OutputSymbolsAction() const {
-	  return fst::MAP_COPY_SYMBOLS;
-	}
-	fst::MapFinalAction FinalAction() const {
-	  return fst::MAP_NO_SUPERFINAL;
-	}
-	uint Properties(uint props) const {
-		return props;
-	}
+ private:
 
-private:
+  const std::vector<T>& direction;
 
-	const std::vector<T> & direction;
-
-	const std::vector<T> & initial;
+  const std::vector<T>& initial;
 
 };
 
 class FunctionToStdMapper {
 
-public:
-	typedef FunctionArc FromArc;
-	typedef fst::ArcTpl<fst::TropicalWeightTpl<double> > ToArc;
-	typedef FromArc::Weight FW; // From weight (Function)
-	typedef ToArc::Weight TW; // To weight (Std)
-	explicit FunctionToStdMapper(double gamma) :
-			gamma(gamma) {
-	}
-	ToArc operator()(const FromArc& arc) const {
-		const MertList& function = arc.weight.Value();
-		if (arc.weight.Value() == FW::Zero().Value()) {
-			return ToArc(arc.ilabel, arc.olabel, TW::Zero(), arc.nextstate);
-		}
-		if (arc.weight.Value() == FW::One().Value()) {
-			return ToArc(arc.ilabel, arc.olabel, TW::One(), arc.nextstate);
-		}
-		if (function.size() != 1) {
-			cout << "Function arc has more than one function";
-			exit(1);
-		}
-		TW mapped(function.front().m * gamma + function.front().y);
-		return ToArc(arc.ilabel, arc.olabel, mapped, arc.nextstate);
-	}
-	fst::MapSymbolsAction InputSymbolsAction() const {
-	  return fst::MAP_COPY_SYMBOLS;
-	}
-	fst::MapSymbolsAction OutputSymbolsAction() const {
-	  return fst::MAP_COPY_SYMBOLS;
-	}
-	fst::MapFinalAction FinalAction() const {
-	  return fst::MAP_NO_SUPERFINAL;
-	}
-	uint Properties(uint props) const {
-		return props;
-	}
+ public:
+  typedef FunctionArc FromArc;
+  typedef fst::ArcTpl<fst::TropicalWeightTpl<double> > ToArc;
+  typedef FromArc::Weight FW; // From weight (Function)
+  typedef ToArc::Weight TW; // To weight (Std)
+  explicit FunctionToStdMapper (double gamma) :
+    gamma (gamma) {
+  }
+  ToArc operator() (const FromArc& arc) const {
+    const MertList& function = arc.weight.Value();
+    if (arc.weight.Value() == FW::Zero().Value() ) {
+      return ToArc (arc.ilabel, arc.olabel, TW::Zero(), arc.nextstate);
+    }
+    if (arc.weight.Value() == FW::One().Value() ) {
+      return ToArc (arc.ilabel, arc.olabel, TW::One(), arc.nextstate);
+    }
+    if (function.size() != 1) {
+      cout << "Function arc has more than one function";
+      exit (1);
+    }
+    TW mapped (function.front().m * gamma + function.front().y);
+    return ToArc (arc.ilabel, arc.olabel, mapped, arc.nextstate);
+  }
+  fst::MapSymbolsAction InputSymbolsAction() const {
+    return fst::MAP_COPY_SYMBOLS;
+  }
+  fst::MapSymbolsAction OutputSymbolsAction() const {
+    return fst::MAP_COPY_SYMBOLS;
+  }
+  fst::MapFinalAction FinalAction() const {
+    return fst::MAP_NO_SUPERFINAL;
+  }
+  uint Properties (uint props) const {
+    return props;
+  }
 
-private:
+ private:
 
-	double gamma;
+  double gamma;
 
 };
 

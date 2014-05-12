@@ -10,7 +10,7 @@
 
 #include <fst/fstlib.h>
 
-DEFINE_string(error_function, "bleu","Error function to optimise");
-DEFINE_string(lambda, "", "starting point");
+DEFINE_string (error_function, "bleu", "Error function to optimise");
+DEFINE_string (lambda, "", "starting point");
 
 #endif /* COMMONFLAGS_H_ */

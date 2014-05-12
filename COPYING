@@ -10,20 +10,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-
 Copyright 2012 to the following authors:
 Gonzalo Iglesias
 Adrià de Gispert
 William Byrne
 
-Other contributions:
+Contributions:
 -Lattice MBR implementation is largely based on Graeme Blackwood's original code developed 
  during his PhD in Cambridge University Engineering Department.
--The Tropical Sparse Tuple Semiring was implemented by Rory Waite.
+-Lattice MERT and the Tropical Sparse Tuple Semiring was implemented by Rory Waite.
 
 
 
-This tool relies the following external libraries:
+This tool relies on the following external libraries:
 +OpenFST: www.openfst.org. Apache v2 License.
 +Boost:  www.boost.org. Uses a Boost License.
 +KenLM: http://kheafield.com/code/kenlm/. The code is licensed LGPL. A copy is bundled within this package.

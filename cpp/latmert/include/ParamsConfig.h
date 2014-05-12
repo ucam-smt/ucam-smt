@@ -17,12 +17,12 @@
 #include "tropical-sparse-tuple-weight-decls.h"
 
 class ParamsConfig {
-public:
-	void Initialize(const PARAMS& params_min, const PARAMS& params_max);
-	bool check_in_range(const unsigned int k, const double gamma) const;
-private:
-	PARAMS m_params_min;
-	PARAMS m_params_max;
+ public:
+  void Initialize (const PARAMS& params_min, const PARAMS& params_max);
+  bool check_in_range (const unsigned int k, const double gamma) const;
+ private:
+  PARAMS m_params_min;
+  PARAMS m_params_max;
 };
 
 #endif /* PARAMSCONFIG_H_ */

@@ -22,21 +22,20 @@
 using std::vector;
 using std::map;
 
-
 typedef map<Sid, TupleArcFst*> SidToVecArcFstMap;
 typedef vector<Sid> SentenceList;
 
 class TuneSet {
-public:
+ public:
   TuneSet();
   ~TuneSet();
-  void Initialize(const bool use_cache);
-  TupleArcFst* GetVectorLattice(const Sid s, const bool use_cache) const;
+  void Initialize (const bool use_cache);
+  TupleArcFst* GetVectorLattice (const Sid s, const bool use_cache) const;
   SentenceList ids; // List of sentence IDs to process
-private:
+ private:
   std::string m_pattern;
   vector<TupleArcFst *> cachedLattices;
-  TupleArcFst* LoadLattice(const Sid s) const;
+  TupleArcFst* LoadLattice (const Sid s) const;
 };
 
 #endif /* TUNESET_H_ */

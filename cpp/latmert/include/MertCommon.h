@@ -23,22 +23,21 @@
 #include "tropical-sparse-tuple-weight.h"
 #include "tropical-sparse-tuple-weight-decls.h"
 
-
 #define tracer std::cerr << Time()
 
 struct MertOpt {
-	int32 printPrecision;
-	int32 latticeCutoff;
-	double gammaThreshold;
-	double bleuThreshold;
-	bool verbose;
-	std::string writeSurface;
-	bool scaleParams;
-	bool ignoreGsf;
-	bool useCache;
-	bool noSkip;
-	bool fullLog;
-	bool pointTest;
+  int32 printPrecision;
+  int32 latticeCutoff;
+  double gammaThreshold;
+  double bleuThreshold;
+  bool verbose;
+  std::string writeSurface;
+  bool scaleParams;
+  bool ignoreGsf;
+  bool useCache;
+  bool noSkip;
+  bool fullLog;
+  bool pointTest;
 };
 
 extern MertOpt opts;
@@ -52,36 +51,38 @@ std::string Time();
 
 const double kDoubleDelta = 1.0F / 4096.0F;
 
-void ReplacePattern(std::string& newname, std::string pattern, const char *pat,
-		std::string rep);
-void ReplacePattern(std::string& newname, std::string pattern, const char *pat, float f);
-void ReplacePattern(std::string& newname, std::string pattern, const char *pat, int i);
+void ReplacePattern (std::string& newname, std::string pattern, const char *pat,
+                     std::string rep);
+void ReplacePattern (std::string& newname, std::string pattern, const char *pat,
+                     float f);
+void ReplacePattern (std::string& newname, std::string pattern, const char *pat,
+                     int i);
 
-std::string ExpandPath(std::string pattern, const int idx);
+std::string ExpandPath (std::string pattern, const int idx);
 
-void InitializeFromLimits(std::vector<Sid>& ids, const std::string limits);
-void InitializeFromScript(std::vector<Sid>& ids, const std::string filename);
+void InitializeFromLimits (std::vector<Sid>& ids, const std::string limits);
+void InitializeFromScript (std::vector<Sid>& ids, const std::string filename);
 
 //string EnvelopeToString(const MertList&, bool);
 
-std::vector<PARAMS> InitializeVectorsFromFile(const std::string&);
+std::vector<PARAMS> InitializeVectorsFromFile (const std::string&);
 
-std::vector<PARAMS> InitializeVectorsFromAxes(unsigned int);
+std::vector<PARAMS> InitializeVectorsFromAxes (unsigned int);
 
 std::vector<PARAMS> InitializeVectorsFromRandom();
 
-std::vector<PARAMS> InitializeVectors(const std::string&);
+std::vector<PARAMS> InitializeVectors (const std::string&);
 
-std::string ReadWeight(const std::string&);
+std::string ReadWeight (const std::string&);
 
-std::ostream& operator<<(std::ostream &strm, const PARAMS &);
+std::ostream& operator<< (std::ostream& strm, const PARAMS&);
 
-std::ostream& operator<<(std::ostream& o, const Sentence& s);
+std::ostream& operator<< (std::ostream& o, const Sentence& s);
 
-PARAMS operator-(const PARAMS&, const PARAMS&);
+PARAMS operator- (const PARAMS&, const PARAMS&);
 
-PARAMS operator+(const PARAMS&, const PARAMS&);
+PARAMS operator+ (const PARAMS&, const PARAMS&);
 
-std::vector<std::string> InitRefDataFilenames(int, char**);
+std::vector<std::string> InitRefDataFilenames (int, char**);
 
 #endif /* MERTCOMMON_H_ */

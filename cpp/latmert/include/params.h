@@ -16,107 +16,102 @@
 
 namespace fst {
 
-
 template<typename T, typename Collection>
 struct AE {
-	static void AddElement(Collection &, unsigned int, T);
+  static void AddElement (Collection&, unsigned int, T);
 };
 
 template<typename T>
 struct AE<T, std::vector<T> > {
-	static void AddElement(std::vector<T>& params, unsigned int index, T param) {
-		if (params.size() == index) {
-			params.push_back(param);
-		} else if (params.size() < index) {
-			params.resize(index + 1, 0.0);
-			params[index] = param;
-		}
-	}
+  static void AddElement (std::vector<T>& params, unsigned int index, T param) {
+    if (params.size() == index) {
+      params.push_back (param);
+    } else if (params.size() < index) {
+      params.resize (index + 1, 0.0);
+      params[index] = param;
+    }
+  }
 };
 
 template<typename T>
 struct AE<T, std::map<unsigned int, T> > {
-	static void AddElement(std::map<unsigned int, T>& params , unsigned int index
-			, T param) {
-		params[index] = param;
-	}
+  static void AddElement (std::map<unsigned int, T>& params , unsigned int index
+                          , T param) {
+    params[index] = param;
+  }
 };
 
 template<typename T, typename Collection >
-Collection ParseParamString(const std::string& stringparams) {
-	Collection result;
-	std::stringstream strm(std::stringstream::in | std::stringstream::out);
-	strm << stringparams << noskipws;
-	char separator;
-	unsigned int index = 0;
-	while (strm.good()) {
-		T w;
-		if (strm.peek() == '@') {
-			w = 1.0;
-			strm >> separator;
-		} else {
-			strm >> w;
-			if(strm.eof())
-			{
-				separator = ' ';
-			}
-			else{
-				strm >> separator;
-			}
-		}
-		if (separator == '@') {
-			strm >> index;
-			if(!strm.eof())
-			{
-				strm >> separator;
-			}
-		}
-		AE<T,Collection>::AddElement(result, index, w);
-		++index;
-	}
-	if (strm.fail() || strm.bad()) {
-		cerr << "ERROR: Unable to parse params: " << stringparams << endl;
-		exit(1);
-	}
-	return result;
+Collection ParseParamString (const std::string& stringparams) {
+  Collection result;
+  std::stringstream strm (std::stringstream::in | std::stringstream::out);
+  strm << stringparams << noskipws;
+  char separator;
+  unsigned int index = 0;
+  while (strm.good() ) {
+    T w;
+    if (strm.peek() == '@') {
+      w = 1.0;
+      strm >> separator;
+    } else {
+      strm >> w;
+      if (strm.eof() ) {
+        separator = ' ';
+      } else {
+        strm >> separator;
+      }
+    }
+    if (separator == '@') {
+      strm >> index;
+      if (!strm.eof() ) {
+        strm >> separator;
+      }
+    }
+    AE<T, Collection>::AddElement (result, index, w);
+    ++index;
+  }
+  if (strm.fail() || strm.bad() ) {
+    cerr << "ERROR: Unable to parse params: " << stringparams << endl;
+    exit (1);
+  }
+  return result;
 }
 
 template<typename T>
 struct ParamsInit {
-	std::vector<T> params;
+  std::vector<T> params;
 
-	ParamsInit() {
-		std::string stringparams;
-
-		char *paramsfile = getenv("PARAMS_FILE");
-		if (paramsfile) {
-			ifstream ifs(paramsfile);
-			if (!ifs.good()) {
-				cerr << "ERROR: unable to open file " << paramsfile << '\n';
-				exit(1);
-			}
-			getline(ifs, stringparams);
-		} else {
-			char * pParams = getenv("PARAMS");
-			if (!pParams) {
-				if (FLAGS_v > 0) {
-					cerr
-							<< "Warning: cannot find parameter vector. Defaulting to flat parameters\n";
-				}
-				return;
-			}
-			stringparams = pParams;
-		}
-		params = ParseParamString<T, std::vector<T> >(stringparams);
-		if (FLAGS_v > 0) {
-			cerr << "Setting params to: ";
-			for (typename std::vector<T>::const_iterator it = params.begin();
-					it != params.end(); ++it) {
-				cerr << *it << ", ";
-			}
-			cerr << endl;
-		}
-	}
+  ParamsInit() {
+    std::string stringparams;
+    char *paramsfile = getenv ("PARAMS_FILE");
+    if (paramsfile) {
+      ifstream ifs (paramsfile);
+      if (!ifs.good() ) {
+        cerr << "ERROR: unable to open file " << paramsfile << '\n';
+        exit (1);
+      }
+      getline (ifs, stringparams);
+    } else {
+      char * pParams = getenv ("PARAMS");
+      if (!pParams) {
+        if (FLAGS_v > 0) {
+          cerr
+              << "Warning: cannot find parameter vector. Defaulting to flat parameters\n";
+        }
+        return;
+      }
+      stringparams = pParams;
+    }
+    params = ParseParamString<T, std::vector<T> > (stringparams);
+    if (FLAGS_v > 0) {
+      cerr << "Setting params to: ";
+      for (typename std::vector<T>::const_iterator it = params.begin();
+           it != params.end(); ++it) {
+        cerr << *it << ", ";
+      }
+      cerr << endl;
+    }
+  }
 
 };
 
