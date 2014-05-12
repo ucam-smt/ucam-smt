@@ -1,0 +1,3 @@
+#ifndef OPENFSTVERSION
+#define OPENFSTVERSION 1003004
+#endif

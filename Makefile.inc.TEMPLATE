@@ -1,0 +1,30 @@
+### Please write in here the absolute path to HiFST:
+export TOPDIR=</path/to/this/release>
+
+### Modify these env variables to point to your boost/openfst installation
+### or install them under externals.
+export BOOST_INCLUDE=${TOPDIR}/externals/boost_1_53_0/INSTALL_DIR/include
+export BOOST_LIB=${TOPDIR}/externals/boost_1_53_0/INSTALL_DIR/lib
+
+export OPENFSTVERSION=1.3.2
+export OPENFST_INCLUDE=${TOPDIR}/externals/openfst-1.3.2/INSTALL_DIR/include
+export OPENFST_LIB=${TOPDIR}/externals/openfst-1.3.2/INSTALL_DIR/lib
+export OPENFST_BIN=${TOPDIR}/externals/openfst-1.3.2/INSTALL_DIR/bin
+
+## For google tests:
+export GTEST_DIR=${TOPDIR}/externals/gtest-1.4.0;
+export GTEST_INCLUDE=${TOPDIR}/externals/gtest-1.4.0/include
+export GTEST_LIB=${TOPDIR}/externals/gtest-1.4.0/INSTALL_DIR/lib
+
+# if defined, latmert can compile with these libraries  and will run much faster:
+# export GPERFTOOLS_INCLUDE=${TOPDIR}/externals/gperftools-2.0/INSTALL_DIR/include
+# export GPERFTOOLS_LIB=${TOPDIR}/externals/gperftools-2.0/INSTALL_DIR/lib
+# export UNWIND_LIB=${TOPDIR}/externals/libunwind-1.0.1-install/lib
+
+### Default KENLM package -- integrated with Hifst
+export KENLM_DIR=${TOPDIR}/externals/kenlm/
+
+
+### Number of cpus you want to use for compiling. 
+### Each g++ instance can take 1.5G in memory.
+export NUMPROC=1

@@ -1,0 +1,442 @@
+/*!
+  \page tour.html Tour
+
+The current release of the Cambridge SMT System contains the following tools:
+
+- <b>HiFST:</b> a lattice-based hierarchical phrase-based MT decoder implemented with standard WFST operations using OpenFST library. This decoder was originally developed by means of collaboration between Cambridge Statistical Machine Translation group and Speech and Signal Processing group at University of Vigo. It has been extensively used and improved upon by the Cambridge SMT group since 2009, and translation systems based on this decoder have been submitted to NIST2009, wmt10 and NIST2012. 
+- <b>ALILATS2SPLATS:</b> a tool to extract individual feature contributions to each hypothesis.
+- <b>LMBR:</b> the Lattice MBR decoder developed by the Cambridge SMT group, it has been used extensively and to great effect in our submissions to NIST2009, wmt10 and NIST2012. 
+
+    
+In this section we will show how to use the three tools. You will find several examples in $CAM_SMT_DIR/scripts/tests/test-*.sh (where $CAM_SMT_DIR is the directory in which you have installed the Cambridge SMT system). The  tour is largely based on those scripts.
+
+
+<h1>1. General notes</h1>
+
+As any other hiero decoder, HiFST mainly relies on two models to translate a sentence: a probabilistic synchronous context-free grammar and a language model.  Please keep in mind that:
+-# The source text, the grammar and the language model are assumed to be previously tokenized and integer-encoded. In particular, the target integer mapping throughout the rules and the language model must be consistent. Therefore, the translation is a sequence of integers that the user must map back into target words (and detokenize).
+-# Whilst HiFST outputs the 1-best translation hypothesis in text format, it can also store <a href="glossary.html#fsa">FSAs</a> and FSTs in the OpenFST format, therefore compatible with tools available in the library. Dumping lattices is necessary for example if CMERT/LMERT/PRO or any extra lattice rescoring steps are applied. 
+-# To avoid exceedingly high memory footprints with HiFST, we strongly recommend using set-specific versions of the grammar and the language model. Reducing to a set-specific grammar is a lossless offline filtering procedure: given a set of source sentences, you can discard quite quickly the hierarchical rules that cannot even be candidates. For instance, consider a set with only one sentence “3 5”. Only hiero rules with the following source sides   “3,5,3_5,3_X,X_5” are valid candidates.  At this point, it is straightforward to use the target vocabulary of the set-specific grammar to filter out ngrams that will never appear given your source sentences and the grammar.
+-# For language pairs with relatively weak word reordering requirements ( e.g. Spanish-English-French ), we recommend using Shallow-n grammars. See <a href=background.html>2010 CL journal paper</a>.
+
+Before getting started with the examples, lets see first what these models actually look like. 
+
+<a name="grammar" >
+<h2>1.1. Grammar</h2>
+</a>
+A detailed description of the synchronous context-free grammar (SCFG) format is available <a href="tour.html#grammar_format">here</a>. See below for a full example of a trivial toy grammar with one single feature. It is an extension to Chiang’s hierarchical grammar using the following non-terminals: S,X,M,V,D. 
+
+	# Toy grammar in $CAM_SMT_DIR/scripts/tests/data/rules/trivial.grammar
+	
+	M 10031_M 6689_M -0.404994
+	M 1394_M 757_M 0.249461
+	M 2703_M 2310_11_M -0.693663
+	M 434_M 1462_8_M -1.81842
+	M 4943_M 10_583_M -0.992255
+	M 7_M 9_3_M -0.735445
+	M V V -0
+	S S_X S_X 0.05768
+	S X X -0
+	V 10806 1411 1.16623
+	V 164_42_129_48 19 9.29044
+	V 164_M_60 78_M_8 -0.226464
+	V 1689_49 4713 3.47984
+	V 190 6_23 -3.70913
+	V 19706 23638 -0.281889
+	V 19_M_1024 43_M_5_649 -5.2788
+	V 203_M_6789 1038_M 7.37422
+	V 21_591 39_258_8 -0.510102
+	V 24 3_54 -2.50252
+	V 261_164_1518 3_1540_5_3929_3 0.601265
+	V 2703 2084_11 -0.613515
+	V 274_M_4 709_9_3_M -0.589246
+	V 28 48 -1.5337
+	V 2899 2576 -1.73238
+	V 30 207 0.489272
+	V 311 487 2.42366
+	V 41_437 85_565 -1.66117
+	V 4388_20_42 40_1518_50 3.60749
+	V 4_283_5 6 7.05791
+	V 4_30_74_3 4 6.39164
+	V 5 6 -1.81729
+	V 6690 5328 -0.48941
+	V 7_1689 9_741_8 0.438945
+	V 8 23 -1.46604
+	V 8503 10_8121 -1.73483
+	V 8503 8121_8 -2.16561
+	V 934 4570_8_3 -0.993732
+	V M2_2436_M1 M1_5_3_M2_4089 -3.84599
+	V M_864 668_5_3_M -0.502137
+	X 1 1 -2.5598
+	X 2 2 -2.5598
+	X V V -0
+	D 1775 <dr> 10.4327
+	D 46634 <dr> 10.4327
+	S S_D_X S_D_X 0.11536
+
+<a name="language_model" >
+ <h2>1.2. Language Models</h2>
+</a>
+We use language models in ARPA format. See the example below.
+
+	# $CAM_SMT_DIR/scripts/tests/data/lm/trivial.lm.gz
+
+	\data\ 
+	ngram 1=46 
+	ngram 2=1390 
+	ngram 3=6457 
+	ngram 4=8801 
+	
+	\1-grams: 
+	-2.683641 10	-1.034019 
+	-3.77143  1038	-0.5870961 
+	-1.928192       </s> 
+	-99     <s>     -1.408032 
+	[...]
+	\2-grams: 
+	-3.322217       10 10   -0.08743055 
+	-3.52176        10 1038 -0.3202834 
+	-3.397413       10 11   -0.1456298 
+	-3.871455       10 1411 -0.3869879 
+	[...]
+
+
+Notice that all words are integer-mapped save for sentence markers. More details about accepted language model formats <a href="#lm_format">here</a>.
+
+<a name="translation_exact_pruning" >
+<h1>2. Translation with exact pruning</h1>
+</a>
+HiFST is a lattice-based hierarchical decoder implemented with WFSTs using the OpenFST library.  For a formal description, please read <a href=background.html>(DeGispert2010)</a>. In a nutshell, this decoder achieves exact decoding under the SCFG and the language model by performing the following steps: 
+ -# Intersect the source sentence with the SCFG using a modified version of a bottom-up CYK parser that generates a CYK grid storing applicable rules and its backpointers in cells defined by (non-terminal,source position, source word span). 
+ -# Visit each cell of the CYK grid with a recursive memoized traversal. A cell FSA is created by inspecting the list of applicable rules to the CYK cell. The list of cell FSAs is an RTN that describes the full word translation search space generated by the SCFG. The head of the RTN is a cell FSA that corresponds to the topmost CYK cell accepting all the derivations for the entire source sentence under non-terminal S.
+ -# Convert RTN into FSA representation or into <a href="glossary.html#pda">PDA representation</a>.
+ -# Apply the language model by (FSA/PDA) composition
+ -# Apply exact pruning/expansion.
+
+In the following example, HiFST loads a SCFG file pointed by $grammar, a source text file in $tstidx with four sentences and a language model file pointed by $languagemodel, all available in the package. The three files are integer mapped data. Full translation lattices in (gzipped) OpenFST format are generated in directory lats/. By default, scales for both the grammar (assuming one single feature) and the language model are set to 1. This can be changed with program options grammar.scales and lm.scales. 
+   
+
+Exact decoding with HiFST:
+
+	languagemodel=$CAM_SMT_DIR/scripts/tests/data/lm/trivial.lm.gz
+	grammar=$CAM_SMT_DIR/scripts/tests/data/rules/trivial.grammar
+	tstidx=$CAM_SMT_DIR/scripts/tests/data/source.text
+
+	$CAM_SMT_DIR/bin/hifst.O2.bin \
+		--grammar.load=$grammar \
+		--source.load=$tstidx  \
+		--hifst.lattice.store=lats/?.fst.gz  \
+		--lm.load=$languagemodel      
+
+If you want to apply <a href="glossary.html#exact_pruning">exact pruning</a> (which is highly recommended for big grammars), you can set hifst.prune to a likelihood beam width. Typically a value in the range 7-10 still generates rich word lattices. 
+
+	# HiFST with exact pruning:
+	$CAM_SMT_DIR/bin/hifst.O2.bin \
+		--grammar.load=$grammar \
+		--source.load=$tstidx  \
+		--hifst.lattice.store=lats/?.fst.gz  \
+		--lm.load=$languagemodel \
+		--hifst.prune=9
+
+
+
+Note that several language models instead of one could also be used. The option lm.load accepts an arbitrary number of language model files separated by commas. Accordingly, lm.scales parameter, which defaults to 1, must contain as many scales as language models to be used. As a trivial example, the following command applies the same language model twice and each weighted to 0.5. The final translation lattice should yield the same hypotheses/weights as the previous command with one single language model. Note that in the example above program option lm.scales defaults to 1.
+
+
+	# Exact decoding using two language models:
+	alternativelanguagemodel=$CAM_SMT_DIR/scripts/tests/data/lm/trivial.lm.gz 
+
+	$CAM_SMT_DIR/bin/hifst.O2.bin \
+		--grammar.load=$grammar \
+		--source.load=$tstidx  \
+		--hifst.lattice.store=lats/?.fst.gz  \
+		--lm.scales=0.5,0.5 --lm.load=$alternativelanguagemodel,$languagemodel
+
+
+HiFST can build push-down automata (PDAs) instead of FSAs representing the full translation search space. To this end, the program option hifst.usepdt must be enabled. This allows a far more compact representation of the translation hypotheses. On the other hand, smaller (and therefore weaker) language models are typically required to perform exact decoding. 
+
+
+	# Exact decoding using push-down automata: 
+	$CAM_SMT_DIR/bin/hifst.O2.bin \
+		--grammar.load=$grammar \
+		--source.load=$tstidx  \
+		--hifst.lattice.store=lats/?.fst.gz  \
+		--lm.load=$languagemodel  \
+		--hifst.usepdt
+
+<a name="translation_local_pruning" >
+<h1> 3. Translation with local pruning</h1>
+</a>
+
+For translation tasks such as Chinese-to-English, you will probably need grammars yielding bigger search spaces and will need to apply  a pruning strategy that is not exact (i.e. that can lead to search errors). The current <a href="glossary.html#local_pruning">local pruning</a> strategy prunes FSA components of the RTN as it is built. These FSAs have a 1:1 relationship with the CYK cells. The cells are defined by a non-terminal and the source word span, i.e. number of source words covered.  The user can determine which cell FSAs are to be pruned by supplying the following conditions to the tool:
+
+- CYK cell non-terminal,
+- Minimum source word span
+- Minimum number of states of the FSA for that cell 
+
+If the FSA meets the criteria and we have a language model available for local FSA pruning, then we prune with a likelihood weight also provided by the user. So for example, the user can decide that if cell FSAs linked to CYK cells representing non-terminal X and covering at least 3 source words exceed 10000 states, then it has to be pruned with a likelihood beam of 8.
+
+Note that, in general, local FSA pruning is inexact with the single exception of the topmost cell under the root non-terminal S, which covers all the source sentence and therefore contains all the translation search space.
+
+
+	# HiFST (FSA representation) using cell  pruning (i.e. local)
+	# weaklanguagemodel=$CAM_SMT_DIR/scripts/tests/data/lm/trivial.lm.gz
+	$CAM_SMT_DIR/bin/hifst.O2.bin\
+		--grammar.load=$grammar \
+		--source.load=$tstidx  \
+		--hifst.lattice.store=lats/?.fst.gz  \
+		--hifst.localprune  \
+		--hifst.localprune.conditions=X,5,100,7,M,3,10000,7,V,3,10000,7 \        
+		--hifst.localprune.numlocallm=1  \
+		--lm.scales=1,1 --lm.load=$weaklanguagemodel,$languagemodel \
+		--hifst.prune=9  
+
+
+
+
+In the example above, the program option hifst.localprune  enables local pruning. We set a list of conditions in program option hifst.localprune.conditions. Each condition spans four consecutive elements (non-terminal, minimum source word span, minimum number of states, likelihood beam). Here we are telling HiFST to prune locally  X cell FSAs covering at least 5 words and with at least 100 states. Also, M and V cell FSAs covering at least 3 source words and containing at least 10000 states will be pruned. In any of these cases, a likelihood beam of 7 will be used.
+
+Note that we have loaded two language models and we specify that the first one is used for local pruning ( --hifst.localprune.numlocallm=1). Remember that if you do not define a language model for local pruning, no pruning will be applied.
+
+In the example above we have been using the same trivial language model for both local and exact pruning, but in practical terms a much lighter version of the language model could be used for local pruning (e.g. lower order or entropy pruned) .  This is particularly useful for HiFST using PDT representation. Keeping in mind that local pruning, if applied only to the topmost cell FSA, is actually exact,  we can then use the tool in the following way:
+
+	# HiFST using PDA representation and two language models.
+	$CAM_SMT_DIR/bin/hifst.O2.bin \
+		--grammar.load=$grammar \ 
+		--source.load=$tstidx  \ 
+		--hifst.usepdt \ 
+		--lm.scale=1,1 --lm.load=$weaklanguagemodel,$languagemodel --lm.wps=-2.30,0\ 
+		--hifst.localprune --hifst.localprune.conditions=S,-1,1,9 --hifst.localprune.numlocallm=1 \ 
+		--hifst.prune=9
+
+The decoder uses cell (PDA) pruning with a weak language model. With pruning conditions set to --hifst.localprune.conditions=S,-1,1,9, the only cell PDA that meets criteria for local pruning is the one that covers all the source sentence under non-terminal S (i.e. pruning is exact under the models ). The decoder applies the weak language model, prunes (expanding to FSA), removes weak language model scores and applies full language model. Notice that the weaker language model might benefit from a specific word penalty correction. This can be set with program option lm.wps. In the example above we are telling the decoder to apply a word penalty correction of -2.30 to the weak language model, and 0 to the full language model. 
+
+<a name="generating_input_for_feature_optimization">
+<h1> 4. Generating input for feature optimization algorithms </h1>
+</a>
+The current pipeline to extract features used as input for a feature optimization algorithm (MERT/PRO/...)  is described next. Generating directly big search spaces including derivations and/or independent features can get difficult in terms of memory footprint. For this reason, we perform feature extraction in three steps:
+-# Translate (HiFST): generate translation lattices (FSAs)  [link to example in tour]
+-# Align (HiFST): Regenerate translation lattices generated in step 1.  The tool outputs so-called alignment FSTs containing derivations (rule indices) encoded on the input  and words on the output of the transducer.
+-# Extract features (ALILATS2SPLATS): Take unweighted versions of FSTs from step 2 and reconstruct the search space we care about composing with a <a href=glossary.html#flower_shaped>flower-shaped FSA</a> of rule indices in order to add a (sparse) vector of rule weights. By means of determinizing and composing with the language model, each arc now contains contributions of every single relevant feature to the best derivation; from here, a list of hypotheses and features is generated by traversing the FSTs.
+<a name="alignment" >
+ <h2>4.1. Alignment </h2>
+</a>
+HiFST can create alignment FSTs by enabling <i>hifst.alilatsmode</i> to encode the rules in the input. Constrained translation towards a small search space described as an FSA is achieved by using referencefilter* program options. In this case we want to regenerate a set of translation lattices such as the ones generated <a href="#translation_exact_pruning">earlier</a> in lats/ directory. In the following example we are constraining HiFST towards the 1-best hypotheses (referencefilter.prunereferenceshortestpath=1) of the four translation lattices used as a reference or constraint (referencefilter.load=lats/?.fst.gz ).
+
+	# Alignment with hifst:
+	$CAM_SMT_DIR/bin/hifst.O2.bin \
+		--grammar.load=$grammar \
+		--source.load=$tstidx  \
+		--referencefilter.load=lats/?.fst.gz \
+		--referencefilter.prunereferenceshortestpath=1 \
+		--hifst.lattice.store=alilats/?.fst.gz  \
+		--hifst.localprune  --hifst.localprune.conditions=X,1,1,9,M,1,1,10,V,1,1,11 \
+		--hifst.alilatsmode
+
+
+Notice that in this case parameter hifst.localprune.conditions has also been set. Doing so with referencefilter* options triggers composition of cell FSAs with a substring acceptor of the <a href="glossary.html#reference_lattice">reference lattice</a>. In practical terms, we find it more efficient to enforce alignment at each CYK cell towards a substring acceptor of the original translation lattice, rather than simply enforcing it for the full search space. 
+Note that in the example above no language models are loaded nor defined for local cell FSA pruning, therefore the beam widths of 9,10,11 respectively are ignored, i.e. no search errors will be induced. 
+
+Remember that alignment FSTs encode words on the target and rule indices on the input, corresponding to a rule line in the SCFG; rule index counting starts off from 1. For instance, rule M 10031_M 6689_M -0.404994 in the <a href="#grammar">toy grammar</a> corresponds to index 1.
+
+<a name="feature_extraction" >
+ <h2>4.2.  Feature Extraction</h2>
+</a>
+Feature extraction is done with the ALILATS2SPLATS binary. It takes as an input an alignment FST containing derivations/words, and generates a word FSA over the <a href="glossary.html#tropical_sparse_tuple_semiring">tropical sparse tuple semiring</a> containing individual feature contributions per arc.
+
+In fact, for each aligned FST containing derivations/words, this tool performs the following actions:
+-# Builds (if not done previously) a <a href="glossary.html#flower_shaped">flower-shaped FSA</a> containing rule indices and sparse vector weights assigned to each rule (tropical sparse tuple semiring).
+-# Loads (if not done previously) language model(s).
+-# Creates the sparse vector weight translation FSA by intersecting the alignment FST with the flower-shaped rule FSA, projects on words and determinizes.
+-# Applies language model weights by composition.
+-# Writes results, i.e. feature file, nbest file or FSA in tropical sparse tuple semiring.
+
+
+Note that under this semiring, each FSA arc encodes a (sparse) vector of unscaled feature contributions. However, it still works as a tropical semiring over the dot product of these (sparse) features with a set of scales; therefore, the hypotheses scores (and dot product of feature scores with scaling factors) should match those found in translation. An example is provided next with ALILATS2SPLATS tool.
+
+	#Alignment lattices to feature lattices with alilats2splats:
+	range=1:4
+	$CAM_SMT_DIR/bin/alilats2splats.O2.bin \
+		--range=$range \
+		--ruleflowerlattice.load=$grammar \
+		--sparseweightvectorlattice.loadalilats=alilats/?.fst.gz \
+		--sparseweightvectorlattice.storenbestfile=nbest/?.nbest.gz\
+		--sparseweightvectorlattice.storefeaturefile=fea/?.features.gz \
+		--lm.load=$languagemodel 
+
+
+We take 4 alignment FSTs as input, named [1-4].fst.gz and generated by HiFST in the previous <a href="#alignment">example</a>. Therefore we now set program option --range to 1:4. We need to load the grammar and the language model(s). The tool will write nbest lists and feature lists respectively to (gzipped) files in text format (see parameters sparseweightvectorlattice.storenbestfile and sparseweightvectorlattice.storefeaturefile). In addition, the lattice itself can also be dumped (e.g. useful for Lattice MERT ). 
+
+Notice that we only have two features in this example: one for the grammar and one for the language model. The scales for both features default to 1. If more features are used either for language models and/or the grammar, we need to the set scales accordingly (see options  lm.scales and ruleflowerlattice.scales).
+
+<a name=lmbr>
+<h1> 5. Lattice MBR</h1>
+</a>
+
+For a formal description, we recommend reading <a href=background.html>Graeme Blackwood's Phd Thesis, Chapters 7 and 8</a>.
+Generally speaking, Lattice MBR (LMBR) uses two spaces represented as WFSAs:
+The evidence space: a lattice containing a weighted model (i.e. weighted FSA) from which we estimate n-gram posterior probability distribution with pathwise posteriors.
+The hypotheses space: an unweighted lattice that contains the hypotheses we want to rescore with the posterior probability distribution estimated from the evidence space.
+
+LMBR performs the following steps:
+-# Load and normalize the evidence space with a scaling factor alpha. Normalizing in terms of FST operations involves FST pushing (http://www.openfst.org/twiki/bin/view/FST/PushDoc) towards final states, and setting the final state probabilities to 1 . 
+-# Load hypotheses space (if different from evidence space)
+-# Extract n-grams for all orders up to n.
+-# Estimate n-gram posterior probabilities at the path level from the evidence space. In other words, each n-gram probability mass is obtained considering all paths in which it appears. This can be achieved quite efficiently with a Forward algorithm over the evidence lattice. 
+-# Create cyclic WFSAs to represent posterior probability distribution  of each n-gram order and compose with the original hypotheses space. A Word penalty correction (wps) is also integrated.
+
+
+If we want to apply LMBR as a rescoring step for a set of translation lattices, the usage is very simple.
+
+	#Lattice MBR
+	$CAM_SMT_DIR/bin/lmbr.O2.bin \
+		--range=$range\ 
+		--load.evidencespace=data/fsts/?.lat.fst.gz \ 
+		--writeonebest=lmbr/%%alpha%%_%%wps%%.hyp \ 
+		--alpha=0.4:0.1:0.5      \ 
+		--wps=-0.01:0.02:0.01 \ 
+		--p=0.7410 \ 
+		--r=0.6200  \ 
+		--preprune=7  
+
+In the example above we show how to run the LMBR decoder using four translation lattices. Note that no hypotheses space is explicitly defined (program option load.hypothesesspace). Therefore, hypotheses and evidence spaces are assumed to be the same space (i.e. the translation lattices) by the tool. Unigram precision (p) and precision ratio (r) are easy to compute offline from a given tune-set of lattices, e.g. with verbose logs of a BLEU scorer such as NIST mteval1. The posterior probabilities computed from the evidence space are scaled with factors defined in the program option alpha.  We then apply these probabilities to the hypotheses space along with one or more word penalty corrections defined in program option wps. The tool generates output for a range of alpha and wps values. The program option writeonebest outputs the 1-best hypotheses (integer-mapped) generated for each value defined in alpha, wps. The user can choose the best set of parameters by simply mapping each output back to words, detokenizing and scoring  (e.g. with BLEU). 
+Finally, the program option preprune enables the tool to prune the evidence space with a likelihood beam (i.e. 7 in this example) prior to estimating the posterior probabilities.
+
+<a name="lexicographic">
+<h1> 6. Lexicographic semiring and Tropical Sparse Tuple semiring with OpenFST tools.</h1>
+</a>
+
+The OpenFST library provides mechanisms to allow semiring extensions to remain compatible with their own binaries. We use two semirings of our own:  a lexicographic semiring over two tropical weights (lexicographic semiring for short) and the tropical sparse tuple semiring. Shared libraries to handle these semirings are available in the $CAM_SMT_DIR/bin directory. 
+The FSTs created by HiFST are based on a <a href="glossary.html#lexicographic_semiring">lexicographic semiring</a>. For all purposes, this works like a tropical semiring over the first weight, with an additional tropical weight that we use to store internally grammar scores. For example, in order to print a lattice generated by HiFST with the OpenFST tool command fstprint, the user should first make sure that these shared libraries are available to OpenFST by modifying environment variable LD_LIBRARY_PATH to include the bin directory:
+
+	# Lexicographic semiring example (make sure you first run the alignment example)
+	> export LD_LIBRARY_PATH=$CAM_SMT_DIR/bin:$LD_LIBRARY_PATH
+	> zcat alilats/?.fst.gz | fstprint
+
+
+Similarly, the ALILATS2SPLATS tool dumps FSAs templated over a <a href="glossary.html#tropical_sparse_tuple_semiring">tropical sparse tuple semiring</a> -- basically allowing to store an arbitrarily large (sparse) vector of individual unweighted feature contributions per arc. The weights are scaled externally using PARAMS or PARAMS_FILE environment variables, thus affecting  the result of operations such as fstshortestpath or fstdeterminize. For example:
+
+
+	# Sparse tuple semiring example (make sure you first run the alilats2splats example)
+	> export LD_LIBRARY_PATH=$CAM_SMT_DIR/bin:$LD_LIBRARY_PATH
+	> zcat vwlats/1.fst.gz | fstshortestpath | fstprint  # Assuming all scales set to 1
+	> export PARAMS=0.2,0.3
+	> zcat vwlats/2.fst.gz | fstshortestpath | fstinfo
+
+
+<a name="file_formats">
+<h1> 7. File formats</h1>
+</a>
+<a name="grammar_format">
+<h2>Synchronous Context-free Grammar format</h2>
+</a>
+
+SCFG files for HiFST and related tools must encode one single rule per line, each with the following format:
+
+	LHS RHS_source RHS_target weight  [weight_2 … weight_k weight@k+1 … weight@n]
+
+Where:	       
+
+- LHS:  Left hand side of the rule, a non-terminal that categorizes the rule.
+- RHS_source: the source, a string of words/non-terminals
+- RHS_target: the target side of the rule, a string of words/non-terminals.
+- weight: Represented as -log probability. 
+- A sequence of two or more weights is accepted.
+- Sparse representation is also accepted using @ sign.
+	- For example, 35.0@25 means “the feature at position 25 with weight 35.0”.
+	- Feature index counting starts off from 1.
+	- Mixed compact and sparse features can be used with the constraint that all sparse feature are listed after compact ones. You can mix compact and sparse feature format. For each rule, once a feature is represented in sparse format, the following ones  must also be written  in sparse format.
+
+
+
+
+Important notes:   
+- Non-terminals are represented as capital letters [A-Z]+.
+- Words (terminals) are represented as integers.
+- “_” is used as a separator between words and non-terminals: V_5_T_6
+- Source and target are synchronized, this is, the same non-terminals that appear on the RHS source must appear on the RHS target. If the same non-terminal appears more than once, a number is appended in order to distinguish. E.g. V V1_5_V2 V2_10_V1
+- Source word deletions are represented on the target side as <dr>: D 3 <dr>
+- Source OOVs are represented on the target side as <oov>
+- As a convention, integers 1 and 2 are used to represent <s> and </s> respectively.
+- Non-terminal S must exist in the grammar. Furthermore, the CYK parser will succeed only if there is at least one derivation/tree  with an S rule covering the whole span.
+- No particular rule order is required in the grammar file. Rules can also be repeated, e.g. with different weights. 
+- Cycles created with identity rules (LHS=RHS) are not allowed in the grammar. For example, a grammar containing the following synchronous rules: S X X, X V V, and  V S S will produce a cycle. One of these rules has to be removed.
+
+Next, a few rules in compact format are shown.
+
+	M 10031_M 6689_M -0.404994
+	M 1394_M 757_M 0.249461
+	V M2_2436_M1 M1_5_3_M2_4089 -3.84599
+	S S_X S_X 0.05768
+	D 1775 <dr> 10.4327
+	X 39000 <oov> 0.0
+	S S_D_X S_D_X 0.11536
+
+
+Rules in sparse format:
+
+	M 10031_M 6689_M -0.404994@1
+	M 1394_M 757_M 0.249461@1
+	V M2_2436_M1 M1_5_3_M2_4089 -3.84599@1
+	S S_X S_X 0.05768@1
+	D 1775 <dr> 10.4327@1
+	S S_D_X S_D_X 0.11536@1
+
+
+Rules in sparse format with up to 5000 features:
+
+	M 10031_M 6689_M -0.404994@1 0.5@5000
+	M 1394_M 757_M 0.249461@1 0.3@300
+	V M2_2436_M1 M1_5_3_M2_4089 -3.84599@10
+	S S_X S_X 0.05768@1
+	D 1775 <dr> 10.4327@1
+	S S_D_X S_D_X 0.11536@1 
+
+
+<a name="lm_format">
+<h2>Language Model format</h2>
+</a>
+
+Language models in well-known ARPA format are accepted, provided that the words are previously integer-mapped. 
+For more details on ARPA format, please visit http://www.speech.sri.com/projects/srilm/manpages/ngram-format.5.html
+
+KenLM is used internally to load and run the language models. Therefore, KenLM binary formats are also available and will be detected automatically. For more details, see http://kheafield.com/code/kenlm
+
+<a name="nbest_format">
+<h2> Nbest file format</h2>
+</a>
+
+The nbest list format is trivial. Each line contains a translation hypothesis, this is a sequence of integer-mapped words followed by a tab and the hypothesis score.
+
+	word_1 … word_n [tab] score
+
+Examples:
+
+	1 2576 5328 78 1462 8 1038 10 583 207 8 19 2084 11 10 8121 6 2	97.9668
+	1 3 54 40 1518 50 709 9 3 2310 11 8121 8 487 6 23 2   42.4394
+
+<h2>Feature file format</h2>
+For each n-best hypotheses we can generate the independent feature contributions, separated by tabulations. Each line of features corresponds to the same line in the nbest file. Language model features always appear first. The following is an example with only two features: one for the language model and  one for the grammar. The overall hypothesis cost is obtained by the dot product of these features with the scaling factors. For the example above we have used scaling factors of 1 applied to the feature values shown in next example. 
+
+	86.0205	 11.9463 
+	50.8417	 -8.4023
+
+
+The feature file can also be represented in sparse format using the @ sign with the following notation per feature:
+
+	feature_value@position_index
+
+See the example below:
+
+	86.0205@0	11.9463 @1
+	50.8417@0	-8.4023@1
+
+A hybrid compact/sparse representation is also possible. See the example below. This is useful when you always have a fixed number of features (1 in this example) and the rest of them almost never contribute.  The user can set up n compact features using the option sparseweightvectorlattice.firstsparsefeatureatindex=n.
+
+	86.0205	 11.9463 @1
+	50.8417	 -8.4023@1
+
+Note that, differently than the grammar case, in this case zero-based feature numbering is used. When decoding with one single language model, grammar feature indices will actually be identical to feature file indices. But if you decode with more than one language model, this is no longer true, as language model features always appear first. Given n language models, their features will be listed in positions 0 to n-1. Grammar indices in this feature file will be delayed n-1 respect to the SCFG file.
+
+
+*/
