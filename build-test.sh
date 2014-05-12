@@ -69,7 +69,7 @@ echo -e "#ifndef OPENFSTVERSION\n#define OPENFSTVERSION $openfstversion\n#endif"
 echo "Compilation started on $(date) on $(hostname)" > $LOGFILE
 
 mkdir -p bin; 
-#rm -f bin/*$TGTBINMK* bin/main.gtest.$TGTBINMKTEST
+rm -f bin/*$TGTBINMK* bin/main.gtest.$TGTBINMKTEST
 (cd externals; bash prepare.bash) 2>&1 | tee -a $LOGFILE 
 if [ ! -e bin/libkenlm.a ]; then
     echo "ERROR: KenLM not compiled (externals/prepare.bash). Exiting..."
