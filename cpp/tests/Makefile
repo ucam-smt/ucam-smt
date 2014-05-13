@@ -24,9 +24,6 @@ usage:
 default:
 	make usage
 
-clean:
-	rm obj/*.o bin/*
-
 install:
 	cp bin/main.gtest.* ../../bin/	
 
@@ -71,3 +68,6 @@ allunittests.sta:
 
 all:
 	make main.$(TGTBINMK)
+
+clean:
+	rm -rf obj bin
