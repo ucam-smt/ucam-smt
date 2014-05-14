@@ -106,3 +106,6 @@ install:
 
 all:
 	make -j $(NUMPROC) `for k in \`ls *.main.cpp *.so.cpp\`; do target=\`echo $$k | sed -e 's:.main.cpp:.$(TGTBINMK):g;s:.so.cpp:.so:g'\`; echo $$target ; done 2> /dev/null `
+
+clean:
+	rm -rf bin
