@@ -42,5 +42,4 @@ the package at some point.
   This can be dealt with automatically by precounting number of times each cell will be visited 
 - Keep track of word alignment in decoding
 - Decoding directly with the tropical sparse vector weight semiring
-
-
+- Deal with integer mapping internally, input can be words or ids
