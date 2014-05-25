@@ -101,7 +101,7 @@ static ucam::util::TaskInterface<Data> * ReadFstInit ( const
   if ( rg.exists ( fstkey ) )
     if (arctype == HifstConstants::kHifstSemiringStdArc) return new
           ReadFstTask<Data, fst::StdArc> ( rg, fstkey );
-    else if (arctype == HifstConstants::kHifstSemiringStdArc) return
+    else if (arctype == HifstConstants::kHifstSemiringLexStdArc ) return
         static_cast< ucam::util::TaskInterface<Data> * > (new
             ReadFstTask<Data, fst::LexStdArc> ( rg, fstkey ) );
     else {
