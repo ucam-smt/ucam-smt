@@ -15,6 +15,12 @@ GETTING STARTED
  + STEP 2: run build-test.sh -- should install all binaries and run tests succesfully out-of-the-box (to re-run tests, see tests.sh).
  + STEP 3: If you have doxygen, you can build your documentation in doc directory. 
 
+
+Note that our lattice mert implementation (cpp/latmert) speeds up quite considerably if compiled with google perftools 
+(https://code.google.com/p/gperftools/) and unwind library. We compile succesfully with gperftools 2.0 and libunwind 1.0.1. 
+Once you have them installed, you just need to set up a couple of variables in Makefile.inc. Please see Makefile.inc for instructions.
+
+
 LICENSING
  See COPYING file for more details.
 
