@@ -13,6 +13,7 @@ organization := "University of Cambridge"
 
 // depends on hadoop, hbase and junit
 libraryDependencies ++= Seq(
+		    "com.beust" % "jcommander" % "1.35",
 		    "org.apache.hadoop" % "hadoop-core" % "1.2.1",
 		    "org.apache.hbase" % "hbase" % "0.92.0",
 		    "junit" % "junit" % "4.11" % "test"
