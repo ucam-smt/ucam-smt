@@ -20,6 +20,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.hadoop.conf.Configuration;
@@ -31,6 +33,10 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 
 import uk.ac.cam.eng.extraction.hadoop.datatypes.TextArrayWritable;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 
 /**
  * Load all the word aligned parallel text onto HDFS ready to have rules
@@ -114,15 +120,61 @@ public class ExtractorDataLoader {
 		}
 	}
 
+	/**
+	 * Defines command line args.
+	 */
+	private static class ExtractorDataLoaderParameters {
+		@Parameter
+		private List<String> parameters = new ArrayList<String>();
+
+		@Parameter(
+				names = { "-source", "-src" },
+				description = "Source text file",
+				required = true)
+		private String sourceTextFile;
+
+		@Parameter(
+				names = { "-target", "-trg" },
+				description = "Target text file",
+				required = true)
+		private String targetTextFile;
+
+		@Parameter(
+				names = { "-alignment", "-align" },
+				description = "Word alignment file",
+				required = true)
+		private String alignmentFile;
+
+		@Parameter(
+				names = { "-provenance", "-prov" },
+				description = "Provenance file",
+				required = true)
+		private String provenanceFile;
+
+		@Parameter(
+				names = { "-hdfsout", "-hdfs" },
+				description = "Output file name on HDFS",
+				required = true)
+		private String hdfsName;
+	}
+
 	public static void main(String[] args) throws FileNotFoundException,
 			IOException {
-		if (args.length != 5) {
-			System.err.println("wrong args");
-			System.exit(1);
+		ExtractorDataLoaderParameters params =
+				new ExtractorDataLoaderParameters();
+		JCommander cmd = new JCommander(params);
+		try {
+			cmd.parse(args);
+			ExtractorDataLoader loader = new ExtractorDataLoader();
+			loader.loadTrainingData2Hdfs(
+					params.sourceTextFile,
+					params.targetTextFile,
+					params.alignmentFile,
+					params.provenanceFile,
+					params.hdfsName);
+		} catch (ParameterException e) {
+			System.err.println(e.getMessage());
+			cmd.usage();
 		}
-		ExtractorDataLoader loader = new ExtractorDataLoader();
-		// TODO CLI library
-		loader.loadTrainingData2Hdfs(args[0], args[1], args[2], args[3],
-				args[4]);
 	}
 }
