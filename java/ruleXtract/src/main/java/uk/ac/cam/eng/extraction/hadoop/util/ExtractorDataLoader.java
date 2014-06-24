@@ -20,8 +20,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.hadoop.conf.Configuration;
@@ -37,6 +35,7 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.TextArrayWritable;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.Parameters;
 
 /**
  * Load all the word aligned parallel text onto HDFS ready to have rules
@@ -123,36 +122,34 @@ public class ExtractorDataLoader {
 	/**
 	 * Defines command line args.
 	 */
+	@Parameters(separators = "=")
 	private static class ExtractorDataLoaderParameters {
-		@Parameter
-		private List<String> parameters = new ArrayList<String>();
-
 		@Parameter(
-				names = { "-source", "-src" },
+				names = { "--source", "-src" },
 				description = "Source text file",
 				required = true)
 		private String sourceTextFile;
 
 		@Parameter(
-				names = { "-target", "-trg" },
+				names = { "--target", "-trg" },
 				description = "Target text file",
 				required = true)
 		private String targetTextFile;
 
 		@Parameter(
-				names = { "-alignment", "-align" },
+				names = { "--alignment", "-align" },
 				description = "Word alignment file",
 				required = true)
 		private String alignmentFile;
 
 		@Parameter(
-				names = { "-provenance", "-prov" },
+				names = { "--provenance", "-prov" },
 				description = "Provenance file",
 				required = true)
 		private String provenanceFile;
 
 		@Parameter(
-				names = { "-hdfsout", "-hdfs" },
+				names = { "--hdfsout", "-hdfs" },
 				description = "Output file name on HDFS",
 				required = true)
 		private String hdfsName;
