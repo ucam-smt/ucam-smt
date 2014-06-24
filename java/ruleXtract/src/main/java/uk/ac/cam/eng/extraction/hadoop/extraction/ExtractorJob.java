@@ -197,7 +197,7 @@ public class ExtractorJob extends Configured implements Tool {
 
 		try {
 			cmd.parse(args);
-			Configuration conf = new Configuration();
+			Configuration conf = getConf();
 			Util.ApplyConf(cmd, conf);
 			Job job = getJob(conf);
 			FileInputFormat.setInputPaths(job, params.input);
