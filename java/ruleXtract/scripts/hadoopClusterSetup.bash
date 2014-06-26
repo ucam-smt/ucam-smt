@@ -78,6 +78,7 @@ cat hadoop-1.2.1/conf/hadoop-env.sh.bak \
 ### set up passwordless and passphraseless ssh
 ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
 cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys
+ssh-add
 
 ### format HDFS
 hadoop-1.2.1/bin/hadoop namenode -format
