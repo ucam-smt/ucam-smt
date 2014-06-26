@@ -153,7 +153,7 @@ public class Target2SourceJob extends Configured implements Tool {
 	}
 
 	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new Source2TargetJob(), args);
+		int res = ToolRunner.run(new Target2SourceJob(), args);
 		System.exit(res);
 	}
 }
