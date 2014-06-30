@@ -56,8 +56,10 @@ tar -xzf hadoop-1.2.1.tar.gz
 ### download libraries
 wget http://search.maven.org/remotecontent?filepath=com/beust/jcommander/1.35/jcommander-1.35.jar -O jcommander-1.35.jar
 wget http://repo1.maven.org/maven2/org/apache/hbase/hbase/0.92.0/hbase-0.92.0.jar
+wget http://repo1.maven.org/maven2/com/google/guava/guava/r09/guava-r09.jar
 JCOMMANDER_JAR=$PWD/jcommander-1.35.jar
 HBASE_JAR=$PWD/hbase-0.92.0.jar
+GUAVA_JAR=$PWD/guava-r09.jar
 
 ### modify config files for pseudo-distributed setup
 cp hadoop-1.2.1/conf/core-site.xml hadoop-1.2.1/conf/core-site.xml.bak
@@ -80,7 +82,7 @@ cat hadoop-1.2.1/conf/mapred-site.xml.bak \
 cp hadoop-1.2.1/conf/hadoop-env.sh hadoop-1.2.1/conf/hadoop-env.sh.bak
 cat hadoop-1.2.1/conf/hadoop-env.sh.bak \
     | sed  "\;export JAVA_HOME=; a\export JAVA_HOME=$JAVA_HOME" \
-    | sed  "\;export HADOOP_CLASSPATH=; a\export HADOOP_CLASSPATH=$JCOMMANDER_JAR:$HBASE_JAR" \
+    | sed  "\;export HADOOP_CLASSPATH=; a\export HADOOP_CLASSPATH=$JCOMMANDER_JAR:$HBASE_JAR:$GUAVA_JAR" \
     > hadoop-1.2.1/conf/hadoop-env.sh
 
 ### set up passwordless and passphraseless ssh
