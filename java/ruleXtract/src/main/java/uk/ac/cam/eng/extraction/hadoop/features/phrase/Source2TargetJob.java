@@ -120,7 +120,7 @@ public class Source2TargetJob extends Configured implements Tool {
 		try {
 			cmd.parse(args);
 			Configuration conf = getConf();
-			Util.ApplyConf(cmd, conf);
+			Util.ApplyConf(cmd, "", conf);
 			Job job = getJob(conf);
 			FileInputFormat.setInputPaths(job, params.input);
 			FileOutputFormat.setOutputPath(job, new Path(params.output));

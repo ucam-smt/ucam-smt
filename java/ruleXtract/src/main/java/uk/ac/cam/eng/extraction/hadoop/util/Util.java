@@ -112,8 +112,9 @@ public class Util {
 		return value;
 	}
 
-	public static void ApplyConf(JCommander cmd, Configuration conf)
-			throws IllegalArgumentException, IllegalAccessException {
+	public static void ApplyConf(JCommander cmd, String suffix,
+			Configuration conf) throws IllegalArgumentException,
+			IllegalAccessException {
 		Object params = cmd.getObjects().get(0);
 		for (Field field : params.getClass().getDeclaredFields()) {
 			String name = field.getName();
@@ -138,9 +139,8 @@ public class Util {
 						// features
 						// of the current feature class.
 						nextFeatureIndex += feature.getNumberOfFeatures();
-						conf.setInt(
-								feature.getConfName() + "-" + provenance,
-								featureIndex);
+						conf.setInt(feature.getConfName() + "-" + provenance
+								+ suffix, featureIndex);
 					}
 				} else {
 					featureIndex = nextFeatureIndex;
@@ -148,7 +148,7 @@ public class Util {
 					// features
 					// of the current feature class.
 					nextFeatureIndex += feature.getNumberOfFeatures();
-					conf.setInt(feature.getConfName(), featureIndex);
+					conf.setInt(feature.getConfName() + suffix, featureIndex);
 				}
 			}
 		}

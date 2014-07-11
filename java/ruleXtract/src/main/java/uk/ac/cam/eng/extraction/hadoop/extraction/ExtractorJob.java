@@ -178,10 +178,10 @@ public class ExtractorJob extends Configured implements Tool {
 		@Parameter(names = { "--max_source_elements"}, description = "Maximum number of source elements (terminals and nonterminals) in a hiero rule")
 		public String max_source_elements = "5";
 
-		@Parameter(names = { "--max_terminal_length"}, description = "Maximum number of consecutive terminals in a hiero rule")
+		@Parameter(names = { "--max_terminal_length" }, description = "Maximum number of consecutive source terminals in a hiero rule")
 		public String max_terminal_length = "5";
 
-		@Parameter(names = { "--max_nonterminal_length"}, description = "Maximum number of terminals covered by a right-hand-side nonterminal in a hiero rule")
+		@Parameter(names = { "--max_nonterminal_length" }, description = "Maximum number of source terminals covered by a right-hand-side nonterminal in a hiero rule")
 		public String max_nonterminal_length = "10";
 
 		@Parameter(names = { "--provenance" }, description = "Comma-separated provenances")
@@ -198,7 +198,7 @@ public class ExtractorJob extends Configured implements Tool {
 		try {
 			cmd.parse(args);
 			Configuration conf = getConf();
-			Util.ApplyConf(cmd, conf);
+			Util.ApplyConf(cmd, "", conf);
 			Job job = getJob(conf);
 			FileInputFormat.setInputPaths(job, params.input);
 			FileOutputFormat.setOutputPath(job, new Path(params.output));
