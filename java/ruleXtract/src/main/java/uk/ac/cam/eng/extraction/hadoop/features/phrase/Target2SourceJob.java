@@ -33,8 +33,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import uk.ac.cam.eng.extraction.datatypes.Rule;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleInfoWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 import uk.ac.cam.eng.extraction.hadoop.features.phrase.Source2TargetJob.Source2TargetJobParameters;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
@@ -62,13 +62,13 @@ public class Target2SourceJob extends Configured implements Tool {
 
 	}
 
-	public static class Target2SourcePartioner extends
-			Partitioner<RuleWritable, ProvenanceCountMap> {
+	public static class Target2SourcePartitioner extends
+			Partitioner<RuleWritable, RuleInfoWritable> {
 
-		Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
+		Partitioner<Text, RuleInfoWritable> defaultPartitioner = new HashPartitioner<>();
 
 		@Override
-		public int getPartition(RuleWritable key, ProvenanceCountMap value,
+		public int getPartition(RuleWritable key, RuleInfoWritable value,
 				int numPartitions) {
 			return defaultPartitioner.getPartition(key.getTarget(), value,
 					numPartitions);
@@ -78,10 +78,10 @@ public class Target2SourceJob extends Configured implements Tool {
 
 	public static class SwappingMapper
 			extends
-			Mapper<RuleWritable, ProvenanceCountMap, RuleWritable, ProvenanceCountMap> {
+			Mapper<RuleWritable, RuleInfoWritable, RuleWritable, RuleInfoWritable> {
 
 		@Override
-		protected void map(RuleWritable key, ProvenanceCountMap value,
+		protected void map(RuleWritable key, RuleInfoWritable value,
 				Context context) throws IOException, InterruptedException {
 			RuleWritable newKey = key;
 			Rule r = new Rule(key);
@@ -100,13 +100,13 @@ public class Target2SourceJob extends Configured implements Tool {
 		job.setJarByClass(Target2SourceJob.class);
 		job.setJobName("Target2Source");
 		job.setSortComparatorClass(Target2SourceComparator.class);
-		job.setPartitionerClass(Target2SourcePartioner.class);
+		job.setPartitionerClass(Target2SourcePartitioner.class);
 		job.setMapperClass(SwappingMapper.class);
 		job.setReducerClass(MarginalReducer.class);
 		job.setMapOutputKeyClass(RuleWritable.class);
-		job.setMapOutputValueClass(ProvenanceCountMap.class);
+		job.setMapOutputValueClass(RuleInfoWritable.class);
 		job.setOutputKeyClass(RuleWritable.class);
-		job.setOutputValueClass(FeatureMap.class);
+		job.setOutputValueClass(AlignmentAndFeatureMap.class);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 		return job;

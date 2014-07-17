@@ -13,9 +13,6 @@
  *
  * Copyright 2014 - Juan Pino, Aurelien Waite, William Byrne
  *******************************************************************************/
-/**
- * 
- */
 
 package uk.ac.cam.eng.extraction.hadoop.datatypes;
 
@@ -23,62 +20,50 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.hadoop.io.ByteWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Writable;
 
 /**
- * Additional info about a rule that is used to build mapreduce features. The
- * RuleInfoWritable is the output value in the extraction mapper and the input
- * key in a mapreduce feature mapper. We don't need to make this class implement
- * WritableComparable because it should never be used as an input key to a
- * reducer.
- * 
  * @author Juan Pino
- * @date 28 May 2014
+ * @date 17 July 2014
  */
-public class RuleInfoWritable implements Writable {
+public class AlignmentAndFeatureMap implements Writable {
 
-	private ProvenanceCountMap provenance;
+	public static final AlignmentAndFeatureMap EMPTY = new AlignmentAndFeatureMap(
+			AlignmentCountMapWritable.EMPTY, FeatureMap.EMPTY);
+
 	private AlignmentCountMapWritable alignment;
+	private FeatureMap featureMap;
 
-	public RuleInfoWritable() {
-		provenance = new ProvenanceCountMap();
+	public AlignmentAndFeatureMap() {
 		alignment = new AlignmentCountMapWritable();
+		featureMap = new FeatureMap();
 	}
 
-	public RuleInfoWritable(RuleInfoWritable other) {
-		provenance = new ProvenanceCountMap();
-		alignment = new AlignmentCountMapWritable();
-		provenance.getInstance().putAll(other.provenance.getInstance());
-		alignment.putAll(other.alignment);
+	public AlignmentAndFeatureMap(AlignmentCountMapWritable alignment,
+			FeatureMap featureMap) {
+		this.alignment = alignment;
+		this.featureMap = featureMap;
 	}
 
-	public ProvenanceCountMap getProvenanceCountMap() {
-		return provenance;
+	public FeatureMap getFeatureMap() {
+		return featureMap;
 	}
 
-	public AlignmentCountMapWritable getAlignmentCountMapWritable() {
+	public AlignmentCountMapWritable getAlignment() {
 		return alignment;
 	}
 
-	public void clear() {
-		provenance.clear();
-		alignment.clear();
+	public void set(AlignmentCountMapWritable alignment, FeatureMap featureMap) {
+		this.alignment = alignment;
+		this.featureMap = featureMap;
 	}
 
-	public void putProvenanceCount(
-			ByteWritable provenanceName, IntWritable count) {
-		provenance.put(provenanceName, count);
+	public void setAlignment(AlignmentCountMapWritable alignment) {
+		this.alignment = alignment;
 	}
 
-	public void putAlignmentCount(AlignmentWritable align, int count) {
-		alignment.put(align, count);
-	}
-
-	public void increment(RuleInfoWritable other) {
-		provenance.increment(other.provenance);
-		alignment.increment(other.alignment);
+	public void setFeatureMap(FeatureMap featureMap) {
+		this.featureMap = featureMap;
 	}
 
 	/*
@@ -88,8 +73,8 @@ public class RuleInfoWritable implements Writable {
 	 */
 	@Override
 	public void write(DataOutput out) throws IOException {
-		provenance.write(out);
 		alignment.write(out);
+		featureMap.write(out);
 	}
 
 	/*
@@ -99,11 +84,11 @@ public class RuleInfoWritable implements Writable {
 	 */
 	@Override
 	public void readFields(DataInput in) throws IOException {
-		provenance.readFields(in);
 		alignment.readFields(in);
+		featureMap.readFields(in);
 	}
 
 	public String toString() {
-		return provenance.toString() + "\t" + alignment.toString();
+		return alignment.toString() + "\t" + featureMap.toString();
 	}
 }

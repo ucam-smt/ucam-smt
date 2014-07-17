@@ -20,15 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -36,7 +32,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleInfoWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
-import uk.ac.cam.eng.extraction.hadoop.util.Util;
 
 /**
  * 
@@ -82,34 +77,14 @@ public class RuleCompression {
 				Context context) throws IOException, InterruptedException {
 			provenanceMap.clear();
 			provenanceMap.put(ALL, ONE);
-			for (Writable prov : value.getProvenance().keySet()) {
-				if (prov2Id.keySet().contains(prov)) {
-					provenanceMap.put(prov2Id.get(prov), ONE);
-				}
-			}
+			// for (Writable prov : value.getProvenance().keySet()) {
+			// if (prov2Id.keySet().contains(prov)) {
+			// provenanceMap.put(prov2Id.get(prov), ONE);
+			// }
+			// }
 			context.write(key, provenanceMap);
 		}
 
-	}
-
-	public static class CompressReducer
-			extends
-			Reducer<RuleWritable, ProvenanceCountMap, RuleWritable, ProvenanceCountMap> {
-
-		private ProvenanceCountMap compressed = new ProvenanceCountMap();
-
-		@Override
-		protected void reduce(
-				RuleWritable key,
-				Iterable<ProvenanceCountMap> values,
-				Reducer<RuleWritable, ProvenanceCountMap, RuleWritable, ProvenanceCountMap>.Context context)
-				throws IOException, InterruptedException {
-			compressed.clear();
-			for (ProvenanceCountMap provs : values) {
-				compressed.increment(provs);
-			}
-			context.write(key, compressed);
-		}
 	}
 
 	public static Job getJob(Configuration conf) throws IOException {
@@ -121,8 +96,8 @@ public class RuleCompression {
 		job.setOutputKeyClass(RuleWritable.class);
 		job.setOutputValueClass(ProvenanceCountMap.class);
 		job.setMapperClass(CompressMapper.class);
-		job.setReducerClass(CompressReducer.class);
-		job.setCombinerClass(CompressReducer.class);
+		// job.setReducerClass(CompressReducer.class);
+		// job.setCombinerClass(CompressReducer.class);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 		FileOutputFormat.setCompressOutput(job, true);
@@ -139,15 +114,15 @@ public class RuleCompression {
 	 * @throws InterruptedException
 	 * @throws ClassNotFoundException
 	 */
-	public static void main(String[] args) throws IOException,
-			ClassNotFoundException, InterruptedException {
-		Configuration conf = new Configuration();
-		conf.set("mapred.reduce.child.java.opts", "-Xmx4096m");
-		Util.ApplyConf(args[2], conf);
-		Job job = getJob(conf);
-		FileInputFormat.setInputPaths(job, args[0]);
-		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-		job.waitForCompletion(true);
-	}
+	// public static void main(String[] args) throws IOException,
+	// ClassNotFoundException, InterruptedException {
+	// Configuration conf = new Configuration();
+	// conf.set("mapred.reduce.child.java.opts", "-Xmx4096m");
+	// Util.ApplyConf(args[2], conf);
+	// Job job = getJob(conf);
+	// FileInputFormat.setInputPaths(job, args[0]);
+	// FileOutputFormat.setOutputPath(job, new Path(args[1]));
+	// job.waitForCompletion(true);
+	// }
 
 }

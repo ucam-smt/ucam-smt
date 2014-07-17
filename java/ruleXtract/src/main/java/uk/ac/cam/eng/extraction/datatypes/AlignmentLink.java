@@ -13,30 +13,19 @@
  *
  * Copyright 2014 - Juan Pino, Aurelien Waite, William Byrne
  *******************************************************************************/
-package uk.ac.cam.eng.extraction.hadoop.merge;
 
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Partitioner;
-import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
-
-import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
+package uk.ac.cam.eng.extraction.datatypes;
 
 /**
- * 
- * @author Aurelien Waite
- * @date 28 May 2014
+ * @author Juan Pino
+ * @date 15 July 2014
  */
-public class MergePartitioner extends
-		Partitioner<RuleWritable, AlignmentAndFeatureMap> {
-
-	Partitioner<Text, AlignmentAndFeatureMap> defaultPartitioner = new HashPartitioner<>();
-
-	@Override
-	public int getPartition(RuleWritable key, AlignmentAndFeatureMap value,
-			int numPartitions) {
-		return defaultPartitioner.getPartition(key.getSource(), value,
-				numPartitions);
+public class AlignmentLink {
+	public AlignmentLink(int srcPos, int trgPos) {
+		sourcePosition = srcPos;
+		targetPosition = trgPos;
 	}
 
+	public int sourcePosition;
+	public int targetPosition;
 }

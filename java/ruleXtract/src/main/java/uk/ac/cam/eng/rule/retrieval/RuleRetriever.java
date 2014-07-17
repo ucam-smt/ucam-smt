@@ -53,7 +53,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import uk.ac.cam.eng.extraction.datatypes.Rule;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
 import uk.ac.cam.eng.rulebuilding.features.EnumRuleType;
@@ -136,7 +136,7 @@ public class RuleRetriever extends Configured implements Tool {
 		File[] names = dir.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
-				return name.contains("hfile");
+				return name.endsWith("hfile");
 			}
 		});
 		if (names.length == 0) {
@@ -417,7 +417,8 @@ public class RuleRetriever extends Configured implements Tool {
 				for (RuleWritable asciiConstraint : retriever.asciiConstraints) {
 					if (!retriever.foundAsciiConstraints
 							.contains(asciiConstraint)) {
-						features.writeRule(asciiConstraint, FeatureMap.EMPTY,
+						features.writeRule(asciiConstraint,
+								AlignmentAndFeatureMap.EMPTY,
 								EnumRuleType.ASCII_OOV_DELETE, out);
 					}
 				}
@@ -434,17 +435,18 @@ public class RuleRetriever extends Configured implements Tool {
 					if (retriever.foundTestVocab.contains(source)) {
 						deletionRuleWritable.setSource(source);
 						features.writeRule(deletionRuleWritable,
-								FeatureMap.EMPTY,
+								AlignmentAndFeatureMap.EMPTY,
 								EnumRuleType.ASCII_OOV_DELETE, out);
 					} else {
 						oovRuleWritable.setSource(source);
-						features.writeRule(oovRuleWritable, FeatureMap.EMPTY,
+						features.writeRule(oovRuleWritable,
+								AlignmentAndFeatureMap.EMPTY,
 								EnumRuleType.ASCII_OOV_DELETE, out);
 					}
 				}
 				// Glue rules
 				for (RuleWritable glueRule : retriever.getGlueRules()) {
-					features.writeRule(glueRule, FeatureMap.EMPTY,
+					features.writeRule(glueRule, AlignmentAndFeatureMap.EMPTY,
 							EnumRuleType.GLUE, out);
 				}
 			}

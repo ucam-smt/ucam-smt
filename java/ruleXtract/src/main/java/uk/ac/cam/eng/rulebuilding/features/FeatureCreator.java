@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import org.apache.hadoop.conf.Configuration;
 
 import uk.ac.cam.eng.extraction.datatypes.Rule;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 
@@ -156,11 +157,13 @@ public class FeatureCreator {
 	 * glueRule.getSecond(), conf); }
 	 */
 
-	public void writeRule(RuleWritable rule, FeatureMap features,
+	public void writeRule(RuleWritable rule, AlignmentAndFeatureMap features,
 			EnumRuleType ruleType, BufferedWriter out) {
 		SortedMap<Integer, Double> processedFeatures = createFeatures(rule,
-				features, ruleType);
+				features.getFeatureMap(), ruleType);
 		StringBuilder res = new StringBuilder();
+		// here we can append alignments: res.append(rule + " " +
+		// features.getAlignment())
 		res.append(rule);
 		for (int featureIndex : processedFeatures.keySet()) {
 			double featureValue = processedFeatures.get(featureIndex);

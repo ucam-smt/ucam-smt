@@ -38,6 +38,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
+import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.IntWritableCache;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
@@ -54,7 +55,7 @@ import uk.ac.cam.eng.util.Pair;
 public class RuleFilter {
 
 	private static class RuleCountComparator implements
-			Comparator<Pair<RuleWritable, FeatureMap>> {
+			Comparator<Pair<RuleWritable, AlignmentAndFeatureMap>> {
 
 		private final IntWritable countIndex;
 
@@ -62,11 +63,11 @@ public class RuleFilter {
 			this.countIndex = countIndex;
 		}
 
-		public int compare(Pair<RuleWritable, FeatureMap> a,
-				Pair<RuleWritable, FeatureMap> b) {
+		public int compare(Pair<RuleWritable, AlignmentAndFeatureMap> a,
+				Pair<RuleWritable, AlignmentAndFeatureMap> b) {
 			// We want descending order!
-			int countDiff = b.getSecond().get(countIndex)
-					.compareTo(a.getSecond().get(countIndex));
+			int countDiff = b.getSecond().getFeatureMap().get(countIndex)
+					.compareTo(a.getSecond().getFeatureMap().get(countIndex));
 			if (countDiff != 0) {
 				return countDiff;
 			} else {
@@ -198,7 +199,8 @@ public class RuleFilter {
 		}
 	}
 
-	public Comparator<Pair<RuleWritable, FeatureMap>> getComparator(String prov) {
+	public Comparator<Pair<RuleWritable, AlignmentAndFeatureMap>> getComparator(
+			String prov) {
 		return comparators.get(prov);
 	}
 
@@ -212,17 +214,18 @@ public class RuleFilter {
 		return true;
 	}
 
-	public List<Pair<RuleWritable, FeatureMap>> filterRulesBySource(
+	public List<Pair<RuleWritable, AlignmentAndFeatureMap>> filterRulesBySource(
 			SidePattern sourcePattern,
-			SortedSet<Pair<RuleWritable, FeatureMap>> rules, String provenance) {
-		List<Pair<RuleWritable, FeatureMap>> results = new ArrayList<>();
+			SortedSet<Pair<RuleWritable, AlignmentAndFeatureMap>> rules,
+			String provenance) {
+		List<Pair<RuleWritable, AlignmentAndFeatureMap>> results = new ArrayList<>();
 		int numberTranslations = 0;
 		int numberTranslationsMonotone = 0; // case with more than 1 NT
 		int numberTranslationsInvert = 0;
 		int prevCount = -1;
 		IntWritable countIndex = IntWritableCache.createIntWritable(s2tIndices
 				.get(provenance) + 1);
-		for (Pair<RuleWritable, FeatureMap> entry : rules) {
+		for (Pair<RuleWritable, AlignmentAndFeatureMap> entry : rules) {
 			// number of translations per source threshold
 			// in case of ties we either keep or don't keep the ties
 			// depending on the config
@@ -231,7 +234,8 @@ public class RuleFilter {
 					entry.getFirst());
 			boolean doNotSkip = skipPatterns == null
 					|| !skipPatterns.contains(rulePattern);
-			int count = (int) entry.getSecond().get(countIndex).get();
+			int count = (int) entry.getSecond().getFeatureMap().get(countIndex)
+					.get();
 
 			if (doNotSkip && !sourcePattern.isPhrase()) {
 				if (sourcePattern.hasMoreThan1NT()) {

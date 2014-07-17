@@ -16,7 +16,6 @@
 package uk.ac.cam.eng.rule.retrieval;
 
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ import org.apache.hadoop.hbase.util.BloomFilter;
 import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.Text;
 
-import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 import uk.ac.cam.eng.extraction.hadoop.features.lexical.TTableClient;
@@ -69,7 +68,7 @@ public class HFileRuleQuery implements Runnable {
 
 	private final TTableClient t2sClient;
 
-	private final LinkedList<Pair<RuleWritable, FeatureMap>> queue = new LinkedList<>();
+	private final LinkedList<Pair<RuleWritable, AlignmentAndFeatureMap>> queue = new LinkedList<>();
 
 	private Configuration conf;
 
@@ -99,9 +98,9 @@ public class HFileRuleQuery implements Runnable {
 	private void drainQueue() throws IOException {
 		s2tClient.queryRules(queue);
 		t2sClient.queryRules(queue);
-		for (Pair<RuleWritable, FeatureMap> entry : queue) {
+		for (Pair<RuleWritable, AlignmentAndFeatureMap> entry : queue) {
 			RuleWritable rule = entry.getFirst();
-			FeatureMap rawFeatures = entry.getSecond();
+			AlignmentAndFeatureMap rawFeatures = entry.getSecond();
 			if (retriever.asciiConstraints.contains(rule)) {
 				RuleWritable asciiRule = new RuleWritable(rule);
 				asciiRule.setLeftHandSide(new Text(
@@ -112,8 +111,8 @@ public class HFileRuleQuery implements Runnable {
 				features.writeRule(rule, rawFeatures,
 						EnumRuleType.ASCII_OOV_DELETE, out);
 			} else {
-				features.writeRule(rule, rawFeatures, EnumRuleType.EXTRACTED,
-						out);
+				features.writeRule(rule, rawFeatures,
+						EnumRuleType.EXTRACTED, out);
 			}
 
 		}
@@ -151,7 +150,7 @@ public class HFileRuleQuery implements Runnable {
 						}
 					}
 					Set<RuleWritable> existingRules = new HashSet<>();
-					List<Pair<RuleWritable, FeatureMap>> allFiltered = new ArrayList<>();
+					List<Pair<RuleWritable, AlignmentAndFeatureMap>> allFiltered = new ArrayList<>();
 					List<String> provenances = new ArrayList<>();
 					provenances.add("");
 					provenances.addAll(conf
@@ -161,23 +160,25 @@ public class HFileRuleQuery implements Runnable {
 								&& !provenance.equals("")) {
 							continue;
 						}
-						SortedSet<Pair<RuleWritable, FeatureMap>> rules = new TreeSet<Pair<RuleWritable, FeatureMap>>(
+						SortedSet<Pair<RuleWritable, AlignmentAndFeatureMap>> rules = new TreeSet<Pair<RuleWritable, AlignmentAndFeatureMap>>(
 								retriever.filter.getComparator(provenance));
-						for (Pair<RuleWritable, FeatureMap> entry : reader
+						for (Pair<RuleWritable, AlignmentAndFeatureMap> entry : reader
 								.getRulesForSource()) {
 							RuleWritable rule = entry.getFirst();
-							FeatureMap rawFeatures = entry.getSecond();
+							AlignmentAndFeatureMap rawFeatures = entry
+									.getSecond();
 							if (retriever.filter.filterRule(sourcePattern,
-									rule, rawFeatures, provenance)) {
+									rule, rawFeatures.getFeatureMap(),
+									provenance)) {
 								continue;
 							}
 							rules.add(Pair.createPair(new RuleWritable(rule),
 									rawFeatures));
 						}
-						List<Pair<RuleWritable, FeatureMap>> filtered = retriever.filter
+						List<Pair<RuleWritable, AlignmentAndFeatureMap>> filtered = retriever.filter
 								.filterRulesBySource(sourcePattern, rules,
 										provenance);
-						for (Pair<RuleWritable, FeatureMap> ruleFiltered : filtered) {
+						for (Pair<RuleWritable, AlignmentAndFeatureMap> ruleFiltered : filtered) {
 							if (!existingRules
 									.contains(ruleFiltered.getFirst())) {
 								allFiltered.add(ruleFiltered);
@@ -202,15 +203,4 @@ public class HFileRuleQuery implements Runnable {
 				.printf("Query took %d seconds\n", stopWatch.getTime() / 1000);
 
 	}
-
-	/**
-	 * @param args
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 */
-	public static void main(String[] args) throws FileNotFoundException,
-			IOException {
-
-	}
-
 }

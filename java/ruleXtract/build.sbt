@@ -7,6 +7,9 @@ version := "1.0"
 
 organization := "University of Cambridge"
 
+// uncomment this for debugging
+// javacOptions += "-g"
+
 // gives bug when generating .project/.classpath for eclipse
 // ("eclipse cannot nest output folder")
 //target := file("bin")

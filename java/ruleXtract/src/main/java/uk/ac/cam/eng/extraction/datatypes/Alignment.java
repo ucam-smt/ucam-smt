@@ -158,5 +158,144 @@ public final class Alignment {
 	public boolean isTargetAligned(int targetIndex) {
 		return (t2s.get(targetIndex) != null);
 	}
+	
+	public List<AlignmentLink> getAlignmentForRule(int sourceStartIndex,
+			int sourceEndIndex, int targetStartIndex, int targetEndIndex) {
+		List<AlignmentLink> ruleAlignment = new ArrayList<AlignmentLink>();
+		for (int srcIdx = sourceStartIndex; srcIdx <= sourceEndIndex; ++srcIdx) {
+			if (!isSourceAligned(srcIdx)) {
+				continue;
+			}
+			for (int trgIdx : s2t.get(srcIdx)) {
+				if (targetStartIndex <= trgIdx && trgIdx <= targetEndIndex) {
+					ruleAlignment.add(new AlignmentLink(srcIdx
+							- sourceStartIndex, trgIdx - targetStartIndex));
+				}
+			}
+		}
+		return ruleAlignment;
+	}
 
+	public List<AlignmentLink> getAlignmentForRule(int sourceStartIndex,
+			int sourceEndIndex, int minTargetIndex, int maxTargetIndex,
+			int sourceStartIndexX, int sourceEndIndexX, int minTargetIndexX,
+			int maxTargetIndexX) {
+		List<AlignmentLink> ruleAlignment = new ArrayList<AlignmentLink>();
+		int srcXSpanMinusOne = sourceEndIndexX - sourceStartIndexX;
+		int trgXSpanMinusOne = maxTargetIndexX - minTargetIndexX;
+		for (int srcIdx = sourceStartIndex; srcIdx <= sourceEndIndex; ++srcIdx) {
+			if (!isSourceAligned(srcIdx)) {
+				continue;
+			}
+			if (sourceStartIndexX <= srcIdx && srcIdx <= sourceEndIndexX) {
+				continue;
+			}
+			for (int trgIdx : s2t.get(srcIdx)) {
+				if ((minTargetIndex <= trgIdx && trgIdx < minTargetIndexX)
+						|| (maxTargetIndexX < trgIdx && trgIdx <= maxTargetIndex)) {
+					int ruleSrcIdx = -1, ruleTrgIdx = -1;
+					if (srcIdx < sourceStartIndexX) {
+						ruleSrcIdx = srcIdx - sourceStartIndex;
+					} else if (srcIdx > sourceEndIndexX) {
+						ruleSrcIdx = srcIdx - sourceStartIndex
+								- srcXSpanMinusOne;
+					}
+					if (trgIdx < minTargetIndexX) {
+						ruleTrgIdx = trgIdx - minTargetIndex;
+					} else if (trgIdx > maxTargetIndexX) {
+						ruleTrgIdx = trgIdx - minTargetIndex
+								- trgXSpanMinusOne;
+					}
+					ruleAlignment
+							.add(new AlignmentLink(ruleSrcIdx, ruleTrgIdx));
+				}
+			}
+		}
+		// add alignment between the nonterminals
+		ruleAlignment.add(new AlignmentLink(sourceStartIndexX
+				- sourceStartIndex, minTargetIndexX - minTargetIndex));
+		return ruleAlignment;
+	}
+
+	public List<AlignmentLink> getAlignmentForRule(int sourceStartIndex,
+			int sourceEndIndex, int minTargetIndex, int maxTargetIndex,
+			int sourceStartIndexX, int sourceEndIndexX, int minTargetIndexX,
+			int maxTargetIndexX, int sourceStartIndexX2, int sourceEndIndexX2,
+			int minTargetIndexX2, int maxTargetIndexX2) {
+		List<AlignmentLink> ruleAlignment = new ArrayList<AlignmentLink>();
+		int srcXSpanMinusOne = sourceEndIndexX - sourceStartIndexX;
+		int srcX2SpanMinusOne = sourceEndIndexX2 - sourceStartIndexX2;
+		int firstTrgNTSpanMinusOne, secondTrgNTSpanMinusOne;
+		int minTargetIndexFirstX, maxTargetIndexFirstX, minTargetIndexSecondX, maxTargetIndexSecondX;
+		if (minTargetIndexX2 > maxTargetIndexX) {
+			firstTrgNTSpanMinusOne = maxTargetIndexX - minTargetIndexX;
+			secondTrgNTSpanMinusOne = maxTargetIndexX2 - minTargetIndexX2;
+			minTargetIndexFirstX = minTargetIndexX;
+			maxTargetIndexFirstX = maxTargetIndexX;
+			minTargetIndexSecondX = minTargetIndexX2;
+			maxTargetIndexSecondX = maxTargetIndexX2;
+		} else {
+			firstTrgNTSpanMinusOne = maxTargetIndexX2 - minTargetIndexX2;
+			secondTrgNTSpanMinusOne = maxTargetIndexX - minTargetIndexX;
+			minTargetIndexFirstX = minTargetIndexX2;
+			maxTargetIndexFirstX = maxTargetIndexX2;
+			minTargetIndexSecondX = minTargetIndexX;
+			maxTargetIndexSecondX = maxTargetIndexX;
+		}
+		for (int srcIdx = sourceStartIndex; srcIdx <= sourceEndIndex; ++srcIdx) {
+			if (!isSourceAligned(srcIdx)) {
+				continue;
+			}
+			if ((sourceStartIndexX <= srcIdx && srcIdx <= sourceEndIndexX)
+					|| (sourceStartIndexX2 <= srcIdx && srcIdx <= sourceEndIndexX2)) {
+				continue;
+			}
+			for (int trgIdx : s2t.get(srcIdx)) {
+				if (trgIdx < minTargetIndex
+						|| trgIdx > maxTargetIndex
+						|| (minTargetIndexX <= trgIdx && trgIdx <= maxTargetIndexX)
+						|| (minTargetIndexX2 <= trgIdx && trgIdx <= maxTargetIndexX2)) {
+					continue;
+				}
+				int ruleSrcIdx = -1, ruleTrgIdx = -1;
+				if (srcIdx < sourceStartIndexX) {
+					ruleSrcIdx = srcIdx - sourceStartIndex;
+				} else if (sourceEndIndexX < srcIdx
+						&& srcIdx < sourceStartIndexX2) {
+					ruleSrcIdx = srcIdx - sourceStartIndex - srcXSpanMinusOne;
+				} else if (srcIdx > sourceEndIndexX2) {
+					ruleSrcIdx = srcIdx - sourceStartIndex - srcXSpanMinusOne
+							- srcX2SpanMinusOne;
+				}
+				if (trgIdx < minTargetIndexFirstX) {
+					ruleTrgIdx = trgIdx - minTargetIndex;
+				} else if (maxTargetIndexFirstX < trgIdx
+						&& trgIdx < minTargetIndexSecondX) {
+					ruleTrgIdx = trgIdx - minTargetIndex
+							- firstTrgNTSpanMinusOne;
+				} else if (trgIdx > maxTargetIndexSecondX) {
+					ruleTrgIdx = trgIdx - minTargetIndex
+							- firstTrgNTSpanMinusOne - secondTrgNTSpanMinusOne;
+				}
+				ruleAlignment
+							.add(new AlignmentLink(ruleSrcIdx, ruleTrgIdx));
+			}
+		}
+		// add alignment between the nonterminals
+		if (minTargetIndexX2 > maxTargetIndexX) {
+			ruleAlignment.add(new AlignmentLink(sourceStartIndexX
+					- sourceStartIndex, minTargetIndexX - minTargetIndex));
+			ruleAlignment.add(new AlignmentLink(sourceStartIndexX2
+					- sourceStartIndex - srcXSpanMinusOne, minTargetIndexX2
+					- minTargetIndex - firstTrgNTSpanMinusOne));
+		} else {
+			ruleAlignment.add(new AlignmentLink(sourceStartIndexX
+					- sourceStartIndex, minTargetIndexX - minTargetIndex
+					- firstTrgNTSpanMinusOne));
+			ruleAlignment.add(new AlignmentLink(sourceStartIndexX2
+					- sourceStartIndex - srcXSpanMinusOne, minTargetIndexX2
+					- minTargetIndex));
+		}
+		return ruleAlignment;
+	}
 }

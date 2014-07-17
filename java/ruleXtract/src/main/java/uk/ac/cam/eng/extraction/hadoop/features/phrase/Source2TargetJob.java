@@ -31,8 +31,8 @@ import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleInfoWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
 
@@ -59,13 +59,13 @@ public class Source2TargetJob extends Configured implements Tool {
 
 	}
 
-	public static class Source2TargetPartioner extends
-			Partitioner<RuleWritable, ProvenanceCountMap> {
+	public static class Source2TargetPartitioner extends
+			Partitioner<RuleWritable, RuleInfoWritable> {
 
-		Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
+		Partitioner<Text, RuleInfoWritable> defaultPartitioner = new HashPartitioner<>();
 
 		@Override
-		public int getPartition(RuleWritable key, ProvenanceCountMap value,
+		public int getPartition(RuleWritable key, RuleInfoWritable value,
 				int numPartitions) {
 			return defaultPartitioner.getPartition(key.getSource(), value,
 					numPartitions);
@@ -74,7 +74,6 @@ public class Source2TargetJob extends Configured implements Tool {
 	}
 
 	public static Job getJob(Configuration conf) throws IOException {
-		// conf.set("mapred.reduce.child.java.opts", "-Xmx5128m");
 		conf.set("mapred.map.child.java.opts", "-Xmx200m");
 		conf.set("mapred.reduce.child.java.opts", "-Xmx5128m");
 		conf.setBoolean(MarginalReducer.SOURCE_TO_TARGET, true);
@@ -82,12 +81,12 @@ public class Source2TargetJob extends Configured implements Tool {
 		job.setJarByClass(Source2TargetJob.class);
 		job.setJobName("Source2Taget");
 		job.setSortComparatorClass(Source2TargetComparator.class);
-		job.setPartitionerClass(Source2TargetPartioner.class);
+		job.setPartitionerClass(Source2TargetPartitioner.class);
 		job.setReducerClass(MarginalReducer.class);
 		job.setMapOutputKeyClass(RuleWritable.class);
-		job.setMapOutputValueClass(ProvenanceCountMap.class);
+		job.setMapOutputValueClass(RuleInfoWritable.class);
 		job.setOutputKeyClass(RuleWritable.class);
-		job.setOutputValueClass(FeatureMap.class);
+		job.setOutputValueClass(AlignmentAndFeatureMap.class);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 		return job;

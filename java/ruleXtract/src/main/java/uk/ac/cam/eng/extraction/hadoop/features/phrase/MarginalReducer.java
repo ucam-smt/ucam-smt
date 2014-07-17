@@ -33,8 +33,10 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 
 import uk.ac.cam.eng.extraction.datatypes.Rule;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleInfoWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 
 /**
@@ -47,15 +49,15 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
  * @date 28 May 2014
  */
 public class MarginalReducer extends
-		Reducer<RuleWritable, ProvenanceCountMap, RuleWritable, FeatureMap> {
+		Reducer<RuleWritable, RuleInfoWritable, RuleWritable, AlignmentAndFeatureMap> {
 
 	public static abstract class MRPartitioner extends
-			Partitioner<RuleWritable, ProvenanceCountMap> {
+			Partitioner<RuleWritable, RuleInfoWritable> {
 
-		Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
+		Partitioner<Text, RuleInfoWritable> defaultPartitioner = new HashPartitioner<>();
 
 		@Override
-		public int getPartition(RuleWritable key, ProvenanceCountMap value,
+		public int getPartition(RuleWritable key, RuleInfoWritable value,
 				int numPartitions) {
 			return defaultPartitioner.getPartition(getMarginal(key), null,
 					numPartitions);
@@ -227,9 +229,9 @@ public class MarginalReducer extends
 	private static class RuleCount {
 
 		final RuleWritable rule;
-		final ProvenanceCountMap counts;
+		final RuleInfoWritable counts;
 
-		public RuleCount(RuleWritable rule, ProvenanceCountMap counts) {
+		public RuleCount(RuleWritable rule, RuleInfoWritable counts) {
 			this.rule = rule;
 			this.counts = counts;
 		}
@@ -253,6 +255,8 @@ public class MarginalReducer extends
 	int[] mappings;
 
 	private FeatureMap features = new FeatureMap();
+
+	private AlignmentAndFeatureMap alignmentAndFeatures = new AlignmentAndFeatureMap();
 
 	private Text getMarginal(RuleWritable rule) {
 		if (source2Target) {
@@ -289,7 +293,8 @@ public class MarginalReducer extends
 			InterruptedException {
 		for (RuleCount rw : rules) {
 			features.clear();
-			for (Entry<ByteWritable, IntWritable> entry : rw.counts.entrySet()) {
+			for (Entry<ByteWritable, IntWritable> entry : rw.counts
+					.getProvenanceCountMap().entrySet()) {
 				double probability = (double) entry.getValue().get()
 						/ (double) totals.get(entry.getKey()).get();
 				int featureIndex = mappings[(int) entry.getKey().get()];
@@ -305,7 +310,10 @@ public class MarginalReducer extends
 					outKey = new RuleWritable(r.invertNonTerminals());
 				}
 			}
-			context.write(outKey, features);
+			// add alignment info
+			alignmentAndFeatures.set(rw.counts.getAlignmentCountMapWritable(),
+					features);
+			context.write(outKey, alignmentAndFeatures);
 		}
 
 	}
@@ -320,9 +328,8 @@ public class MarginalReducer extends
 			if (marginal.getLength() == 0) {
 				marginal.set(getMarginal(key));
 			}
-			Iterator<ProvenanceCountMap> it = context.getValues().iterator();
-			ProvenanceCountMap counts = it.next();
-			// System.out.println(key + "\t" + counts);
+			Iterator<RuleInfoWritable> it = context.getValues().iterator();
+			RuleInfoWritable currentRuleInfo = it.next();
 
 			if (it.hasNext()) {
 				throw new RuntimeException("Non-unique rule! " + key);
@@ -334,8 +341,8 @@ public class MarginalReducer extends
 			}
 			marginal.set(getMarginal(key));
 			ruleCounts.add(new RuleCount(new RuleWritable(key),
-					new ProvenanceCountMap(counts)));
-			totals.increment(counts);
+					new RuleInfoWritable(currentRuleInfo)));
+			totals.increment(currentRuleInfo.getProvenanceCountMap());
 		}
 		marginalReduce(ruleCounts, totals, context);
 		cleanup(context);

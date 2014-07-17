@@ -116,6 +116,7 @@ public class ExtractorDataLoader {
 				arrayWritable.set(array);
 				writer.append(metadata, arrayWritable);
 			}
+			writer.close();
 		}
 	}
 

@@ -35,7 +35,7 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 
 import uk.ac.cam.eng.extraction.datatypes.Rule;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
@@ -120,9 +120,10 @@ public class TTableClient implements Closeable {
 
 	}
 
-	public void queryRules(List<Pair<RuleWritable, FeatureMap>> rules)
+	public void queryRules(
+			List<Pair<RuleWritable, AlignmentAndFeatureMap>> rules)
 			throws IOException {
-		for (Pair<RuleWritable, FeatureMap> entry : rules) {
+		for (Pair<RuleWritable, AlignmentAndFeatureMap> entry : rules) {
 			RuleWritable key = entry.getFirst();
 			prob.buildQuery(key, mapping.length, wordAlignments);
 		}
@@ -134,17 +135,17 @@ public class TTableClient implements Closeable {
 				wordAlignments.put(keys.get(i), results[i]);
 			}
 		}
-		for (Pair<RuleWritable, FeatureMap> entry : rules) {
+		for (Pair<RuleWritable, AlignmentAndFeatureMap> entry : rules) {
 			RuleWritable key = entry.getFirst();
-			FeatureMap features = entry.getSecond();
+			AlignmentAndFeatureMap features = entry.getSecond();
 			for (int j = 0; j < mapping.length; ++j) {
 				double lexProb = prob.value(key, (byte) j, wordAlignments);
-				if (features.containsKey(mapping[j])) {
+				if (features.getFeatureMap().containsKey(mapping[j])) {
 					throw new RuntimeException(
 							"FeatureMap already contains entry for "
 									+ mapping[j] + " " + key + " " + features);
 				}
-				features.put(mapping[j], lexProb);
+				features.getFeatureMap().put(mapping[j], lexProb);
 			}
 		}
 	}
@@ -178,8 +179,8 @@ public class TTableClient implements Closeable {
 					String[] fields = line.split("\\s");
 					RuleWritable rule = new RuleWritable(new Rule(fields[0],
 							fields[1]));
-					FeatureMap map = new FeatureMap();
-					List<Pair<RuleWritable, FeatureMap>> query = new ArrayList<>();
+					AlignmentAndFeatureMap map = new AlignmentAndFeatureMap();
+					List<Pair<RuleWritable, AlignmentAndFeatureMap>> query = new ArrayList<>();
 					query.add(Pair.createPair(rule, map));
 					client.queryRules(query);
 					System.out.println(rule + "\t" + map);

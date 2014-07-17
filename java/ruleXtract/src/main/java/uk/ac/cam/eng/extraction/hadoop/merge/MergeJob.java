@@ -29,6 +29,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.TargetFeatureList;
@@ -49,30 +50,35 @@ import com.beust.jcommander.Parameters;
 public class MergeJob extends Configured implements Tool {
 
 	public static class MergeCombiner extends
-			Reducer<RuleWritable, FeatureMap, RuleWritable, FeatureMap> {
+			Reducer<RuleWritable, AlignmentAndFeatureMap, RuleWritable, AlignmentAndFeatureMap> {
 
 		private FeatureMap features = new FeatureMap();
+		private AlignmentAndFeatureMap alignmentAndFeatures = new AlignmentAndFeatureMap();
 
 		@Override
-		protected void reduce(RuleWritable key, Iterable<FeatureMap> values,
+		protected void reduce(RuleWritable key,
+				Iterable<AlignmentAndFeatureMap> values,
 				Context context) throws IOException, InterruptedException {
 			features.clear();
-			for (FeatureMap value : values) {
-				features.merge(value);
+			for (AlignmentAndFeatureMap value : values) {
+				features.merge(value.getFeatureMap());
+				alignmentAndFeatures.setAlignment(value.getAlignment());
 			}
-			context.write(key, features);
+			alignmentAndFeatures.setFeatureMap(features);
+			context.write(key, alignmentAndFeatures);
 		}
 	}
 
 	public static class MergeReducer extends
-			Reducer<RuleWritable, FeatureMap, Text, TargetFeatureList> {
+			Reducer<RuleWritable, AlignmentAndFeatureMap, Text, TargetFeatureList> {
 
 		private TargetFeatureList list = new TargetFeatureList();
 
 		private Text source = new Text();
 
 		@Override
-		protected void reduce(RuleWritable key, Iterable<FeatureMap> values,
+		protected void reduce(RuleWritable key,
+				Iterable<AlignmentAndFeatureMap> values,
 				Context context) throws IOException, InterruptedException {
 			// First rule!
 			if (source.getLength() == 0) {
@@ -84,10 +90,14 @@ public class MergeJob extends Configured implements Tool {
 				source.set(key.getSource());
 			}
 			FeatureMap features = new FeatureMap();
-			for (FeatureMap value : values) {
-				features.merge(value);
+			AlignmentAndFeatureMap alignmentAndFeatures = new AlignmentAndFeatureMap();
+			for (AlignmentAndFeatureMap value : values) {
+				features.merge(value.getFeatureMap());
+				alignmentAndFeatures.setAlignment(value.getAlignment());
 			}
-			list.add(Pair.createPair(new Text(key.getTarget()), features));
+			alignmentAndFeatures.setFeatureMap(features);
+			list.add(Pair.createPair(new Text(key.getTarget()),
+					alignmentAndFeatures));
 		}
 
 		@Override
@@ -111,9 +121,9 @@ public class MergeJob extends Configured implements Tool {
 		job.setReducerClass(MergeReducer.class);
 		job.setCombinerClass(MergeCombiner.class);
 		job.setMapOutputKeyClass(RuleWritable.class);
-		job.setMapOutputValueClass(FeatureMap.class);
+		job.setMapOutputValueClass(AlignmentAndFeatureMap.class);
 		job.setOutputKeyClass(RuleWritable.class);
-		job.setOutputValueClass(FeatureMap.class);
+		job.setOutputValueClass(AlignmentAndFeatureMap.class);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SimpleHFileOutputFormat.class);
 		return job;
