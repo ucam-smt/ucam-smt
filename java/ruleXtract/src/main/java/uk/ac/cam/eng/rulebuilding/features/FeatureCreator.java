@@ -160,7 +160,7 @@ public class FeatureCreator {
 	public void writeRule(RuleWritable rule, AlignmentAndFeatureMap features,
 			EnumRuleType ruleType, BufferedWriter out) {
 		SortedMap<Integer, Double> processedFeatures = createFeatures(rule,
-				features.getFeatureMap(), ruleType);
+				features.getSecond(), ruleType);
 		StringBuilder res = new StringBuilder();
 		// here we can append alignments: res.append(rule + " " +
 		// features.getAlignment())

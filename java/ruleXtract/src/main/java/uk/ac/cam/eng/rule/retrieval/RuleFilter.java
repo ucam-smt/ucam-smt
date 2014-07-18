@@ -66,8 +66,8 @@ public class RuleFilter {
 		public int compare(Pair<RuleWritable, AlignmentAndFeatureMap> a,
 				Pair<RuleWritable, AlignmentAndFeatureMap> b) {
 			// We want descending order!
-			int countDiff = b.getSecond().getFeatureMap().get(countIndex)
-					.compareTo(a.getSecond().getFeatureMap().get(countIndex));
+			int countDiff = b.getSecond().getSecond().get(countIndex)
+					.compareTo(a.getSecond().getSecond().get(countIndex));
 			if (countDiff != 0) {
 				return countDiff;
 			} else {
@@ -234,7 +234,7 @@ public class RuleFilter {
 					entry.getFirst());
 			boolean doNotSkip = skipPatterns == null
 					|| !skipPatterns.contains(rulePattern);
-			int count = (int) entry.getSecond().getFeatureMap().get(countIndex)
+			int count = (int) entry.getSecond().getSecond().get(countIndex)
 					.get();
 
 			if (doNotSkip && !sourcePattern.isPhrase()) {

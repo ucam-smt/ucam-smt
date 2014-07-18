@@ -168,7 +168,7 @@ public class HFileRuleQuery implements Runnable {
 							AlignmentAndFeatureMap rawFeatures = entry
 									.getSecond();
 							if (retriever.filter.filterRule(sourcePattern,
-									rule, rawFeatures.getFeatureMap(),
+									rule, rawFeatures.getSecond(),
 									provenance)) {
 								continue;
 							}

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.file.tfile.Utils;
 
 /**
  * @author Juan Pino
@@ -53,6 +54,15 @@ public class AlignmentCountMapWritable extends
 		}
 	}
 
+	public void merge(AlignmentCountMapWritable other) {
+		int expectedSize = size() + other.size();
+		putAll(other);
+		if (expectedSize != size()) {
+			throw new RuntimeException("Merging twice the same alignment "
+					+ this + other);
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -60,10 +70,10 @@ public class AlignmentCountMapWritable extends
 	 */
 	@Override
 	public void write(DataOutput out) throws IOException {
-		out.writeInt(size());
+		Utils.writeVInt(out, size());
 		for (AlignmentWritable a : keySet()) {
 			a.write(out);
-			out.writeInt(get(a));
+			Utils.writeVInt(out, get(a));
 		}
 	}
 
@@ -75,11 +85,11 @@ public class AlignmentCountMapWritable extends
 	@Override
 	public void readFields(DataInput in) throws IOException {
 		clear();
-		int size = in.readInt();
+		int size = Utils.readVInt(in);
 		for (int i = 0; i < size; ++i) {
 			AlignmentWritable a = new AlignmentWritable();
 			a.readFields(in);
-			int alignmentCount = in.readInt();
+			int alignmentCount = Utils.readVInt(in);
 			put(a, alignmentCount);
 		}
 	}

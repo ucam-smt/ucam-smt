@@ -16,79 +16,33 @@
 
 package uk.ac.cam.eng.extraction.hadoop.datatypes;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-import org.apache.hadoop.io.Writable;
 
 /**
  * @author Juan Pino
  * @date 17 July 2014
  */
-public class AlignmentAndFeatureMap implements Writable {
+public class AlignmentAndFeatureMap extends
+		PairWritable<AlignmentCountMapWritable, FeatureMap> {
 
 	public static final AlignmentAndFeatureMap EMPTY = new AlignmentAndFeatureMap(
 			AlignmentCountMapWritable.EMPTY, FeatureMap.EMPTY);
 
-	private AlignmentCountMapWritable alignment;
-	private FeatureMap featureMap;
-
 	public AlignmentAndFeatureMap() {
-		alignment = new AlignmentCountMapWritable();
-		featureMap = new FeatureMap();
+		super(AlignmentCountMapWritable.class, FeatureMap.class);
 	}
 
 	public AlignmentAndFeatureMap(AlignmentCountMapWritable alignment,
-			FeatureMap featureMap) {
-		this.alignment = alignment;
-		this.featureMap = featureMap;
+			FeatureMap features) {
+		super(alignment, features);
 	}
 
-	public FeatureMap getFeatureMap() {
-		return featureMap;
+	public void clear() {
+		first.clear();
+		second.clear();
 	}
 
-	public AlignmentCountMapWritable getAlignment() {
-		return alignment;
-	}
-
-	public void set(AlignmentCountMapWritable alignment, FeatureMap featureMap) {
-		this.alignment = alignment;
-		this.featureMap = featureMap;
-	}
-
-	public void setAlignment(AlignmentCountMapWritable alignment) {
-		this.alignment = alignment;
-	}
-
-	public void setFeatureMap(FeatureMap featureMap) {
-		this.featureMap = featureMap;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.hadoop.io.Writable#write(java.io.DataOutput)
-	 */
-	@Override
-	public void write(DataOutput out) throws IOException {
-		alignment.write(out);
-		featureMap.write(out);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.hadoop.io.Writable#readFields(java.io.DataInput)
-	 */
-	@Override
-	public void readFields(DataInput in) throws IOException {
-		alignment.readFields(in);
-		featureMap.readFields(in);
-	}
-
-	public String toString() {
-		return alignment.toString() + "\t" + featureMap.toString();
+	public void merge(AlignmentAndFeatureMap other) {
+		first.merge(other.first);
+		second.merge(other.second);
 	}
 }

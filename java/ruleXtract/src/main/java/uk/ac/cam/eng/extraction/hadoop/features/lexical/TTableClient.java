@@ -140,12 +140,12 @@ public class TTableClient implements Closeable {
 			AlignmentAndFeatureMap features = entry.getSecond();
 			for (int j = 0; j < mapping.length; ++j) {
 				double lexProb = prob.value(key, (byte) j, wordAlignments);
-				if (features.getFeatureMap().containsKey(mapping[j])) {
+				if (features.getSecond().containsKey(mapping[j])) {
 					throw new RuntimeException(
 							"FeatureMap already contains entry for "
 									+ mapping[j] + " " + key + " " + features);
 				}
-				features.getFeatureMap().put(mapping[j], lexProb);
+				features.getSecond().put(mapping[j], lexProb);
 			}
 		}
 	}

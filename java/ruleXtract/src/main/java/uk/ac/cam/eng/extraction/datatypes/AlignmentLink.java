@@ -16,11 +16,24 @@
 
 package uk.ac.cam.eng.extraction.datatypes;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.file.tfile.Utils;
+
 /**
  * @author Juan Pino
  * @date 15 July 2014
  */
-public class AlignmentLink {
+public class AlignmentLink implements Writable {
+
+	public AlignmentLink() {
+		sourcePosition = -1;
+		targetPosition = -1;
+	}
+
 	public AlignmentLink(int srcPos, int trgPos) {
 		sourcePosition = srcPos;
 		targetPosition = trgPos;
@@ -28,4 +41,46 @@ public class AlignmentLink {
 
 	public int sourcePosition;
 	public int targetPosition;
+
+	@Override
+	public void write(DataOutput out) throws IOException {
+		Utils.writeVInt(out, sourcePosition);
+		Utils.writeVInt(out, targetPosition);
+	}
+
+	@Override
+	public void readFields(DataInput in) throws IOException {
+		sourcePosition = Utils.readVInt(in);
+		targetPosition = Utils.readVInt(in);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + sourcePosition;
+		result = prime * result + targetPosition;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		AlignmentLink other = (AlignmentLink) obj;
+		if (sourcePosition != other.sourcePosition) {
+			return false;
+		}
+		if (targetPosition != other.targetPosition) {
+			return false;
+		}
+		return true;
+	}
 }

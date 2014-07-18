@@ -135,6 +135,10 @@ public final class Alignment {
 		}
 	}
 
+	public List<List<Integer>> getS2t() {
+		return s2t;
+	}
+
 	public int getMinTargetIndex(int sourceIndex) {
 		return s2tmin.get(sourceIndex);
 	}

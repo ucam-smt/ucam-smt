@@ -22,6 +22,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -31,7 +32,8 @@ import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleInfoWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
@@ -60,15 +62,27 @@ public class Source2TargetJob extends Configured implements Tool {
 	}
 
 	public static class Source2TargetPartitioner extends
-			Partitioner<RuleWritable, RuleInfoWritable> {
+			Partitioner<RuleWritable, ProvenanceCountMap> {
 
-		Partitioner<Text, RuleInfoWritable> defaultPartitioner = new HashPartitioner<>();
+		Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
 
 		@Override
-		public int getPartition(RuleWritable key, RuleInfoWritable value,
+		public int getPartition(RuleWritable key, ProvenanceCountMap value,
 				int numPartitions) {
 			return defaultPartitioner.getPartition(key.getSource(), value,
 					numPartitions);
+		}
+
+	}
+
+	private static class KeepProvenanceCountsOnlyMapper
+			extends
+			Mapper<RuleWritable, RuleInfoWritable, RuleWritable, ProvenanceCountMap> {
+
+		@Override
+		protected void map(RuleWritable key, RuleInfoWritable value,
+				Context context) throws IOException, InterruptedException {
+			context.write(key, value.getProvenanceCountMap());
 		}
 
 	}
@@ -82,11 +96,12 @@ public class Source2TargetJob extends Configured implements Tool {
 		job.setJobName("Source2Taget");
 		job.setSortComparatorClass(Source2TargetComparator.class);
 		job.setPartitionerClass(Source2TargetPartitioner.class);
+		job.setMapperClass(KeepProvenanceCountsOnlyMapper.class);
 		job.setReducerClass(MarginalReducer.class);
 		job.setMapOutputKeyClass(RuleWritable.class);
-		job.setMapOutputValueClass(RuleInfoWritable.class);
+		job.setMapOutputValueClass(ProvenanceCountMap.class);
 		job.setOutputKeyClass(RuleWritable.class);
-		job.setOutputValueClass(AlignmentAndFeatureMap.class);
+		job.setOutputValueClass(FeatureMap.class);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 		return job;

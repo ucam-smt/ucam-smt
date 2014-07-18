@@ -96,8 +96,16 @@ public class PairWritable<F extends Writable, S extends Writable> implements
 		}
 	}
 
-	public void Set(F f, S s) {
+	public void set(F f, S s) {
 		first = f;
+		second = s;
+	}
+
+	public void setFirst(F f) {
+		first = f;
+	}
+
+	public void setSecond(S s) {
 		second = s;
 	}
 

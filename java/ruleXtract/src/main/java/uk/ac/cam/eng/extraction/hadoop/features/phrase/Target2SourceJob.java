@@ -33,7 +33,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import uk.ac.cam.eng.extraction.datatypes.Rule;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleInfoWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 import uk.ac.cam.eng.extraction.hadoop.features.phrase.Source2TargetJob.Source2TargetJobParameters;
@@ -63,12 +64,12 @@ public class Target2SourceJob extends Configured implements Tool {
 	}
 
 	public static class Target2SourcePartitioner extends
-			Partitioner<RuleWritable, RuleInfoWritable> {
+			Partitioner<RuleWritable, ProvenanceCountMap> {
 
-		Partitioner<Text, RuleInfoWritable> defaultPartitioner = new HashPartitioner<>();
+		Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
 
 		@Override
-		public int getPartition(RuleWritable key, RuleInfoWritable value,
+		public int getPartition(RuleWritable key, ProvenanceCountMap value,
 				int numPartitions) {
 			return defaultPartitioner.getPartition(key.getTarget(), value,
 					numPartitions);
@@ -78,7 +79,7 @@ public class Target2SourceJob extends Configured implements Tool {
 
 	public static class SwappingMapper
 			extends
-			Mapper<RuleWritable, RuleInfoWritable, RuleWritable, RuleInfoWritable> {
+			Mapper<RuleWritable, RuleInfoWritable, RuleWritable, ProvenanceCountMap> {
 
 		@Override
 		protected void map(RuleWritable key, RuleInfoWritable value,
@@ -88,7 +89,7 @@ public class Target2SourceJob extends Configured implements Tool {
 			if (r.isSwapping()) {
 				newKey = new RuleWritable(r.invertNonTerminals());
 			}
-			context.write(newKey, value);
+			context.write(newKey, value.getProvenanceCountMap());
 		}
 	}
 
@@ -104,9 +105,9 @@ public class Target2SourceJob extends Configured implements Tool {
 		job.setMapperClass(SwappingMapper.class);
 		job.setReducerClass(MarginalReducer.class);
 		job.setMapOutputKeyClass(RuleWritable.class);
-		job.setMapOutputValueClass(RuleInfoWritable.class);
+		job.setMapOutputValueClass(ProvenanceCountMap.class);
 		job.setOutputKeyClass(RuleWritable.class);
-		job.setOutputValueClass(AlignmentAndFeatureMap.class);
+		job.setOutputValueClass(FeatureMap.class);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 		return job;

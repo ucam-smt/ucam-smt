@@ -331,7 +331,7 @@ public class RuleWritable implements WritableComparable<RuleWritable> {
 				for (Integer target : targetWords) {
 					if (target > 0) {
 						Cooccurrence cooc = new Cooccurrence();
-						cooc.Set(new IntWritable(source), new IntWritable(
+						cooc.set(new IntWritable(source), new IntWritable(
 								target));
 						results.add(cooc);
 					}

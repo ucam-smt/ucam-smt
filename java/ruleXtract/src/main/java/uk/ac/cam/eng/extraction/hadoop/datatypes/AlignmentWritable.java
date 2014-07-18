@@ -19,7 +19,6 @@ package uk.ac.cam.eng.extraction.hadoop.datatypes;
 import java.util.List;
 
 import org.apache.hadoop.io.ArrayWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Writable;
 
 import uk.ac.cam.eng.extraction.datatypes.AlignmentLink;
@@ -27,7 +26,7 @@ import uk.ac.cam.eng.extraction.datatypes.AlignmentLink;
 /**
  * Writable to represent an alignment. An alignment is simply an array of links,
  * so {@link AlignmentWritable} is just and extension of {@link ArrayWritable}
- * and the default constructor uses a pair of {@link IntWritable}.
+ * and the default constructor uses an {@link AlignmentLink}.
  * 
  * @author Juan Pino
  * @date 14 July 2014
@@ -36,20 +35,16 @@ import uk.ac.cam.eng.extraction.datatypes.AlignmentLink;
 public class AlignmentWritable extends ArrayWritable {
 
 	public AlignmentWritable() {
-		super(PairIntWritable.class);
+		super(AlignmentLink.class);
 	}
 
 	public AlignmentWritable(List<AlignmentLink> alignment) {
-		super(PairIntWritable.class);
-		PairIntWritable[] links = new PairIntWritable[alignment.size()];
-		for (int i = 0; i < alignment.size(); ++i) {
-			IntWritable srcPos = new IntWritable(alignment.get(i).sourcePosition);
-			IntWritable trgPos = new IntWritable(alignment.get(i).targetPosition);
-			links[i] = new PairIntWritable(srcPos, trgPos);
-		}
+		super(AlignmentLink.class);
+		AlignmentLink[] links = new AlignmentLink[alignment.size()];
+		alignment.toArray(links);
 		this.set(links);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -78,8 +73,8 @@ public class AlignmentWritable extends ArrayWritable {
 			return false;
 		}
 		for (int i = 0; i < length; i++) {
-			PairIntWritable thisElt = (PairIntWritable) theseValues[i];
-			PairIntWritable otherElt = (PairIntWritable) otherValues[i];
+			AlignmentLink thisElt = (AlignmentLink) theseValues[i];
+			AlignmentLink otherElt = (AlignmentLink) otherValues[i];
 			if (!(thisElt == null ? otherElt == null : thisElt.equals(otherElt))) {
 				return false;
 			}
@@ -95,7 +90,7 @@ public class AlignmentWritable extends ArrayWritable {
 		}
 		int result = 1;
 		for (Writable element : theseValues) {
-			PairIntWritable castElement = (PairIntWritable) element;
+			AlignmentLink castElement = (AlignmentLink) element;
 			result = 31 * result
 					+ (castElement == null ? 0 : castElement.hashCode());
 		}
@@ -106,8 +101,8 @@ public class AlignmentWritable extends ArrayWritable {
 		String res = "";
 		String sep = "";
 		for (Writable elt : get()) {
-			PairIntWritable link = (PairIntWritable) elt;
-			res += sep + link.first + "-" + link.second;
+			AlignmentLink link = (AlignmentLink) elt;
+			res += sep + link.sourcePosition + "-" + link.targetPosition;
 			sep = " ";
 		}
 		return res;
