@@ -163,8 +163,6 @@ public class FeatureCreator {
 				features.getSecond(), ruleType);
 		StringBuilder res = new StringBuilder();
 		res.append(rule);
-		// the following line is an example of how to print out the alignments
-		//res.append(" " + features.getFirst());
 		for (int featureIndex : processedFeatures.keySet()) {
 			double featureValue = processedFeatures.get(featureIndex);
 			// one-based index
