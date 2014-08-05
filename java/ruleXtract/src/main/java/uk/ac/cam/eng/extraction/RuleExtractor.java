@@ -13,9 +13,6 @@
  *
  * Copyright 2014 - Juan Pino, Aurelien Waite, William Byrne
  *******************************************************************************/
-/**
- * 
- */
 
 package uk.ac.cam.eng.extraction;
 
@@ -160,6 +157,8 @@ public class RuleExtractor {
 
 				// we found a phrase pair
 				if (consistent) {
+					// TODO the rule may be constructed on the fly
+					// to avoid duplicated logic as well as duplicated loops.
 					Rule r = new Rule(sourceStartIndex, sourceEndIndex,
 							minTargetIndex, maxTargetIndex, sp, a);
 					res.add(r);

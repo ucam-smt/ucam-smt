@@ -162,9 +162,9 @@ public class FeatureCreator {
 		SortedMap<Integer, Double> processedFeatures = createFeatures(rule,
 				features.getSecond(), ruleType);
 		StringBuilder res = new StringBuilder();
-		// here we can append alignments: res.append(rule + " " +
-		// features.getAlignment())
 		res.append(rule);
+		// the following line is an example of how to print out the alignments
+		//res.append(" " + features.getFirst());
 		for (int featureIndex : processedFeatures.keySet()) {
 			double featureValue = processedFeatures.get(featureIndex);
 			// one-based index

@@ -90,27 +90,6 @@ public final class Rule { // final because immutable class
 		this.alignment = null;
 	}
 
-	/**
-	 * @param sourceStartIndex
-	 * @param sourceEndIndex
-	 * @param targetStartIndex
-	 * @param targetEndIndex
-	 * @param sp
-	 */
-	public Rule(int sourceStartIndex, int sourceEndIndex, int targetStartIndex,
-			int targetEndIndex, SentencePair sp) {
-		this.leftHandSide = 0;
-		source = new ArrayList<Integer>();
-		for (int sourceIndex = sourceStartIndex; sourceIndex <= sourceEndIndex; sourceIndex++) {
-			source.add(sp.getSource().getWords()[sourceIndex]);
-		}
-		target = new ArrayList<Integer>();
-		for (int targetIndex = targetStartIndex; targetIndex <= targetEndIndex; targetIndex++) {
-			target.add(sp.getTarget().getWords()[targetIndex]);
-		}
-		this.alignment = null;
-	}
-
 	private void buildAlignment(int sourceIndex, int sourceStartIndex,
 			int targetStartIndex, int targetEndIndex, Alignment a) {
 		if (!a.isSourceAligned(sourceIndex)) {
@@ -128,6 +107,8 @@ public final class Rule { // final because immutable class
 	 * Constructor for a phrase based rule. The constructor uses the alignment
 	 * information to compute the number of unaligned words in the source and in
 	 * the target.
+	 * TODO call in RuleExtractor to this constructor is probably duplicated
+	 * logic and leads to duplicated loops
 	 * 
 	 * @param sourceStartIndex
 	 * @param sourceEndIndex

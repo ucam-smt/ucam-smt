@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
 		    "com.beust" % "jcommander" % "1.35",
 		    "org.apache.hadoop" % "hadoop-core" % "1.2.1",
 		    "org.apache.hbase" % "hbase" % "0.92.0",
-		    "junit" % "junit" % "4.11" % "test"
+		    "junit" % "junit" % "4.11" % "test",
+			"com.novocode" % "junit-interface" % "0.10" % "test"
 )
 
 // output jar name is simply ruleXtract.jar
