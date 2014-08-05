@@ -13,9 +13,6 @@
  *
  * Copyright 2014 - Juan Pino, Aurelien Waite, William Byrne
  *******************************************************************************/
-/**
- * 
- */
 
 package uk.ac.cam.eng.extraction;
 
@@ -64,14 +61,11 @@ public class RuleExtractor {
 	private Map<Integer, Map<Integer, Boolean>> termX;
 	private Map<Integer, Map<Integer, Boolean>> Xterm;
 
-	private boolean source2target;
-
 	public RuleExtractor(Configuration conf) {
 		MAX_SOURCE_PHRASE = conf.getInt("max_source_phrase", 5);
 		MAX_SOURCE_ELEMENTS = conf.getInt("max_source_elements", 5);
 		MAX_TERMINAL_LENGTH = conf.getInt("max_terminal_length", 5);
 		MAX_NONTERMINAL_LENGTH = conf.getInt("max_nonterminal_length", 10);
-		source2target = conf.getBoolean("source2target", true);
 		REMOVE_MONOTONIC_REPEATS = conf.getBoolean("remove_monotonic_repeats",
 				false);
 		XtermX = new HashMap<Integer, Map<Integer, Boolean>>();
@@ -163,6 +157,8 @@ public class RuleExtractor {
 
 				// we found a phrase pair
 				if (consistent) {
+					// TODO the rule may be constructed on the fly
+					// to avoid duplicated logic as well as duplicated loops.
 					Rule r = new Rule(sourceStartIndex, sourceEndIndex,
 							minTargetIndex, maxTargetIndex, sp, a);
 					res.add(r);
@@ -552,8 +548,7 @@ public class RuleExtractor {
 											sourceStartIndexX2,
 											sourceEndIndexX2,
 											targetLimitX2.getFirst(),
-											targetLimitX2.getSecond(), sp,
-											source2target, a);
+											targetLimitX2.getSecond(), sp, a);
 									res.add(r);
 								}
 							}

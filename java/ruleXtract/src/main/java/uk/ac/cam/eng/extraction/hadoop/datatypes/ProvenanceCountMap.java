@@ -38,7 +38,7 @@ import org.apache.hadoop.io.Writable;
 public class ProvenanceCountMap implements Writable,
 		Map<ByteWritable, IntWritable> {
 
-	// Probably should fix the interger cache to work in the same way
+	// Probably should fix the integer cache to work in the same way
 	// as the cache in the Integer class
 	private static LRUMap lruIntCache = new LRUMap(100000);
 
@@ -54,6 +54,10 @@ public class ProvenanceCountMap implements Writable,
 
 	public ProvenanceCountMap(ProvenanceCountMap other) {
 		instance.putAll(other.instance);
+	}
+
+	public Map<ByteWritable, IntWritable> getInstance() {
+		return instance;
 	}
 
 	private static ByteWritable getCached(byte b) {
@@ -74,7 +78,7 @@ public class ProvenanceCountMap implements Writable,
 		return result;
 	}
 
-	public static Map<Byte, String> getProvenceMap(Configuration config) {
+	public static Map<Byte, String> getProvenanceMap(Configuration config) {
 		String provString = config.get(PROV);
 		String[] fields = provString.split(",");
 		Map<Byte, String> result = new HashMap<>();
@@ -90,7 +94,7 @@ public class ProvenanceCountMap implements Writable,
 
 	public static int[] getFeatureIndex(String featureName, String suffix,
 			Configuration conf) {
-		Map<Byte, String> id2Prov = ProvenanceCountMap.getProvenceMap(conf);
+		Map<Byte, String> id2Prov = ProvenanceCountMap.getProvenanceMap(conf);
 		int[] mapping = new int[id2Prov.size() + 1];
 		// If there is a problem with the mappings then we should know about it
 		Arrays.fill(mapping, Integer.MIN_VALUE);

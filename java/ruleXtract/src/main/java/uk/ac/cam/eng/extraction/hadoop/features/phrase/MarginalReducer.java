@@ -322,7 +322,6 @@ public class MarginalReducer extends
 			}
 			Iterator<ProvenanceCountMap> it = context.getValues().iterator();
 			ProvenanceCountMap counts = it.next();
-			// System.out.println(key + "\t" + counts);
 
 			if (it.hasNext()) {
 				throw new RuntimeException("Non-unique rule! " + key);

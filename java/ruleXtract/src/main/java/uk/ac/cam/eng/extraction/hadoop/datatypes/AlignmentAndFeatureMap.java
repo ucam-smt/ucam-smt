@@ -13,30 +13,36 @@
  *
  * Copyright 2014 - Juan Pino, Aurelien Waite, William Byrne
  *******************************************************************************/
-package uk.ac.cam.eng.extraction.hadoop.merge;
 
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Partitioner;
-import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
+package uk.ac.cam.eng.extraction.hadoop.datatypes;
 
-import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 
 /**
- * 
- * @author Aurelien Waite
- * @date 28 May 2014
+ * @author Juan Pino
+ * @date 17 July 2014
  */
-public class MergePartitioner extends
-		Partitioner<RuleWritable, AlignmentAndFeatureMap> {
+public class AlignmentAndFeatureMap extends
+		PairWritable<AlignmentCountMapWritable, FeatureMap> {
 
-	Partitioner<Text, AlignmentAndFeatureMap> defaultPartitioner = new HashPartitioner<>();
+	public static final AlignmentAndFeatureMap EMPTY = new AlignmentAndFeatureMap(
+			AlignmentCountMapWritable.EMPTY, FeatureMap.EMPTY);
 
-	@Override
-	public int getPartition(RuleWritable key, AlignmentAndFeatureMap value,
-			int numPartitions) {
-		return defaultPartitioner.getPartition(key.getSource(), value,
-				numPartitions);
+	public AlignmentAndFeatureMap() {
+		super(AlignmentCountMapWritable.class, FeatureMap.class);
 	}
 
+	public AlignmentAndFeatureMap(AlignmentCountMapWritable alignment,
+			FeatureMap features) {
+		super(alignment, features);
+	}
+
+	public void clear() {
+		first.clear();
+		second.clear();
+	}
+
+	public void merge(AlignmentAndFeatureMap other) {
+		first.merge(other.first);
+		second.merge(other.second);
+	}
 }

@@ -84,37 +84,37 @@ public class ExtractorDataLoader {
 			Configuration conf = new Configuration();
 			FileSystem fs = FileSystem.get(conf);
 			Path path = new Path(hdfsName);
-			SequenceFile.Writer writer = new SequenceFile.Writer(fs, conf,
-					path, MapWritable.class, TextArrayWritable.class);
+			try (SequenceFile.Writer writer = new SequenceFile.Writer(fs, conf,
+					path, MapWritable.class, TextArrayWritable.class)) {
+				Text sourceSentenceText = new Text();
+				Text targetSentenceText = new Text();
+				Text alignmentText = new Text();
+				Text[] array = new Text[3];
+				array[0] = sourceSentenceText;
+				array[1] = targetSentenceText;
+				array[2] = alignmentText;
+				TextArrayWritable arrayWritable = new TextArrayWritable();
+				// metadata: provenance, e.g. genre, collection, training
+				// instance
+				// id, doc id, etc.
+				MapWritable metadata = new MapWritable();
 
-			Text sourceSentenceText = new Text();
-			Text targetSentenceText = new Text();
-			Text alignmentText = new Text();
-			Text[] array = new Text[3];
-			array[0] = sourceSentenceText;
-			array[1] = targetSentenceText;
-			array[2] = alignmentText;
-			TextArrayWritable arrayWritable = new TextArrayWritable();
-			Text provenanceIdText = new Text();
-			// metadata: provenance, e.g. genre, collection, training instance
-			// id, doc id, etc.
-			MapWritable metadata = new MapWritable();
-
-			while ((srcLine = src.readLine()) != null
-					&& (trgLine = trg.readLine()) != null
-					&& (alignLine = align.readLine()) != null
-					&& (provLine = prov.readLine()) != null) {
-				metadata.clear();
-				String[] provenances = provLine.split("\\s+");
-				for (String provenance : provenances) {
-					metadata.put(new Text(provenance), NullWritable.get());
+				while ((srcLine = src.readLine()) != null
+						&& (trgLine = trg.readLine()) != null
+						&& (alignLine = align.readLine()) != null
+						&& (provLine = prov.readLine()) != null) {
+					metadata.clear();
+					String[] provenances = provLine.split("\\s+");
+					for (String provenance : provenances) {
+						metadata.put(new Text(provenance), NullWritable.get());
+					}
+					sourceSentenceText.set(srcLine);
+					targetSentenceText.set(trgLine);
+					// note, alignLine can be the empty string
+					alignmentText.set(alignLine);
+					arrayWritable.set(array);
+					writer.append(metadata, arrayWritable);
 				}
-				sourceSentenceText.set(srcLine);
-				targetSentenceText.set(trgLine);
-				// note, alignLine can be the empty string
-				alignmentText.set(alignLine);
-				arrayWritable.set(array);
-				writer.append(metadata, arrayWritable);
 			}
 		}
 	}

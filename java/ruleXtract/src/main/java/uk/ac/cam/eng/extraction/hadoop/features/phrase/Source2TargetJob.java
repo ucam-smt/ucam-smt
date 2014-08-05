@@ -22,6 +22,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -33,6 +34,7 @@ import org.apache.hadoop.util.ToolRunner;
 
 import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleInfoWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
 
@@ -59,7 +61,7 @@ public class Source2TargetJob extends Configured implements Tool {
 
 	}
 
-	public static class Source2TargetPartioner extends
+	public static class Source2TargetPartitioner extends
 			Partitioner<RuleWritable, ProvenanceCountMap> {
 
 		Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
@@ -73,8 +75,19 @@ public class Source2TargetJob extends Configured implements Tool {
 
 	}
 
+	private static class KeepProvenanceCountsOnlyMapper
+			extends
+			Mapper<RuleWritable, RuleInfoWritable, RuleWritable, ProvenanceCountMap> {
+
+		@Override
+		protected void map(RuleWritable key, RuleInfoWritable value,
+				Context context) throws IOException, InterruptedException {
+			context.write(key, value.getProvenanceCountMap());
+		}
+
+	}
+
 	public static Job getJob(Configuration conf) throws IOException {
-		// conf.set("mapred.reduce.child.java.opts", "-Xmx5128m");
 		conf.set("mapred.map.child.java.opts", "-Xmx200m");
 		conf.set("mapred.reduce.child.java.opts", "-Xmx5128m");
 		conf.setBoolean(MarginalReducer.SOURCE_TO_TARGET, true);
@@ -82,7 +95,8 @@ public class Source2TargetJob extends Configured implements Tool {
 		job.setJarByClass(Source2TargetJob.class);
 		job.setJobName("Source2Taget");
 		job.setSortComparatorClass(Source2TargetComparator.class);
-		job.setPartitionerClass(Source2TargetPartioner.class);
+		job.setPartitionerClass(Source2TargetPartitioner.class);
+		job.setMapperClass(KeepProvenanceCountsOnlyMapper.class);
 		job.setReducerClass(MarginalReducer.class);
 		job.setMapOutputKeyClass(RuleWritable.class);
 		job.setMapOutputValueClass(ProvenanceCountMap.class);

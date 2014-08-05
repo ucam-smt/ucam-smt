@@ -23,12 +23,9 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.MapWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-
-import uk.ac.cam.eng.extraction.datatypes.Rule;
 
 /**
  * Additional info about a rule that is used to build mapreduce features. The
@@ -42,58 +39,46 @@ import uk.ac.cam.eng.extraction.datatypes.Rule;
  */
 public class RuleInfoWritable implements Writable {
 
-	private IntWritable numberUnalignedSourceWords;
-	private IntWritable numberUnalignedTargetWords;
-	/**
-	 * Records the different provenances the rule was extracted from. The
-	 * MapWritable emulates a Set by having values being NullWritable. We do not
-	 * use AbstractMapWritable to avoid casts and we do not use Map<Writable,
-	 * Writable> because it doesn't have the readFields and writeFields methods.
-	 * it is important to use a MapWritable as opposed to a SortedMapWritable
-	 * for speed
-	 */
-	private MapWritable provenance;
+	private ProvenanceCountMap provenance;
+	private AlignmentCountMapWritable alignment;
 
 	public RuleInfoWritable() {
-		numberUnalignedSourceWords = new IntWritable();
-		numberUnalignedTargetWords = new IntWritable();
-		provenance = new MapWritable();
+		provenance = new ProvenanceCountMap();
+		alignment = new AlignmentCountMapWritable();
 	}
 
-	public RuleInfoWritable(Rule r) {
-		numberUnalignedSourceWords = new IntWritable(
-				r.getNumberUnalignedSourceWords());
-		numberUnalignedTargetWords = new IntWritable(
-				r.getNumberUnalignedTargetWords());
+	public RuleInfoWritable(RuleInfoWritable other) {
+		provenance = new ProvenanceCountMap();
+		alignment = new AlignmentCountMapWritable();
+		provenance.getInstance().putAll(other.provenance.getInstance());
+		alignment.putAll(other.alignment);
 	}
 
-	public void setProvenance(MapWritable provenance) {
-		this.provenance = provenance;
-	}
-
-	public MapWritable getProvenance() {
+	public ProvenanceCountMap getProvenanceCountMap() {
 		return provenance;
 	}
 
-	public int getNumberUnalignedSourceWords() {
-		return numberUnalignedSourceWords.get();
+	public AlignmentCountMapWritable getAlignmentCountMapWritable() {
+		return alignment;
 	}
 
-	public int getNumberUnalignedTargetWords() {
-		return numberUnalignedTargetWords.get();
+	public void clear() {
+		provenance.clear();
+		alignment.clear();
 	}
 
-	public boolean hasProvenance(String prov) {
-		Text key = new Text(prov);
-		if (provenance.containsKey(key)) {
-			return true;
-		}
-		return false;
+	public void putProvenanceCount(
+			ByteWritable provenanceName, IntWritable count) {
+		provenance.put(provenanceName, count);
 	}
 
-	public void invalidateAlignments() {
-		numberUnalignedSourceWords.set(Integer.MIN_VALUE);
-		numberUnalignedTargetWords.set(Integer.MIN_VALUE);
+	public void putAlignmentCount(AlignmentWritable align, int count) {
+		alignment.put(align, count);
+	}
+
+	public void increment(RuleInfoWritable other) {
+		provenance.increment(other.provenance);
+		alignment.increment(other.alignment);
 	}
 
 	/*
@@ -103,9 +88,8 @@ public class RuleInfoWritable implements Writable {
 	 */
 	@Override
 	public void write(DataOutput out) throws IOException {
-		numberUnalignedSourceWords.write(out);
-		numberUnalignedTargetWords.write(out);
 		provenance.write(out);
+		alignment.write(out);
 	}
 
 	/*
@@ -115,20 +99,11 @@ public class RuleInfoWritable implements Writable {
 	 */
 	@Override
 	public void readFields(DataInput in) throws IOException {
-		numberUnalignedSourceWords.readFields(in);
-		numberUnalignedTargetWords.readFields(in);
 		provenance.readFields(in);
+		alignment.readFields(in);
 	}
 
-	@Override
 	public String toString() {
-		String out = "RuleInfoWritable [numberUnalignedSourceWords="
-				+ numberUnalignedSourceWords + ", numberUnalignedTargetWords="
-				+ numberUnalignedTargetWords + ", provenance=[";
-		for (Writable key : provenance.keySet()) {
-			out += key.toString() + ", ";
-		}
-		return out;
+		return provenance.toString() + "\t" + alignment.toString();
 	}
-
 }

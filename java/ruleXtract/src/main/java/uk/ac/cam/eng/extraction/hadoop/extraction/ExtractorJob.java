@@ -30,6 +30,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -41,10 +42,11 @@ import uk.ac.cam.eng.extraction.RuleExtractor;
 import uk.ac.cam.eng.extraction.datatypes.Alignment;
 import uk.ac.cam.eng.extraction.datatypes.Rule;
 import uk.ac.cam.eng.extraction.datatypes.SentencePair;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleInfoWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.TextArrayWritable;
-import uk.ac.cam.eng.extraction.hadoop.extraction.RuleCompression.CompressReducer;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
 
 import com.beust.jcommander.JCommander;
@@ -70,14 +72,14 @@ public class ExtractorJob extends Configured implements Tool {
 		conf.set("mapred.map.child.java.opts", "-Xmx200m");
 		conf.set("mapred.reduce.child.java.opts", "-Xmx4096m");
 		Job job = new Job(conf, "Rule extraction");
-		job.setJarByClass(RuleCompression.class);
+		job.setJarByClass(ExtractorJob.class);
 		job.setMapOutputKeyClass(RuleWritable.class);
-		job.setMapOutputValueClass(ProvenanceCountMap.class);
+		job.setMapOutputValueClass(RuleInfoWritable.class);
 		job.setOutputKeyClass(RuleWritable.class);
-		job.setOutputValueClass(ProvenanceCountMap.class);
+		job.setOutputValueClass(RuleInfoWritable.class);
 		job.setMapperClass(ExtractorMapper.class);
-		job.setReducerClass(CompressReducer.class);
-		job.setCombinerClass(CompressReducer.class);
+		job.setReducerClass(ExtractorReducer.class);
+		job.setCombinerClass(ExtractorReducer.class);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
 		FileOutputFormat.setCompressOutput(job, true);
@@ -93,11 +95,11 @@ public class ExtractorJob extends Configured implements Tool {
 	 */
 	private static class ExtractorMapper
 			extends
-			Mapper<MapWritable, TextArrayWritable, RuleWritable, ProvenanceCountMap> {
+			Mapper<MapWritable, TextArrayWritable, RuleWritable, RuleInfoWritable> {
 
 		private static final IntWritable ONE = new IntWritable(1);
 
-		private ProvenanceCountMap provenanceMap = new ProvenanceCountMap();
+		private RuleInfoWritable ruleInfo = new RuleInfoWritable();
 
 		private Map<Text, ByteWritable> prov2Id = new HashMap<>();
 
@@ -106,7 +108,6 @@ public class ExtractorJob extends Configured implements Tool {
 		@Override
 		protected void setup(Context context) throws IOException,
 				InterruptedException {
-			// TODO Auto-generated method stub
 			super.setup(context);
 			String provString = context.getConfiguration().get(
 					ProvenanceCountMap.PROV);
@@ -140,17 +141,37 @@ public class ExtractorJob extends Configured implements Tool {
 			Alignment a = new Alignment(wordAlign, sp);
 			RuleExtractor re = new RuleExtractor(conf);
 			for (Rule r : re.extract(a, sp)) {
-				// TODO replace with static objects ?
 				RuleWritable rw = new RuleWritable(r);
-				provenanceMap.clear();
-				provenanceMap.put(ALL, ONE);
+				AlignmentWritable aw = new AlignmentWritable(r.getAlignment());
+				ruleInfo.clear();
+				ruleInfo.putProvenanceCount(ALL, ONE);
 				for (Writable prov : key.keySet()) {
 					if (prov2Id.keySet().contains(prov)) {
-						provenanceMap.put(prov2Id.get(prov), ONE);
+						ruleInfo.putProvenanceCount(prov2Id.get(prov), ONE);
 					}
 				}
-				context.write(rw, provenanceMap);
+				ruleInfo.putAlignmentCount(aw, 1);
+				context.write(rw, ruleInfo);
 			}
+		}
+	}
+
+	private static class ExtractorReducer
+			extends
+			Reducer<RuleWritable, RuleInfoWritable, RuleWritable, RuleInfoWritable> {
+
+		private RuleInfoWritable compressed = new RuleInfoWritable();
+
+		@Override
+		protected void reduce(
+				RuleWritable key,
+				Iterable<RuleInfoWritable> values, Context context)
+				throws IOException, InterruptedException {
+			compressed.clear();
+			for (RuleInfoWritable value : values) {
+				compressed.increment(value);
+			}
+			context.write(key, compressed);
 		}
 	}
 
