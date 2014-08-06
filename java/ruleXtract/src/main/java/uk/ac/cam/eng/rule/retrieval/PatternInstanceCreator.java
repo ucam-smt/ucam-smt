@@ -41,22 +41,21 @@ import uk.ac.cam.eng.extraction.datatypes.Rule;
  * @author Juan Pino
  * @date 28 May 2014
  */
-public class PatternInstanceCreator {
+class PatternInstanceCreator {
 
-	// protected for testing
-	protected int MAX_SOURCE_PHRASE = 5; // TODO revise this value, put in
+	private  int MAX_SOURCE_PHRASE = 5; // TODO revise this value, put in
 											// constructor or something
-	protected int MAX_SOURCE_ELEMENTS = 5; // TODO revise this value, put in
+	private int MAX_SOURCE_ELEMENTS = 5; // TODO revise this value, put in
 											// constructor or something
-	protected int MAX_TERMINAL_LENGTH = 5; // TODO revise this value, put in
+	private int MAX_TERMINAL_LENGTH = 5; // TODO revise this value, put in
 											// constructor or something
-	protected int MAX_NONTERMINAL_LENGTH = 10; // TODO revise this value, put in
+	private int MAX_NONTERMINAL_LENGTH = 10; // TODO revise this value, put in
 
-	protected int HR_MAX_HEIGHT = 10;
+	private int HR_MAX_HEIGHT = 10;
 
 	private String patternFile;
 
-	List<SidePattern> sidePatterns = new ArrayList<SidePattern>();
+	private List<SidePattern> sidePatterns = new ArrayList<SidePattern>();
 
 	public PatternInstanceCreator(Configuration conf) {
 		MAX_SOURCE_PHRASE = conf.getInt("max_source_phrase", 5);
@@ -110,7 +109,7 @@ public class PatternInstanceCreator {
 		return res;
 	}
 
-	protected Set<Rule> getPatternInstancesFromSourceSentence(
+	private Set<Rule> getPatternInstancesFromSourceSentence(
 			List<Integer> sourceSentence, List<SidePattern> sidePatterns) {
 		Set<Rule> res = new HashSet<Rule>();
 		for (SidePattern sidePattern : sidePatterns) {
@@ -122,7 +121,7 @@ public class PatternInstanceCreator {
 		return res;
 	}
 
-	protected Set<Rule> merge(Rule partialLeft, Set<Rule> partialRight) {
+	private Set<Rule> merge(Rule partialLeft, Set<Rule> partialRight) {
 		Set<Rule> res = new HashSet<Rule>();
 		List<Integer> sourceLeft = partialLeft.getSource();
 		if (partialRight.isEmpty()) {
@@ -139,7 +138,7 @@ public class PatternInstanceCreator {
 		return res;
 	}
 
-	protected Set<Rule> getPatternInstancesFromSourceAndPattern2(
+	private Set<Rule> getPatternInstancesFromSourceAndPattern2(
 			List<Integer> sourceSentence, SidePattern sidePattern,
 			int startSentenceIndex, int startPatternIndex, int nbSrcElt,
 			int nbCoveredWords) {

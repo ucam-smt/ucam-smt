@@ -33,12 +33,12 @@ public class RulePattern {
 	private SidePattern sourcePattern;
 	private SidePattern targetPattern;
 
-	public RulePattern(SidePattern sourcePattern, SidePattern targetPattern) {
+	private RulePattern(SidePattern sourcePattern, SidePattern targetPattern) {
 		this.sourcePattern = sourcePattern;
 		this.targetPattern = targetPattern;
 	}
 
-	public static RulePattern parsePattern(String patternString) {
+	static RulePattern parsePattern(String patternString) {
 		// X_W-W_X
 		String[] sourceTarget = patternString.split("-");
 		if (sourceTarget.length != 2) {
@@ -49,13 +49,7 @@ public class RulePattern {
 				SidePattern.parsePattern(sourceTarget[1]));
 	}
 
-	public static RulePattern parsePattern(String sourcePatternString,
-			String targetPatternString) {
-		return new RulePattern(SidePattern.parsePattern2(sourcePatternString),
-				SidePattern.parsePattern2(targetPatternString));
-	}
-
-	public static RulePattern getPattern(RuleWritable source,
+	static RulePattern getPattern(RuleWritable source,
 			RuleWritable target) {
 		return new RulePattern(SidePattern.getSourcePattern(source),
 				SidePattern.getTargetPattern(target));

@@ -52,7 +52,7 @@ import uk.ac.cam.eng.util.Pair;
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class RuleFilter {
+class RuleFilter {
 
 	private static class RuleCountComparator implements
 			Comparator<Pair<RuleWritable, AlignmentAndFeatureMap>> {

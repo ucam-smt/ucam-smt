@@ -31,12 +31,12 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
  * @author Juan Pino
  * @date 28 May 2014
  */
-public class SidePattern {
+class SidePattern {
 
 	private List<String> pattern;
 	private int numberOfNT;
 
-	public SidePattern(List<String> pattern) {
+	SidePattern(List<String> pattern) {
 		this.pattern = pattern;
 		numberOfNT = 0;
 		for (String elt : pattern) {
@@ -46,15 +46,15 @@ public class SidePattern {
 		}
 	}
 
-	public int size() {
+	int size() {
 		return pattern.size();
 	}
 
-	public String get(int index) {
+	String get(int index) {
 		return pattern.get(index);
 	}
 
-	public static SidePattern parsePattern(String patternString) {
+	static SidePattern parsePattern(String patternString) {
 		String[] parts = patternString.split("_");
 		List<String> elements = new ArrayList<String>();
 		for (String part : parts) {
@@ -74,16 +74,7 @@ public class SidePattern {
 		return new SidePattern(elements);
 	}
 
-	public static SidePattern parsePattern2(String patternString) {
-		String[] parts = patternString.split("_");
-		List<String> elements = new ArrayList<String>();
-		for (String part : parts) {
-			elements.add(part);
-		}
-		return new SidePattern(elements);
-	}
-
-	public static SidePattern getPattern(String patternString) {
+	static SidePattern getPattern(String patternString) {
 		String parts[] = patternString.split("_");
 		List<String> pattern = new ArrayList<String>();
 		boolean consecutiveTerminals = false;
@@ -118,19 +109,19 @@ public class SidePattern {
 		return new SidePattern(pattern);
 	}
 
-	public static SidePattern getSourcePattern(RuleWritable rule) {
+	static SidePattern getSourcePattern(RuleWritable rule) {
 		return getPattern(rule.getSource().toString());
 	}
 
-	public static SidePattern getTargetPattern(RuleWritable rule) {
+	static SidePattern getTargetPattern(RuleWritable rule) {
 		return getPattern(rule.getTarget().toString());
 	}
 
-	public static SidePattern getSourcePattern(Rule rule) {
+	static SidePattern getSourcePattern(Rule rule) {
 		return getPattern(rule.getSource());
 	}
 
-	public static SidePattern getTargetPattern(Rule rule) {
+	static SidePattern getTargetPattern(Rule rule) {
 		return getPattern(rule.getTarget());
 	}
 
@@ -138,7 +129,7 @@ public class SidePattern {
 		return (pattern.size() == 1 && pattern.get(0).equals("w"));
 	}
 
-	public boolean hasMoreThan1NT() {
+	boolean hasMoreThan1NT() {
 		return (numberOfNT > 1);
 	}
 

@@ -22,10 +22,7 @@ package uk.ac.cam.eng.extraction.hadoop.datatypes;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -41,9 +38,9 @@ import uk.ac.cam.eng.rule.retrieval.RulePattern;
  */
 public class RuleWritable implements WritableComparable<RuleWritable> {
 
-	protected Text leftHandSide;
-	protected Text source;
-	protected Text target;
+	private Text leftHandSide;
+	private Text source;
+	private Text target;
 
 	public Text getLeftHandSide() {
 		return leftHandSide;
@@ -104,85 +101,6 @@ public class RuleWritable implements WritableComparable<RuleWritable> {
 			target = new Text(parts[2]);
 		} else {
 			target = new Text();
-		}
-	}
-
-	/**
-	 * Builds a RuleWritable from a source and a target. Needs to do a deep copy
-	 * for use in the source-to-target and target-to-source reducers
-	 * 
-	 * @param source
-	 * @param target
-	 */
-	public RuleWritable(RuleWritable source, RuleWritable target) {
-		leftHandSide = new Text(source.leftHandSide);
-		this.source = new Text(source.source);
-		this.target = new Text(target.target);
-	}
-
-	public static RuleWritable makeSourceMarginal(Rule r) {
-		String[] parts = r.toString().split("\\s+");
-		RuleWritable res = new RuleWritable();
-		res.leftHandSide = new Text(parts[0]);
-		res.source = new Text(parts[1]);
-		res.target = new Text();
-		return res;
-	}
-
-	/**
-	 * Keep only the source information. In case of a rule with two
-	 * nonterminals, use the order X1...X2 in the source
-	 * 
-	 * @param r
-	 */
-	public void makeSourceMarginal(RuleWritable r) {
-		makeSourceMarginal(r, true);
-	}
-
-	public void makeSourceMarginal(RuleWritable r, boolean source2target) {
-		this.leftHandSide = r.leftHandSide;
-		if (source2target) {
-			this.source = r.source;
-		} else {
-			Rule rule = new Rule(r);
-			if (rule.isSwapping()) {
-				RuleWritable ruleInvertOnTheSource = new RuleWritable(
-						rule.invertNonTerminals());
-				this.source = ruleInvertOnTheSource.source;
-			} else {
-				this.source = r.source;
-			}
-		}
-		this.target = new Text();
-	}
-
-	public static RuleWritable makeTargetMarginal(Rule r) {
-		String[] parts = r.toString().split("\\s+");
-		RuleWritable res = new RuleWritable();
-		res.leftHandSide = new Text(parts[0]);
-		res.target = new Text(parts[2]);
-		res.source = new Text();
-		return res;
-	}
-
-	public void makeTargetMarginal(RuleWritable r) {
-		makeTargetMarginal(r, true);
-	}
-
-	public void makeTargetMarginal(RuleWritable r, boolean source2target) {
-		this.leftHandSide = r.leftHandSide;
-		this.source = new Text();
-		if (source2target) {
-			this.target = r.target;
-		} else {
-			Rule rule = new Rule(r);
-			if (rule.isSwapping()) {
-				RuleWritable ruleInvertOnTheSource = new RuleWritable(
-						rule.invertNonTerminals());
-				this.target = ruleInvertOnTheSource.target;
-			} else {
-				this.target = r.target;
-			}
 		}
 	}
 
@@ -272,40 +190,6 @@ public class RuleWritable implements WritableComparable<RuleWritable> {
 	}
 
 	/**
-	 * Prints a rule as found in shallow grammar (.lex.gz)
-	 * 
-	 * @return
-	 */
-	public String toStringShallow() {
-		Rule r = new Rule(this);
-		// glue rules
-		if (r.isConcatenatingGlue()) {
-			return "S S_X S_X";
-		}
-		if (r.isStartSentence()) {
-			return "X 1 <s><s><s>";
-		}
-		if (r.isEndSentence()) {
-			return "X 2 </s>";
-		}
-		if (r.isStartingGlue()) {
-			return "X V V";
-		}
-		// deletion, oov, ascii rules
-		if (r.isDeletion()) {
-			return "X " + source.toString() + " <dr>";
-		}
-		if (r.isOov()) {
-			return "X " + source.toString() + " <oov>";
-		}
-		if (r.isAscii()) {
-			return "X " + source.toString() + " " + target.toString();
-		}
-		// TODO finish this
-		return "";
-	}
-
-	/**
 	 * @return The length of the source side of the rule
 	 */
 	public int getSourceLength() {
@@ -319,26 +203,6 @@ public class RuleWritable implements WritableComparable<RuleWritable> {
 	public int getTargetLength() {
 		String[] parts = target.toString().split("_");
 		return parts.length;
-	}
-
-	public List<Cooccurrence> getCooccurrences() {
-		Rule rule = new Rule(this);
-		List<Integer> sourceWords = rule.getSourceWords();
-		List<Integer> targetWords = rule.getTargetWords();
-		List<Cooccurrence> results = new LinkedList<>();
-		for (Integer source : sourceWords) {
-			if (source > 0) {
-				for (Integer target : targetWords) {
-					if (target > 0) {
-						Cooccurrence cooc = new Cooccurrence();
-						cooc.set(new IntWritable(source), new IntWritable(
-								target));
-						results.add(cooc);
-					}
-				}
-			}
-		}
-		return results;
 	}
 
 	/*

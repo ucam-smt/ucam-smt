@@ -34,7 +34,7 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
  * @author Juan Pino
  * @date 28 May 2014
  */
-public class ProvenanceTarget2SourceLexicalProbability implements Feature {
+class ProvenanceTarget2SourceLexicalProbability implements Feature {
 
 	private final static String featureName = "provenance_target2source_lexical_probability";
 	private final static double logMinSum = -40;

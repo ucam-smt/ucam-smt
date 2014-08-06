@@ -37,7 +37,6 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleInfoWritable;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
-import uk.ac.cam.eng.extraction.hadoop.features.phrase.Source2TargetJob.Source2TargetJobParameters;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
 
 import com.beust.jcommander.JCommander;
@@ -53,7 +52,7 @@ import com.beust.jcommander.Parameters;
  */
 public class Target2SourceJob extends Configured implements Tool {
 
-	public static class Target2SourceComparator extends
+	private static class Target2SourceComparator extends
 			MarginalReducer.MRComparator {
 
 		@Override
@@ -63,10 +62,10 @@ public class Target2SourceJob extends Configured implements Tool {
 
 	}
 
-	public static class Target2SourcePartitioner extends
+	private static class Target2SourcePartitioner extends
 			Partitioner<RuleWritable, ProvenanceCountMap> {
 
-		Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
+		private Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
 
 		@Override
 		public int getPartition(RuleWritable key, ProvenanceCountMap value,
@@ -77,7 +76,7 @@ public class Target2SourceJob extends Configured implements Tool {
 
 	}
 
-	public static class SwappingMapper
+	private static class SwappingMapper
 			extends
 			Mapper<RuleWritable, RuleInfoWritable, RuleWritable, ProvenanceCountMap> {
 
@@ -134,7 +133,7 @@ public class Target2SourceJob extends Configured implements Tool {
 	public int run(String[] args) throws IllegalArgumentException,
 			IllegalAccessException, IOException, ClassNotFoundException,
 			InterruptedException {
-		Source2TargetJobParameters params = new Source2TargetJobParameters();
+		Target2SourceJobParameters params = new Target2SourceJobParameters();
 		JCommander cmd = new JCommander(params);
 
 		try {

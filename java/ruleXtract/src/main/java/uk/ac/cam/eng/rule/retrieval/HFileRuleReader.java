@@ -43,13 +43,13 @@ import uk.ac.cam.eng.util.Pair;
 public class HFileRuleReader implements
 		Iterable<Pair<RuleWritable, AlignmentAndFeatureMap>> {
 
-	HFileScanner scanner;
+	private HFileScanner scanner;
 
 	private final DataInputBuffer in = new DataInputBuffer();
 	private final DataOutputBuffer out = new DataOutputBuffer();
 	private final RuleWritable rule = new RuleWritable();
 	private final TargetFeatureList value = new TargetFeatureList();
-	Text key = new Text();
+	private Text key = new Text();
 
 	public HFileRuleReader(HFile.Reader hfReader) {
 		scanner = hfReader.getScanner(false, false);
@@ -68,7 +68,7 @@ public class HFileRuleReader implements
 		}
 	}
 
-	public boolean seek(Text source) throws IOException {
+	boolean seek(Text source) throws IOException {
 		out.reset();
 		source.write(out);
 		int pos = scanner.seekTo(out.getData(), 0, out.getLength());

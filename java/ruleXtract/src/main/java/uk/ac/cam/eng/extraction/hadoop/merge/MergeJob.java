@@ -52,7 +52,7 @@ import com.beust.jcommander.Parameters;
  */
 public class MergeJob extends Configured implements Tool {
 
-	public static class MergeFeatureMapper
+	private static class MergeFeatureMapper
 			extends
 			Mapper<RuleWritable, FeatureMap, RuleWritable, AlignmentAndFeatureMap> {
 
@@ -67,7 +67,7 @@ public class MergeJob extends Configured implements Tool {
 
 	}
 	
-	public static class MergeRuleMapper
+	private static class MergeRuleMapper
 			extends
 			Mapper<RuleWritable, RuleInfoWritable, RuleWritable, AlignmentAndFeatureMap> {
 
@@ -82,7 +82,7 @@ public class MergeJob extends Configured implements Tool {
 		}
 	}
 
-	public static class MergeCombiner extends
+	private static class MergeCombiner extends
 			Reducer<RuleWritable, AlignmentAndFeatureMap, RuleWritable, AlignmentAndFeatureMap> {
 
 		private AlignmentAndFeatureMap alignmentAndFeatures = new AlignmentAndFeatureMap();
@@ -99,7 +99,7 @@ public class MergeJob extends Configured implements Tool {
 		}
 	}
 
-	public static class MergeReducer extends
+	private static class MergeReducer extends
 			Reducer<RuleWritable, AlignmentAndFeatureMap, Text, TargetFeatureList> {
 
 		private TargetFeatureList list = new TargetFeatureList();

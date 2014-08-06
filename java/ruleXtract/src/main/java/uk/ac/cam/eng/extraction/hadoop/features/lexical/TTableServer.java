@@ -61,14 +61,14 @@ public class TTableServer extends Configured implements Closeable, Tool {
 
 	final static int BUFFER_SIZE = 65536;
 
-	ExecutorService threadPool = Executors.newFixedThreadPool(6);
+	private ExecutorService threadPool = Executors.newFixedThreadPool(6);
 
-	public class LoadTask implements Runnable {
+	private class LoadTask implements Runnable {
 
 		private final String fileName;
 		private final byte prov;
 
-		public LoadTask(String fileName, byte prov) {
+		private LoadTask(String fileName, byte prov) {
 			this.fileName = fileName;
 			this.prov = prov;
 		}
@@ -86,22 +86,22 @@ public class TTableServer extends Configured implements Closeable, Tool {
 
 	}
 
-	public class QueryRunnable implements Runnable {
+	private class QueryRunnable implements Runnable {
 
 		private Socket querySocket;
 
-		ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream(
+		private ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream(
 				BUFFER_SIZE);
 
-		DataOutputStream probWriter = new DataOutputStream(byteBuffer);
+		private DataOutputStream probWriter = new DataOutputStream(byteBuffer);
 
-		long queryTime = 0;
+		private long queryTime = 0;
 
-		long totalKeys = 0;
+		private long totalKeys = 0;
 
-		int noOfQueries = 0;
+		private int noOfQueries = 0;
 
-		public QueryRunnable(Socket querySocket) {
+		private QueryRunnable(Socket querySocket) {
 			this.querySocket = querySocket;
 		}
 
@@ -159,21 +159,21 @@ public class TTableServer extends Configured implements Closeable, Tool {
 		}
 	}
 
-	public static final String TTABLE_S2T_SERVER_PORT = "ttable_s2t_server_port";
+	static final String TTABLE_S2T_SERVER_PORT = "ttable_s2t_server_port";
 
-	public static final String TTABLE_T2S_SERVER_PORT = "ttable_t2s_server_port";
+	static final String TTABLE_T2S_SERVER_PORT = "ttable_t2s_server_port";
 
-	public static final String LEX_TABLE_TEMPLATE = "ttable_server_template";
+	private static final String LEX_TABLE_TEMPLATE = "ttable_server_template";
 
-	public static final String GENRE = "$GENRE";
+	private static final String GENRE = "$GENRE";
 
-	public static final String DIRECTION = "$DIRECTION";
+	private static final String DIRECTION = "$DIRECTION";
 
-	ServerSocket serverSocket;
+	private ServerSocket serverSocket;
 
 	private Map<Byte, Map<Integer, Map<Integer, Double>>> model = new HashMap<>();
 
-	Runnable server = new Runnable() {
+	private Runnable server = new Runnable() {
 
 		@Override
 		public void run() {
@@ -191,13 +191,13 @@ public class TTableServer extends Configured implements Closeable, Tool {
 		}
 	};
 
-	public void startServer() {
+	private void startServer() {
 		Thread serverThread = new Thread(server);
 		serverThread.setDaemon(true);
 		serverThread.start();
 	}
 
-	public void loadModel(String modelFile, byte prov)
+	private void loadModel(String modelFile, byte prov)
 			throws FileNotFoundException, IOException {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(
 				new GZIPInputStream(new FileInputStream(modelFile))))) {
@@ -228,7 +228,7 @@ public class TTableServer extends Configured implements Closeable, Tool {
 		}
 	}
 
-	public void setup(Configuration conf, String direction,
+	private void setup(Configuration conf, String direction,
 			boolean source2Target) throws IOException, InterruptedException {
 		int serverPort;
 		if (source2Target) {

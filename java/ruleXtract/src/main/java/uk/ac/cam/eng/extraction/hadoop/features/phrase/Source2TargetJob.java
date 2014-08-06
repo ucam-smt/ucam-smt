@@ -51,7 +51,7 @@ import com.beust.jcommander.Parameters;
  */
 public class Source2TargetJob extends Configured implements Tool {
 
-	public static class Source2TargetComparator extends
+	private static class Source2TargetComparator extends
 			MarginalReducer.MRComparator {
 
 		@Override
@@ -61,10 +61,10 @@ public class Source2TargetJob extends Configured implements Tool {
 
 	}
 
-	public static class Source2TargetPartitioner extends
+	private static class Source2TargetPartitioner extends
 			Partitioner<RuleWritable, ProvenanceCountMap> {
 
-		Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
+		private Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
 
 		@Override
 		public int getPartition(RuleWritable key, ProvenanceCountMap value,

@@ -48,7 +48,7 @@ import uk.ac.cam.eng.util.Pair;
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class HFileRuleQuery implements Runnable {
+class HFileRuleQuery implements Runnable {
 
 	private static final int BATCH_SIZE = 1000;
 
@@ -72,7 +72,7 @@ public class HFileRuleQuery implements Runnable {
 
 	private Configuration conf;
 
-	DataOutputBuffer tempOut = new DataOutputBuffer();
+	private DataOutputBuffer tempOut = new DataOutputBuffer();
 
 	public HFileRuleQuery(HFileRuleReader reader, BloomFilter bf,
 			BufferedWriter out, Collection<Text> query,

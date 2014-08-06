@@ -47,13 +47,6 @@ public class RuleInfoWritable implements Writable {
 		alignment = new AlignmentCountMapWritable();
 	}
 
-	public RuleInfoWritable(RuleInfoWritable other) {
-		provenance = new ProvenanceCountMap();
-		alignment = new AlignmentCountMapWritable();
-		provenance.getInstance().putAll(other.provenance.getInstance());
-		alignment.putAll(other.alignment);
-	}
-
 	public ProvenanceCountMap getProvenanceCountMap() {
 		return provenance;
 	}

@@ -28,9 +28,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.io.WritableUtils;
-import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 
 import uk.ac.cam.eng.extraction.datatypes.Rule;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
@@ -46,23 +44,8 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class MarginalReducer extends
+class MarginalReducer extends
 		Reducer<RuleWritable, ProvenanceCountMap, RuleWritable, FeatureMap> {
-
-	public static abstract class MRPartitioner extends
-			Partitioner<RuleWritable, ProvenanceCountMap> {
-
-		Partitioner<Text, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
-
-		@Override
-		public int getPartition(RuleWritable key, ProvenanceCountMap value,
-				int numPartitions) {
-			return defaultPartitioner.getPartition(getMarginal(key), null,
-					numPartitions);
-		}
-
-		protected abstract Text getMarginal(RuleWritable key);
-	}
 
 	/**
 	 * Stores all the interesting positions in the byte array for a rule
@@ -114,7 +97,7 @@ public class MarginalReducer extends
 	 */
 	public static abstract class MRComparator extends WritableComparator {
 
-		ThreadLocal<MRComparatorState> threadLocalState = new ThreadLocal<>();
+		private ThreadLocal<MRComparatorState> threadLocalState = new ThreadLocal<>();
 
 		public MRComparator() {
 			super(RuleWritable.class);
@@ -130,7 +113,7 @@ public class MarginalReducer extends
 			}
 		}
 
-		protected Text getNonMarginal(RuleWritable r) {
+		private Text getNonMarginal(RuleWritable r) {
 			if (isSource2Target()) {
 				return r.getTarget();
 			} else {
@@ -138,7 +121,7 @@ public class MarginalReducer extends
 			}
 		}
 
-		MRComparatorState getState() {
+		private MRComparatorState getState() {
 			MRComparatorState state = threadLocalState.get();
 			if (state == null) {
 				state = new MRComparatorState();
@@ -242,15 +225,15 @@ public class MarginalReducer extends
 
 	private static final String T2S_FEATURE_NAME = "target2source_probability";
 
-	ProvenanceCountMap totals = new ProvenanceCountMap();
+	private ProvenanceCountMap totals = new ProvenanceCountMap();
 
-	List<RuleCount> ruleCounts = new ArrayList<>();
+	private List<RuleCount> ruleCounts = new ArrayList<>();
 
-	Text marginal = new Text();
+	private Text marginal = new Text();
 
-	boolean source2Target = true;
+	private boolean source2Target = true;
 
-	int[] mappings;
+	private int[] mappings;
 
 	private FeatureMap features = new FeatureMap();
 

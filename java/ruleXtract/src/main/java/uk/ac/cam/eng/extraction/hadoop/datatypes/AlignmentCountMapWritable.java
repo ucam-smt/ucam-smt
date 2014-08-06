@@ -29,7 +29,7 @@ import org.apache.hadoop.io.file.tfile.Utils;
  * @author Juan Pino
  * @date 14 July 2014
  */
-public class AlignmentCountMapWritable extends
+class AlignmentCountMapWritable extends
 		HashMap<AlignmentWritable, Integer> implements Writable {
 
 	public static final AlignmentCountMapWritable EMPTY = new AlignmentCountMapWritable() {

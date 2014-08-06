@@ -34,7 +34,7 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public interface Feature {
+interface Feature {
 
 	public Map<Integer, Double> value(Rule r, FeatureMap mapReduceFeatures,
 			Configuration conf);

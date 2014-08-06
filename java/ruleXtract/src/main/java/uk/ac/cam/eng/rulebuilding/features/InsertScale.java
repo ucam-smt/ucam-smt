@@ -34,7 +34,7 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class InsertScale implements Feature {
+class InsertScale implements Feature {
 
 	private final static String featureName = "insert_scale";
 

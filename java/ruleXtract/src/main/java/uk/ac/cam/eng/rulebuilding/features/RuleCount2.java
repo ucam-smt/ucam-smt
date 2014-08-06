@@ -33,7 +33,7 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
  * @author Juan Pino
  * @date 28 May 2014
  */
-public class RuleCount2 implements Feature {
+class RuleCount2 implements Feature {
 
 	private final static String featureName = "rule_count_2";
 
