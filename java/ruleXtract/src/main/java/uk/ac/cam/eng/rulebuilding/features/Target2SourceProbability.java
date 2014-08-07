@@ -34,7 +34,7 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
  * @author Juan Pino
  * @date 28 May 2014
  */
-public class Target2SourceProbability implements Feature {
+class Target2SourceProbability implements Feature {
 
 	private final static String featureName = "target2source_probability";
 	// TODO add this to the config

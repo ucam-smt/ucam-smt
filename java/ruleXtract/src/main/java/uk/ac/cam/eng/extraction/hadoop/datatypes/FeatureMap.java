@@ -35,7 +35,7 @@ import org.apache.hadoop.io.WritableUtils;
  */
 public class FeatureMap implements Writable, Map<IntWritable, DoubleWritable> {
 
-	public static final FeatureMap EMPTY = new FeatureMap() {
+	static final FeatureMap EMPTY = new FeatureMap() {
 		public DoubleWritable put(IntWritable key, DoubleWritable value) {
 			throw new UnsupportedOperationException();
 		};
@@ -45,10 +45,6 @@ public class FeatureMap implements Writable, Map<IntWritable, DoubleWritable> {
 
 	public FeatureMap() {
 
-	}
-
-	public FeatureMap(FeatureMap other) {
-		instance.putAll(other.instance);
 	}
 
 	public int size() {
@@ -69,11 +65,6 @@ public class FeatureMap implements Writable, Map<IntWritable, DoubleWritable> {
 
 	public DoubleWritable get(Object key) {
 		return instance.get(key);
-	}
-
-	public double get(int index) {
-		IntWritable indexObject = IntWritableCache.createIntWritable(index);
-		return instance.get(indexObject).get();
 	}
 
 	public DoubleWritable put(IntWritable key, DoubleWritable value) {
@@ -130,7 +121,7 @@ public class FeatureMap implements Writable, Map<IntWritable, DoubleWritable> {
 		return instance.toString();
 	}
 
-	public void merge(FeatureMap other) {
+	void merge(FeatureMap other) {
 		int expectedSize = size() + other.size();
 		putAll(other);
 		if (expectedSize != size()) {

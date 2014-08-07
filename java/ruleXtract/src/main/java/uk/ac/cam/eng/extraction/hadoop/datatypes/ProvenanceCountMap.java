@@ -78,7 +78,7 @@ public class ProvenanceCountMap implements Writable,
 		return result;
 	}
 
-	public static Map<Byte, String> getProvenanceMap(Configuration config) {
+	private static Map<Byte, String> getProvenanceMap(Configuration config) {
 		String provString = config.get(PROV);
 		String[] fields = provString.split(",");
 		Map<Byte, String> result = new HashMap<>();

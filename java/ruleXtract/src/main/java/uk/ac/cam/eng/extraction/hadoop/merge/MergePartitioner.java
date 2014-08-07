@@ -27,10 +27,10 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class MergePartitioner extends
+class MergePartitioner extends
 		Partitioner<RuleWritable, AlignmentAndFeatureMap> {
 
-	Partitioner<Text, AlignmentAndFeatureMap> defaultPartitioner = new HashPartitioner<>();
+	private Partitioner<Text, AlignmentAndFeatureMap> defaultPartitioner = new HashPartitioner<>();
 
 	@Override
 	public int getPartition(RuleWritable key, AlignmentAndFeatureMap value,

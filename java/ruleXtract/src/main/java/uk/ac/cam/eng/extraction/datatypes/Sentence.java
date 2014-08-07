@@ -38,7 +38,7 @@ public final class Sentence { // final because immutable class
 		return words;
 	}
 
-	public Sentence(String input) {
+	Sentence(String input) {
 		String[] parts = input.split("\\s+");
 		words = new int[parts.length];
 		for (int i = 0; i < parts.length; i++) {

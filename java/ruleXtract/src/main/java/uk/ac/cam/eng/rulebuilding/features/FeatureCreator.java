@@ -186,7 +186,7 @@ public class FeatureCreator {
 		}
 	}
 
-	public SortedMap<Integer, Double> createFeatures(RuleWritable rule,
+	private SortedMap<Integer, Double> createFeatures(RuleWritable rule,
 			FeatureMap map, EnumRuleType ruleType) {
 		SortedMap<Integer, Double> allFeatures = new TreeMap<>();
 		for (String featureName : selectedFeatures) {

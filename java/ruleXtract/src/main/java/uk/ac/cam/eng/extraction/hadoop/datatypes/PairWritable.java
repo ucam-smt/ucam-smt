@@ -29,7 +29,7 @@ import org.apache.hadoop.io.Writable;
  * @param <F>
  * @param <S>
  */
-public class PairWritable<F extends Writable, S extends Writable> implements
+class PairWritable<F extends Writable, S extends Writable> implements
 		Writable {
 
 	public F first;

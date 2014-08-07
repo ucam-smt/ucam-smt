@@ -43,20 +43,19 @@ public class RuleExtractor {
 	private static Logger logger = Logger
 			.getLogger("uk.ac.cam.eng.extraction.ruleextractor");
 
-	// protected for testing
-	protected int MAX_SOURCE_PHRASE = 5; // TODO revise this value, put in
+	private int MAX_SOURCE_PHRASE = 5; // TODO revise this value, put in
 											// constructor or something
-	protected int MAX_SOURCE_ELEMENTS = 5; // TODO revise this value, put in
+	private int MAX_SOURCE_ELEMENTS = 5; // TODO revise this value, put in
 											// constructor or something
-	protected int MAX_TERMINAL_LENGTH = 5; // TODO revise this value, put in
+	private int MAX_TERMINAL_LENGTH = 5; // TODO revise this value, put in
 											// constructor or something
-	protected int MAX_NONTERMINAL_LENGTH = 10; // TODO revise this value, put in
+	private int MAX_NONTERMINAL_LENGTH = 10; // TODO revise this value, put in
 												// constructor or something
 
 	// in case of monotonic alignment of a block, a nonterminal can cover
 	// different areas, and the same rule can be extracted several times. If
 	// the following variable is true, then the same rule is only counted once.
-	protected boolean REMOVE_MONOTONIC_REPEATS = false;
+	private boolean REMOVE_MONOTONIC_REPEATS = false;
 	private Map<Integer, Map<Integer, Boolean>> XtermX;
 	private Map<Integer, Map<Integer, Boolean>> termX;
 	private Map<Integer, Map<Integer, Boolean>> Xterm;
@@ -105,7 +104,7 @@ public class RuleExtractor {
 	 * @param sp
 	 * @return
 	 */
-	protected List<Rule> extractPhrasePairs(Alignment a, SentencePair sp) {
+	private List<Rule> extractPhrasePairs(Alignment a, SentencePair sp) {
 
 		List<Rule> res = new ArrayList<Rule>();
 
@@ -238,7 +237,7 @@ public class RuleExtractor {
 
 	// TODO review this to make it work with arbitrary number of nonterminals
 	// protected for testing
-	protected List<Rule> extractHieroRule(Alignment a, SentencePair sp) {
+	private List<Rule> extractHieroRule(Alignment a, SentencePair sp) {
 		List<Rule> res = new ArrayList<Rule>();
 
 		// first get the regular blocks, that is the boundaries for the phrase
@@ -257,8 +256,7 @@ public class RuleExtractor {
 		return res;
 	}
 
-	// protected for testing
-	protected List<Block> getRegularBlocks(Alignment a, SentencePair sp) {
+	private List<Block> getRegularBlocks(Alignment a, SentencePair sp) {
 		List<Block> res = new ArrayList<Block>();
 		int sourceStartIndex = 0;
 		int sourceEndIndex = 0;
@@ -412,7 +410,7 @@ public class RuleExtractor {
 		return res;
 	}
 
-	protected List<Rule> extractRulesOneNonTerminal(int sourceStartIndex,
+	private List<Rule> extractRulesOneNonTerminal(int sourceStartIndex,
 			int sourceEndIndex, int minTargetIndex, int maxTargetIndex,
 			Alignment a, SentencePair sp) {
 		List<Rule> res = new ArrayList<Rule>();
@@ -465,7 +463,7 @@ public class RuleExtractor {
 		return res;
 	}
 
-	protected List<Rule> extractRulesTwoNonTerminal(int sourceStartIndex,
+	private List<Rule> extractRulesTwoNonTerminal(int sourceStartIndex,
 			int sourceEndIndex, int minTargetIndex, int maxTargetIndex,
 			Alignment a, SentencePair sp) {
 		List<Rule> res = new ArrayList<Rule>();

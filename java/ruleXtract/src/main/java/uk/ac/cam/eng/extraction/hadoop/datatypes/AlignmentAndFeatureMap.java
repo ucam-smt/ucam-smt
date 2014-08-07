@@ -31,7 +31,7 @@ public class AlignmentAndFeatureMap extends
 		super(AlignmentCountMapWritable.class, FeatureMap.class);
 	}
 
-	public AlignmentAndFeatureMap(AlignmentCountMapWritable alignment,
+	private AlignmentAndFeatureMap(AlignmentCountMapWritable alignment,
 			FeatureMap features) {
 		super(alignment, features);
 	}

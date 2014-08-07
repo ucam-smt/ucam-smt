@@ -78,13 +78,13 @@ import com.beust.jcommander.Parameters;
  */
 public class RuleRetriever extends Configured implements Tool {
 
-	public static final String RETRIEVEL_THREADS = "retrieval.threads";
+	private static final String RETRIEVEL_THREADS = "retrieval.threads";
 
 	private BloomFilter[] bfs;
 
 	private HFileRuleReader[] readers;
 
-	Partitioner<Text, NullWritable> partitioner = new HashPartitioner<>();
+	private Partitioner<Text, NullWritable> partitioner = new HashPartitioner<>();
 
 	RuleFilter filter;
 
@@ -98,11 +98,9 @@ public class RuleRetriever extends Configured implements Tool {
 
 	Set<Text> foundTestVocab = new HashSet<>();
 
-	Set<Text> asciiVocab;
-
 	private int MAX_SOURCE_PHRASE;
 
-	public void setup(String testFile, Configuration conf)
+	private void setup(String testFile, Configuration conf)
 			throws FileNotFoundException, IOException {
 
 		asciiConstraintsFileName = conf.get("pass_through_rules");
@@ -126,7 +124,7 @@ public class RuleRetriever extends Configured implements Tool {
 
 	}
 
-	public void loadDir(String dirString, Configuration conf)
+	private void loadDir(String dirString, Configuration conf)
 			throws IOException {
 		File dir = new File(dirString);
 		CacheConfig cacheConf = new CacheConfig(conf);
@@ -267,7 +265,7 @@ public class RuleRetriever extends Configured implements Tool {
 		return res;
 	}
 
-	public List<Set<Text>> generateQueries(String testFileName,
+	private List<Set<Text>> generateQueries(String testFileName,
 			Configuration conf) throws IOException {
 		PatternInstanceCreator patternInstanceCreator = new PatternInstanceCreator(
 				conf);

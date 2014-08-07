@@ -71,25 +71,6 @@ public final class Rule { // final because immutable class
 		this.alignment = null;
 	}
 
-	public Rule(String srcString, String trgString) {
-		this.leftHandSide = 0;
-		this.source = new ArrayList<>();
-		this.target = new ArrayList<>();
-		String[] sourceParts = srcString.split("_");
-		String[] targetParts = trgString.split("_");
-		if (!srcString.equals("")) {
-			for (String sourcePart : sourceParts) {
-				this.source.add(Integer.parseInt(sourcePart));
-			}
-		}
-		if (!trgString.equals("")) {
-			for (String targetPart : targetParts) {
-				this.target.add(Integer.parseInt(targetPart));
-			}
-		}
-		this.alignment = null;
-	}
-
 	private void buildAlignment(int sourceIndex, int sourceStartIndex,
 			int targetStartIndex, int targetEndIndex, Alignment a) {
 		if (!a.isSourceAligned(sourceIndex)) {
@@ -210,7 +191,7 @@ public final class Rule { // final because immutable class
 		}
 	}
 
-	public enum StartMiddleEnd {
+	private enum StartMiddleEnd {
 		START, MIDDLE, END
 	}
 
@@ -418,39 +399,6 @@ public final class Rule { // final because immutable class
 			if (!rwt.isEmpty()) { // check in case the target was empty
 				this.target.add(Integer.parseInt(rwt));
 			}
-		}
-		this.alignment = null;
-	}
-
-	public Rule(int leftHandSide, RuleWritable rw) {
-		this.leftHandSide = leftHandSide;
-		this.source = new ArrayList<Integer>();
-		String[] rwSource = rw.getSource().toString().split("_");
-		for (String rws : rwSource) {
-			this.source.add(Integer.parseInt(rws));
-		}
-		this.target = new ArrayList<Integer>();
-		String[] rwTarget = rw.getTarget().toString().split("_");
-		for (String rwt : rwTarget) {
-			if (!rwt.isEmpty()) { // check in case the target was empty
-				this.target.add(Integer.parseInt(rwt));
-			}
-		}
-		this.alignment = null;
-	}
-
-	public Rule(RuleWritable source, RuleWritable target) {
-		this.leftHandSide = Integer.parseInt(source.getLeftHandSide()
-				.toString());
-		this.source = new ArrayList<Integer>();
-		String[] rwSource = source.getSource().toString().split("_");
-		for (String rws : rwSource) {
-			this.source.add(Integer.parseInt(rws));
-		}
-		this.target = new ArrayList<Integer>();
-		String[] rwTarget = target.getTarget().toString().split("_");
-		for (String rwt : rwTarget) {
-			this.target.add(Integer.parseInt(rwt));
 		}
 		this.alignment = null;
 	}

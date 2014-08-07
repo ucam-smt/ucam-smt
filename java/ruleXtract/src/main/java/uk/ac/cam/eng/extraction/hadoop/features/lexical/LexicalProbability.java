@@ -35,11 +35,11 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class LexicalProbability {
+class LexicalProbability {
 
 	private final double minSum = 4.24e-18; // exp(-40)
 
-	boolean source2target;
+	private boolean source2target;
 
 	public LexicalProbability(boolean source2target) {
 		this.source2target = source2target;
