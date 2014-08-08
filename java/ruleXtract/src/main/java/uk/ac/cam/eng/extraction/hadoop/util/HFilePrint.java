@@ -42,7 +42,7 @@ public class HFilePrint {
 		}
 		Configuration conf = new Configuration();
 		CacheConfig cacheConf = new CacheConfig(conf);
-		HFile.Reader hfReader = HFile.createReader(FileSystem.getLocal(conf),
+		HFile.Reader hfReader = HFile.createReader(FileSystem.get(conf),
 				new Path(args[0]), cacheConf);
 		HFileRuleReader reader = new HFileRuleReader(hfReader);
 		for (Pair<RuleWritable, AlignmentAndFeatureMap> entry : reader) {
