@@ -33,8 +33,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import uk.ac.cam.eng.extraction.datatypes.Rule;
 
-// TODO rename this to PatternInstanceCreator
-
 /**
  * This class creates pattern instances given a test set
  * 
@@ -49,7 +47,7 @@ class PatternInstanceCreator {
 											// constructor or something
 	private int MAX_TERMINAL_LENGTH = 5; // TODO revise this value, put in
 											// constructor or something
-	private int MAX_NONTERMINAL_LENGTH = 10; // TODO revise this value, put in
+	private int MAX_NONTERMINAL_SPAN = 10; // TODO revise this value, put in
 
 	private int HR_MAX_HEIGHT = 10;
 
@@ -61,7 +59,7 @@ class PatternInstanceCreator {
 		MAX_SOURCE_PHRASE = conf.getInt("max_source_phrase", 5);
 		MAX_SOURCE_ELEMENTS = conf.getInt("max_source_elements", 5);
 		MAX_TERMINAL_LENGTH = conf.getInt("max_terminal_length", 5);
-		MAX_NONTERMINAL_LENGTH = conf.getInt("max_nonterminal_length", 10);
+		MAX_NONTERMINAL_SPAN = conf.getInt("max_nonterminal_span", 10);
 		HR_MAX_HEIGHT = conf.getInt("hr_max_height", 10);
 		patternFile = conf.get("source_patterns");
 		if (patternFile == null) {
@@ -208,7 +206,7 @@ class PatternInstanceCreator {
 			Rule r = new Rule(partialPattern, new ArrayList<Integer>());
 			for (int i = startSentenceIndex; i < sourceSentence.size()
 					- (sidePattern.size() - startPatternIndex - 1)
-					&& i < startSentenceIndex + MAX_NONTERMINAL_LENGTH
+					&& i < startSentenceIndex + MAX_NONTERMINAL_SPAN
 					&& i < startSentenceIndex + HR_MAX_HEIGHT - nbCoveredWords; i++) {
 				Set<Rule> merged = merge(
 						r,

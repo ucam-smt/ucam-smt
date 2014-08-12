@@ -202,8 +202,8 @@ public class ExtractorJob extends Configured implements Tool {
 		@Parameter(names = { "--max_terminal_length" }, description = "Maximum number of consecutive source terminals in a hiero rule")
 		public String max_terminal_length = "5";
 
-		@Parameter(names = { "--max_nonterminal_length" }, description = "Maximum number of source terminals covered by a right-hand-side nonterminal in a hiero rule")
-		public String max_nonterminal_length = "10";
+		@Parameter(names = { "--max_nonterminal_span" }, description = "Maximum number of source terminals covered by a right-hand-side source nonterminal in a hiero rule")
+		public String max_nonterminal_span = "10";
 
 		@Parameter(names = { "--provenance" }, description = "Comma-separated provenances")
 		public String provenance;

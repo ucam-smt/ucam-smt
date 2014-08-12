@@ -318,8 +318,8 @@ public class RuleRetriever extends Configured implements Tool {
 		@Parameter(names = { "--max_terminal_length" }, description = "Maximum number of consecutive terminals in a hiero rule")
 		public String max_terminal_length = "5";
 
-		@Parameter(names = { "--max_nonterminal_length" }, description = "Maximum number of terminals covered by a right-hand-side nonterminal in a hiero rule")
-		public String max_nonterminal_length = "10";
+		@Parameter(names = { "--max_nonterminal_span" }, description = "Maximum number of source terminals covered by a right-hand-side source nonterminal in a hiero rule")
+		public String max_nonterminal_span = "10";
 
 		@Parameter(names = { "--hr_max_height" }, description = "Maximum number of source terminals covered by the left-hand-side nonterminal in a hiero rule")
 		public String hr_max_height = "10";

@@ -49,7 +49,7 @@ public class RuleExtractor {
 											// constructor or something
 	private int MAX_TERMINAL_LENGTH = 5; // TODO revise this value, put in
 											// constructor or something
-	private int MAX_NONTERMINAL_LENGTH = 10; // TODO revise this value, put in
+	private int MAX_NONTERMINAL_SPAN = 10; // TODO revise this value, put in
 												// constructor or something
 
 	// in case of monotonic alignment of a block, a nonterminal can cover
@@ -64,7 +64,7 @@ public class RuleExtractor {
 		MAX_SOURCE_PHRASE = conf.getInt("max_source_phrase", 5);
 		MAX_SOURCE_ELEMENTS = conf.getInt("max_source_elements", 5);
 		MAX_TERMINAL_LENGTH = conf.getInt("max_terminal_length", 5);
-		MAX_NONTERMINAL_LENGTH = conf.getInt("max_nonterminal_length", 10);
+		MAX_NONTERMINAL_SPAN = conf.getInt("max_nonterminal_span", 10);
 		REMOVE_MONOTONIC_REPEATS = conf.getBoolean("remove_monotonic_repeats",
 				false);
 		XtermX = new HashMap<Integer, Map<Integer, Boolean>>();
@@ -591,7 +591,7 @@ public class RuleExtractor {
 				- (sourceEndIndexX - sourceStartIndexX + 1) + 1) <= MAX_SOURCE_ELEMENTS
 				&& sourceStartIndexX - sourceStartIndex <= MAX_TERMINAL_LENGTH
 				&& sourceEndIndex - sourceEndIndexX <= MAX_TERMINAL_LENGTH && sourceEndIndexX
-				- sourceStartIndexX + 1 <= MAX_NONTERMINAL_LENGTH);
+				- sourceStartIndexX + 1 <= MAX_NONTERMINAL_SPAN);
 		if (!res) {
 			return false;
 		}
@@ -630,8 +630,8 @@ public class RuleExtractor {
 				&& sourceStartIndexX - sourceStartIndex <= MAX_TERMINAL_LENGTH
 				&& sourceStartIndexX2 - sourceEndIndexX <= MAX_TERMINAL_LENGTH
 				&& sourceEndIndex - sourceEndIndexX2 <= MAX_TERMINAL_LENGTH
-				&& sourceEndIndexX - sourceStartIndexX + 1 <= MAX_NONTERMINAL_LENGTH && sourceEndIndexX2
-				- sourceStartIndexX2 + 1 <= MAX_NONTERMINAL_LENGTH);
+				&& sourceEndIndexX - sourceStartIndexX + 1 <= MAX_NONTERMINAL_SPAN && sourceEndIndexX2
+				- sourceStartIndexX2 + 1 <= MAX_NONTERMINAL_SPAN);
 		if (!res) {
 			return res;
 		}

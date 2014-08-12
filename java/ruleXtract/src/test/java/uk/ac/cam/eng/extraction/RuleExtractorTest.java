@@ -152,7 +152,7 @@ public class RuleExtractorTest {
 		conf.setInt("max_source_phrase", 9);
 		conf.setInt("max_source_elements", 5);
 		conf.setInt("max_terminal_length", 5);
-		conf.setInt("max_nonterminal_length", 10);
+		conf.setInt("max_nonterminal_span", 10);
 		conf.setBoolean("remove_monotonic_repeats", true);
 		RuleExtractor ruleExtractor = new RuleExtractor(conf);
 		List<Rule> extractedRules =
