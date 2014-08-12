@@ -79,10 +79,11 @@ fi
 rm -f cpp/*/bin/*
 rm -f cpp/*/obj/*
 
-(cd cpp; make) 2>&1 | tee -a $LOGFILE 
+(cd cpp; make) 2>&1 | tee -a $LOGFILE
+
+(cd java/ruleXtract; sbt package) 2>&1 | tee -a $LOGFILE
 
 echo "Compilation ended on $(date) on $(hostname)" >> $LOGFILE
 
 ### Finally, run tests...
 . test.sh
-
