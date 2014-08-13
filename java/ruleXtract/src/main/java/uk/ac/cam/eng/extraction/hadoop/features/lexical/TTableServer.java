@@ -173,6 +173,8 @@ public class TTableServer extends Configured implements Closeable, Tool {
 
 	private Map<Byte, Map<Integer, Map<Integer, Double>>> model = new HashMap<>();
 
+	private double minLexProb = 0;
+
 	private Runnable server = new Runnable() {
 
 		@Override
@@ -214,6 +216,9 @@ public class TTableServer extends Configured implements Closeable, Tool {
 					int sourceWord = Integer.parseInt(parts[0]);
 					int targetWord = Integer.parseInt(parts[1]);
 					double model1Probability = Double.parseDouble(parts[2]);
+					if (model1Probability < minLexProb) {
+						continue;
+					}
 					if (!model.get(prov).containsKey(sourceWord)) {
 						model.get(prov).put(sourceWord,
 								new HashMap<Integer, Double>());
@@ -236,6 +241,7 @@ public class TTableServer extends Configured implements Closeable, Tool {
 		} else {
 			serverPort = Integer.parseInt(conf.get(TTABLE_T2S_SERVER_PORT));
 		}
+		minLexProb = Double.parseDouble(conf.get("min_lex_prob"));
 		serverSocket = new ServerSocket(serverPort);
 		String lexTemplate = conf.get(LEX_TABLE_TEMPLATE);
 		String allString = lexTemplate.replace(GENRE, "ALL").replace(DIRECTION,
@@ -291,6 +297,9 @@ public class TTableServer extends Configured implements Closeable, Tool {
 
 		@Parameter(names = { "--provenance" }, description = "Comma-separated list of provenances", required = true)
 		public String provenance;
+
+		@Parameter(names = { "--min_lex_prob" }, description = "Minimum probability for a Model 1 entry. Entries with lower probability are discarded.")
+		public String min_lex_prob = "0";
 	}
 
 	public int run(String[] args) throws IllegalArgumentException,
