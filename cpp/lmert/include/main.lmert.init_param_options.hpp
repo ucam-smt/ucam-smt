@@ -16,9 +16,7 @@ inline void init_param_options ( int argc, const char* argv[], po::variables_map
       ( HifstConstants::kHifstSemiring.c_str(),
 	po::value<std::string>()->default_value ("stdarc"),
 	"Choose between stdarc, lexstdarc, and tuplearc (for the tropical sparse tuple arc semiring)")
-      ( HifstConstants::kTupleArcWeights.c_str(), po::value<std::string>(),
-	"Tropic sparse tuple arc weights. "
-	"Comma-separated floats. This needs to be set when the option --semiring=tuplearc is chosen.")
+      ( "initial_params", po::value<std::string>(), "Initial parameter value (lambda)")
       ( "refs", po::value<std::string>(), "MERT reference translations" )
       ( "min_gamma", po::value<float>()->default_value(0.0005f), "minimum gamma value for a line segment")
       ( "min_bleu_gain", po::value<float>()->default_value(0.000001f), "minimum accepted bleu gain (stopping criterion)")

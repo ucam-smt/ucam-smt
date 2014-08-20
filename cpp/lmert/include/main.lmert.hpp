@@ -48,7 +48,7 @@ typedef unsigned int Sid;
 
 
 PARAMS32 GetLambda(ucam::util::RegistryPO const& rg) {
-  std::string tuplearcWeights = rg.exists(HifstConstants::kTupleArcWeights) ? rg.get<std::string> (HifstConstants::kTupleArcWeights.c_str() ) : "";
+  std::string tuplearcWeights = rg.get<std::string>("initial_params");
   if (tuplearcWeights.empty()) 
     LERROR("weights not set");
   std::string ftok("file:");
