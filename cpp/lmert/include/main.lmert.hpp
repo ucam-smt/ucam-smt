@@ -46,4 +46,26 @@ std::ostream& operator<< (std::ostream& o, const SentenceIdx& s) {
 
 typedef unsigned int Sid;
 
+
+PARAMS32 GetLambda(ucam::util::RegistryPO const& rg) {
+  std::string tuplearcWeights = rg.exists(HifstConstants::kTupleArcWeights) ? rg.get<std::string> (HifstConstants::kTupleArcWeights.c_str() ) : "";
+  if (tuplearcWeights.empty()) 
+    LERROR("weights not set");
+  std::string ftok("file:");
+  std::size_t found = tuplearcWeights.find(ftok);
+  if (found == std::string::npos) 
+    return ucam::util::ParseParamString<float> (tuplearcWeights);
+  tuplearcWeights.erase(0, ftok.length());
+  std::ifstream ifs(tuplearcWeights.c_str());
+  if (!ifs.good()) {
+    LERROR("Unable to open " << tuplearcWeights);
+    exit(1);
+  }
+  string p;
+  getline(ifs, p);
+  ifs.close();
+  return ucam::util::ParseParamString<float> (p);
+};
+
+
 #endif
