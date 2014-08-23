@@ -18,54 +18,44 @@
 #include <range.hpp>
 #include <addresshandler.hpp>
 #include <fstio.hpp>
+#include <bleu.hpp>
+#include <tuneset.hpp>
 #include <constants-fsttools.hpp>
+
+#include <lmert.hpp>
+#include <lineoptimize.hpp>
+#include <randomlinesearch.hpp>
 
 #include <main.lmert.init_param_options.hpp>
 
-// parameter vector
-typedef std::vector<float> PARAMS32;
-std::ostream& operator<< (std::ostream& o, const PARAMS32& v) {
-  for (unsigned int i=0; i<v.size(); i++) {
-    o << v[i] << " ";
+namespace ucam {
+namespace lmert {
+  
+ucam::fsttools::PARAMS32 GetLambda ( ucam::util::RegistryPO const& rg ) {
+  std::string tuplearcWeights = rg.get<std::string> ( HifstConstants::kLmertInitialParams );
+
+  if ( tuplearcWeights.empty() )
+    LERROR ( "weights not set" );
+
+  std::string ftok ( "file:" );
+  std::size_t found = tuplearcWeights.find ( ftok );
+
+  if ( found == std::string::npos )
+    return ucam::util::ParseParamString<float> ( tuplearcWeights );
+
+  tuplearcWeights.erase ( 0, ftok.length() );
+  std::ifstream ifs ( tuplearcWeights.c_str() );
+
+  if ( !ifs.good() ) {
+    LERROR ( "Unable to open " << tuplearcWeights );
+    exit ( EXIT_FAILURE );
   }
-  return o;
-}
 
-// word and sentence typedefs
-typedef long long Wid;
-typedef std::vector<Wid> SentenceIdx;
-std::ostream& operator<< (std::ostream& o, const SentenceIdx& s) {
-  for (unsigned int i = 0; i < s.size(); ++i) {
-    if (i > 0) {
-      o << " ";
-    }
-    o << s[i];
-  }
-  return o;
-}
-
-typedef unsigned int Sid;
-
-
-PARAMS32 GetLambda(ucam::util::RegistryPO const& rg) {
-  std::string tuplearcWeights = rg.get<std::string>("initial_params");
-  if (tuplearcWeights.empty()) 
-    LERROR("weights not set");
-  std::string ftok("file:");
-  std::size_t found = tuplearcWeights.find(ftok);
-  if (found == std::string::npos) 
-    return ucam::util::ParseParamString<float> (tuplearcWeights);
-  tuplearcWeights.erase(0, ftok.length());
-  std::ifstream ifs(tuplearcWeights.c_str());
-  if (!ifs.good()) {
-    LERROR("Unable to open " << tuplearcWeights);
-    exit(1);
-  }
-  string p;
-  getline(ifs, p);
+	std::string p;
+  getline ( ifs, p );
   ifs.close();
-  return ucam::util::ParseParamString<float> (p);
+  return ucam::util::ParseParamString<float> ( p );
 };
 
-
+}}  // endif
 #endif
