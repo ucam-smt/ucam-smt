@@ -7,7 +7,8 @@ paramsfile=data/lmert/params.0
 reffile=data/lmert/refs
 veclatsdir=data/lmert/veclats
 ### Up to 99 sentences:
-range=1:20
+# range=1:20
+range=1:99
 
 BASEDIR=TESTFILES/`basename $0 | sed -e 's:.sh::g'`
 REFDIR=REFFILES/`basename $0 | sed -e 's:.sh::g'`
@@ -29,14 +30,14 @@ test_0002_lmert_run() {
 
     $lmert --logger.verbose \
         --input=data/lmert/VECFEA/?.fst.gz \
-				--initial_params=file:$paramsfile \
+				--initial_params=file://$paramsfile \
 				--refs=$reffile \
 				--range=$range  \
 				--min_gamma=1.0 \
 				--random_seed=17 \
 				--nthreads=24 \
 				--write_params=$BASEDIR/newparams &>/dev/null
-# 				--semiring=tuplearc \
+
 	if [ "$range" == "1:99" ]; then 
 			if diff $BASEDIR/newparams $REFDIR/newparams.1-99 ; then echo ; else echo 0; return ; fi
 	elif [ "$range" == "1:20" ]; then

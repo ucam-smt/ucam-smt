@@ -28,34 +28,4 @@
 
 #include <main.lmert.init_param_options.hpp>
 
-namespace ucam {
-namespace lmert {
-  
-ucam::fsttools::PARAMS32 GetLambda ( ucam::util::RegistryPO const& rg ) {
-  std::string tuplearcWeights = rg.get<std::string> ( HifstConstants::kLmertInitialParams );
-
-  if ( tuplearcWeights.empty() )
-    LERROR ( "weights not set" );
-
-  std::string ftok ( "file:" );
-  std::size_t found = tuplearcWeights.find ( ftok );
-
-  if ( found == std::string::npos )
-    return ucam::util::ParseParamString<float> ( tuplearcWeights );
-
-  tuplearcWeights.erase ( 0, ftok.length() );
-  std::ifstream ifs ( tuplearcWeights.c_str() );
-
-  if ( !ifs.good() ) {
-    LERROR ( "Unable to open " << tuplearcWeights );
-    exit ( EXIT_FAILURE );
-  }
-
-	std::string p;
-  getline ( ifs, p );
-  ifs.close();
-  return ucam::util::ParseParamString<float> ( p );
-};
-
-}}  // endif
 #endif
