@@ -189,21 +189,24 @@ inline float dotproduct ( std::vector<float>& v1, std::vector<float>& v2 ) {
 }
 
 ///Functor implementing comparison for hashes when used with basic_string<uint>
-class hasheqvecuint {
+/// or vector int
+template<class VecT>
+class HashEqVec {
  public:
   ///Implements comparison
-  bool operator() ( std::basic_string<uint> const& v1,
-                    std::basic_string<uint> const& v2 ) const {
+  bool operator() ( VecT const& v1,
+                    VecT const& v2 ) const {
     return v1 == v2;
   }
 };
 
 ///Functor implementing hash function for hashes with basic_string<uint>
-class hashfvecuint : public
-  std::unary_function<std::basic_string<uint>, std::size_t> {
+/// or vector<int>
+template<class VecT>
+class HashFVec : public std::unary_function<VecT, std::size_t> {
  public:
   ///Implements hash function
-  std::size_t operator() ( std::basic_string<uint> const& v ) const {
+  std::size_t operator() ( VecT const& v ) const {
     std::size_t res = 0;
     for ( unsigned int i = 0; i < v.size();
           i++ )  res += ( std::size_t ) pow ( ( double ) v[i],
@@ -212,7 +215,43 @@ class hashfvecuint : public
   }
 };
 
+
+typedef HashEqVec<std::basic_string<unsigned> > hasheqvecuint;
+typedef HashFVec<std::basic_string<unsigned> > hashfvecuint;
+
+typedef HashEqVec<std::vector<long long> > hasheqvecint64;
+typedef HashFVec<std::vector<long long> > hashfvecint64;
+
+template
+< typename T
+  , template<typename ElemT, typename AllocT=std::allocator<ElemT> > class Container
+  >
+std::ostream& operator<< (std::ostream& o, Container<T> const& container) {
+  typename Container<T>::const_iterator itx = container.begin();
+  while(itx != container.end()) {
+    o << *itx++ << " ";
+  }  
+  return o;
+};
+
+template
+< typename T
+  , template<typename ElemT, typename AllocT=std::allocator<ElemT> > class Container
+  >
+std::string printout(Container<T> const& container) {
+	std::ostringstream ss;
+	ss << container;
+	return ss.str();
 }
-} // end namespaces
+
+std::ostream& operator<< (std::ostream& o, std::basic_string<unsigned> const& container) {
+	typename std::basic_string<unsigned>::const_iterator itx = container.begin();
+  while(itx != container.end()) {
+    o << *itx++ << " ";
+  }  
+  return o;
+};
+
+}} // end namespaces
 
 #endif
