@@ -1,1 +1,1 @@
-script: ./build-test.sh
+script: echo yes | ./build-test.sh
