@@ -3,7 +3,6 @@ Cambridge SMT
 
 This package contains the Cambridge SMT system.
 
-
 GETTING STARTED
  + Requirements: You need to install the following libraries: OpenFST 1.3.*, boost_1_53_0+, and google tests 1.4.0+. 
    Should compile succesfully with g++ versions 4.2.1 to 4.6.1.
