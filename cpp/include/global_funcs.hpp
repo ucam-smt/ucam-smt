@@ -226,7 +226,7 @@ template
 < typename T
   , template<typename ElemT, typename AllocT=std::allocator<ElemT> > class Container
   >
-std::ostream& operator<< (std::ostream& o, Container<T> const& container) {
+inline std::ostream& operator<< (std::ostream& o, Container<T> const& container) {
   typename Container<T>::const_iterator itx = container.begin();
   while(itx != container.end()) {
     o << *itx++ << " ";
@@ -238,13 +238,13 @@ template
 < typename T
   , template<typename ElemT, typename AllocT=std::allocator<ElemT> > class Container
   >
-std::string printout(Container<T> const& container) {
+inline std::string printout(Container<T> const& container) {
 	std::ostringstream ss;
 	ss << container;
 	return ss.str();
-}
+};
 
-std::ostream& operator<< (std::ostream& o, std::basic_string<unsigned> const& container) {
+inline std::ostream& operator<< (std::ostream& o, std::basic_string<unsigned> const& container) {
 	typename std::basic_string<unsigned>::const_iterator itx = container.begin();
   while(itx != container.end()) {
     o << *itx++ << " ";

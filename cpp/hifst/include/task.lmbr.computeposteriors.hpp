@@ -77,7 +77,6 @@ class ComputePosteriors {
            ++it) {
         fst::NGram w = it->first;
         ofs << std::fixed << std::setprecision (12) << posteriors[w][0][0];
-				ofstream ja;
 				using ucam::util::operator<<;
 				ofs << "\t" << w << '\n';
       }
