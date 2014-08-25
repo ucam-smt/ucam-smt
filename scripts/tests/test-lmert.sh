@@ -7,8 +7,8 @@ paramsfile=data/lmert/params.0
 reffile=data/lmert/refs
 veclatsdir=data/lmert/veclats
 ### Up to 99 sentences:
-# range=1:20
-range=1:99
+range=1:20
+# range=1:99
 
 BASEDIR=TESTFILES/`basename $0 | sed -e 's:.sh::g'`
 REFDIR=REFFILES/`basename $0 | sed -e 's:.sh::g'`

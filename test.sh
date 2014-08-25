@@ -78,8 +78,8 @@ echo "Running Regression Tests..." 2>&1 | tee -a $LOGFILE
 rm -Rf fsts
 
 echo "Tests finished on $(date) on $(hostname). RESULTS:" | tee -a $LOGFILE
-tail -n -v 11 $LOGFILE.unit-tests | tee -a $LOGFILE
-tail -n -v 4 $LOGFILE.reg-tests | tee -a $LOGFILE
+tail -v -n 11 $LOGFILE.unit-tests | tee -a $LOGFILE
+tail -v -n 4 $LOGFILE.reg-tests | tee -a $LOGFILE
 
 echo "Done!" 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATHORIG

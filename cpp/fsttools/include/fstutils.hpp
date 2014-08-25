@@ -184,17 +184,19 @@ void EncodeDeterminizeMinimizeDecode ( fst::Fst<Arc> const&  myfst ,
  * \remark Projects on the input first.
  */
 template<class Arc,
-         class StringTypeT>
-inline std::basic_string<StringTypeT> 
+         class CharTypeT,
+				 class StringTypeT
+				 >
+inline std::basic_string<CharTypeT> 
 FstGetBestHypothesis(const fst::VectorFst<Arc> &latfst) {
   using namespace fst;
+	using namespace std;
   VectorFst<Arc> hypfst;
   ShortestPath(latfst, &hypfst);
   Project(&hypfst, PROJECT_INPUT);
   RmEpsilon(&hypfst);
   TopSort(&hypfst);
-
-  basic_string<StringTypeT> hypstr;
+  basic_string<CharTypeT> hypstr;
   for (StateIterator< VectorFst<Arc> > si(hypfst); !si.Done();
        si.Next()) {
     for (ArcIterator< VectorFst<Arc> > ai(hypfst, si.Value());
@@ -202,23 +204,37 @@ FstGetBestHypothesis(const fst::VectorFst<Arc> &latfst) {
       stringstream ss;
       ss << ai.Value().ilabel;
       StringTypeT value; ss >> value;
-      hypstr += value;
+      hypstr += value; 
     }
   }
   return hypstr;
 };
 
+
 //basic_string to vector helper:
 template<class Arc,
-         class StringTypeT>
+         class CharTypeT>
 void FstGetBestHypothesis(const fst::VectorFst<Arc> &latfst
-										 , std::vector<StringTypeT> &hyp) {	
+										 , std::vector<CharTypeT> &hyp) {	
 
-	std::basic_string<StringTypeT> aux = FstGetBestHypothesis<Arc,StringTypeT>(latfst);
+	std::basic_string<CharTypeT> aux = FstGetBestHypothesis<Arc,CharTypeT, CharTypeT>(latfst);
 	hyp.clear();
 	hyp.resize(aux.size());
 	std::copy(aux.begin(), aux.end(), hyp.begin());
 }
+
+//helper with std::string (spaces between numbers)
+template<class Arc>
+void FstGetBestStringHypothesis(const fst::VectorFst<Arc> &latfst
+																, std::string &hyp) {
+	std::basic_string<unsigned> aux =	FstGetBestHypothesis<Arc,unsigned, unsigned>(latfst);
+	hyp.clear();
+	for (unsigned k =0; k < aux.size(); ++k){
+		std::stringstream ss; ss << aux[k];
+		hyp += ss.str() + " ";
+	}
+}
+
 
 /**
  * \brief Trivial function that outputs all the hypothesis in the lattice with its cost
