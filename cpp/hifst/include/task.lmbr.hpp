@@ -197,7 +197,8 @@ class LmbrTask: public ucam::util::TaskInterface<Data> {
       fst::VectorFst<fst::StdArc> original (*lmbrlat);
       for ( wps_.start(); !wps_.done (); wps_.next() ) {
         fst::Map (original, &lmbroutput_, fst::TimesMapper<fst::StdArc> (wps_() ) );
-        std::string hyp = FstGetBestHypothesis (lmbroutput_);
+				std::string hyp;
+				FstGetBestStringHypothesis(lmbroutput_, hyp);
         LINFO ("wps=" << wps_() << ":" << hyp);
         if (onebest_) {
           //    *d.lmbronebest+="alpha=" + toString(alpha_())+ " wps=" + toString(wps_()) + " " + toString(d.sidx)+ ":" + hyp + "\n";

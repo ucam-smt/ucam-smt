@@ -90,7 +90,8 @@ class PostProTask: public ucam::util::TaskInterface<Data> {
                        "d.translation not initialized?" ) ) return true;
     fst::VectorFst<Arc> ofst ( * (static_cast< fst::VectorFst<Arc> *>
                                   (d.fsts[inputkey_]) ) );
-    std::string text = FstGetBestHypothesis ( ofst );
+    std::string text;
+		fst::FstGetBestStringHypothesis( ofst, text);
     LINFO ( "1best is " << text );
     std::string detokutext;
     if ( d.wm.find ( wordmapkey_ ) != d.wm.end() )

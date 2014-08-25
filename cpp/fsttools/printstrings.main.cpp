@@ -159,15 +159,15 @@ int run ( ucam::util::RegistryPO const& rg) {
     std::vector<HypT> hyps;
     fst::printStrings<Arc> (nfst, &hyps);
     for (unsigned k = 0; k < hyps.size(); ++k) {
-      *out << hyps[k] << std::endl;
+      *out->getStream() << hyps[k] << std::endl;
     }
   }
 };
 
 /*
  * \brief Main function.
- * \param       argc: Number of command-line program options.
- * \param       argv: Actual program options.
+ * \param       argc Number of command-line program options.
+ * \param       argv Actual program options.
  * \remarks
  */
 int  main ( int argc, const char* argv[] ) {

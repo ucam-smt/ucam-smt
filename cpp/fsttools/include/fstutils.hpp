@@ -179,27 +179,62 @@ void EncodeDeterminizeMinimizeDecode ( fst::Fst<Arc> const&  myfst ,
 
 /**
  * \brief Takes the 1-best of an fst and converts to string.
- * \param latfst: Lattice from which we want to obtain the 1-best as a string.
+ * \param latfst Lattice from which we want to obtain the 1-best as a string.
+ * \return basic_string, templated.
+ * \remark Projects on the input first.
  */
-template<class Arc>
-inline std::string FstGetBestHypothesis ( const fst::VectorFst<Arc>& latfst ) {
-  fst::VectorFst<Arc> hypfst;
-  fst::ShortestPath ( latfst, &hypfst );
-  fst::Project ( &hypfst, fst::PROJECT_INPUT );
-  fst::RmEpsilon ( &hypfst );
-  fst::TopSort ( &hypfst );
-  std::string hypstr = "";
-  for ( fst::StateIterator< fst::VectorFst<Arc> > si ( hypfst ); !si.Done();
-        si.Next() ) {
-    for ( fst::ArcIterator< fst::VectorFst<Arc> > ai ( hypfst, si.Value() );
-          !ai.Done(); ai.Next() ) {
-      std::ostringstream oss;
-      oss << ai.Value().ilabel;
-      hypstr += oss.str() + " ";
+template<class Arc,
+         class CharTypeT,
+				 class StringTypeT
+				 >
+inline std::basic_string<CharTypeT> 
+FstGetBestHypothesis(const fst::VectorFst<Arc> &latfst) {
+  using namespace fst;
+	using namespace std;
+  VectorFst<Arc> hypfst;
+  ShortestPath(latfst, &hypfst);
+  Project(&hypfst, PROJECT_INPUT);
+  RmEpsilon(&hypfst);
+  TopSort(&hypfst);
+  basic_string<CharTypeT> hypstr;
+  for (StateIterator< VectorFst<Arc> > si(hypfst); !si.Done();
+       si.Next()) {
+    for (ArcIterator< VectorFst<Arc> > ai(hypfst, si.Value());
+         !ai.Done(); ai.Next()) {
+      stringstream ss;
+      ss << ai.Value().ilabel;
+      StringTypeT value; ss >> value;
+      hypstr += value; 
     }
   }
   return hypstr;
 };
+
+
+//basic_string to vector helper:
+template<class Arc,
+         class CharTypeT>
+void FstGetBestHypothesis(const fst::VectorFst<Arc> &latfst
+										 , std::vector<CharTypeT> &hyp) {	
+
+	std::basic_string<CharTypeT> aux = FstGetBestHypothesis<Arc,CharTypeT, CharTypeT>(latfst);
+	hyp.clear();
+	hyp.resize(aux.size());
+	std::copy(aux.begin(), aux.end(), hyp.begin());
+}
+
+//helper with std::string (spaces between numbers)
+template<class Arc>
+void FstGetBestStringHypothesis(const fst::VectorFst<Arc> &latfst
+																, std::string &hyp) {
+	std::basic_string<unsigned> aux =	FstGetBestHypothesis<Arc,unsigned, unsigned>(latfst);
+	hyp.clear();
+	for (unsigned k =0; k < aux.size(); ++k){
+		std::stringstream ss; ss << aux[k];
+		hyp += ss.str() + " ";
+	}
+}
+
 
 /**
  * \brief Trivial function that outputs all the hypothesis in the lattice with its cost
