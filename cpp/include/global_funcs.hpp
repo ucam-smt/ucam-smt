@@ -204,13 +204,13 @@ class HashEqVec {
 /// or vector<int>
 template<class VecT>
 class HashFVec : public std::unary_function<VecT, std::size_t> {
- public:
+public:
   ///Implements hash function
   std::size_t operator() ( VecT const& v ) const {
     std::size_t res = 0;
     for ( unsigned int i = 0; i < v.size();
           i++ )  res += ( std::size_t ) pow ( ( double ) v[i],
-                          double ( ( ( i ) % 6 ) + 1 ) );
+					      double ( ( ( i ) % 6 ) + 1 ) );
     return res % HASH_MODULE;
   }
 };
@@ -239,13 +239,13 @@ template
   , template<typename ElemT, typename AllocT=std::allocator<ElemT> > class Container
   >
 inline std::string printout(Container<T> const& container) {
-	std::ostringstream ss;
-	ss << container;
-	return ss.str();
+  std::ostringstream ss;
+  ss << container;
+  return ss.str();
 };
 
 inline std::ostream& operator<< (std::ostream& o, std::basic_string<unsigned> const& container) {
-	std::basic_string<unsigned>::const_iterator itx = container.begin();
+  std::basic_string<unsigned>::const_iterator itx = container.begin();
   while(itx != container.end()) {
     o << *itx++ << " ";
   }  

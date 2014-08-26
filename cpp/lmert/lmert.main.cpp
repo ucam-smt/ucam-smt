@@ -13,7 +13,7 @@ int main ( int argc,  const char* argv[] ) {
                          "=====================" ) );
   BleuScorer bleuScorer ( rg , HifstConstants::kLmertRefs );
   TuneSet< TupleArc32 > tuneSet ( rg );
-  PARAMS32 lambda = ucam::util::ParseParamString<float> 
+	ucam::lmert::PARAMS32 lambda = ucam::util::ParseParamString<float>
 		(rg.getString( HifstConstants::kLmertInitialParams ));
   RandomLineSearch< TupleArc32 > rls ( rg, tuneSet, bleuScorer, lambda );
   FORCELINFO ( argv[0] << " finished!" );

@@ -14,11 +14,11 @@ namespace lmert {
 
 template <class Arc>
 class RandomLineSearch {
- public:
+public:
   RandomLineSearch ( ucam::util::RegistryPO const& rg,
-										 ucam::fsttools::TuneSet<Arc>& ts,
+		     ucam::fsttools::TuneSet<Arc>& ts,
                      ucam::fsttools::BleuScorer& bs,
-										 ucam::fsttools::PARAMS32 const &lambda ) :
+		     ucam::fsttools::PARAMS32 const &lambda ) :
     lambda_ ( lambda ), fdim_ ( lambda.size() ),
     gammaMin_ ( rg.get<float> ( HifstConstants::kLmertMinGamma ) ),
     minBleuGain_ ( rg.get<float> ( HifstConstants::kLmertMinBleuGain ) ),
@@ -31,15 +31,15 @@ class RandomLineSearch {
       numRandDirs_ = 2 * fdim_;
 
     iBleu_ = ts.ComputeBleu ( bs, lambda );
-		LINFO("Lambda: " << ucam::util::printout(lambda_) 
-					<< "(dim " << fdim_ << ") Initial Bleu: " << iBleu_);
+    LINFO("Lambda: " << ucam::util::printout(lambda_) 
+	  << "(dim " << fdim_ << ") Initial Bleu: " << iBleu_);
     optBleu_ = iBleu_;
 
     while ( true ) {
       GenerateDirections();
       double optGamma = 0.0;
       int optDirection;
-      Bleu pBleu ( optBleu_ );
+      ucam::fsttools::Bleu pBleu ( optBleu_ );
 
       for ( int i = 0; i < directions_.size(); i++ ) {
         LineOptimize< Arc > lopt ( rg, ts, bs, lambda_, directions_[i] );
@@ -54,13 +54,13 @@ class RandomLineSearch {
         }
 
         LINFO("Direction[" << i << "]: Opt Bleu: " << lopt.OptimalBleu() <<
-							( smallBleuGain ? " - too small; " : "; " )
-							<< "Gamma: " << lopt.OptimalGamma() << ( smallGamma ? " - too small" : "" ));
+	      ( smallBleuGain ? " - too small; " : "; " )
+	      << "Gamma: " << lopt.OptimalGamma() << ( smallGamma ? " - too small" : "" ));
 
       }
 
       LINFO("Full random iteration completed. Opt Bleu: " << optBleu_ <<
-						"; Opt Gamma: " << optGamma << ( optGamma < gammaMin_ ? " - too small" : "" ) );
+	    "; Opt Gamma: " << optGamma << ( optGamma < gammaMin_ ? " - too small" : "" ) );
 
       if ( optBleu_.m_bleu < pBleu.m_bleu + minBleuGain_ ) {
         FORCELINFO("Bleu gain less than threshold. Exiting.");
@@ -73,9 +73,9 @@ class RandomLineSearch {
     }
 
     LINFO("Initial Bleu: " << iBleu_ << std::endl << "Final Bleu:   " <<
-					optBleu_ << std::endl << "Final Lambda: " << ucam::util::printout(lambda_) );
+	  optBleu_ << std::endl << "Final Lambda: " << ucam::util::printout(lambda_) );
 
-		std::string writeParamsFileName = rg.get<string> (HifstConstants::kLmertWriteParams );
+    std::string writeParamsFileName = rg.get<string> (HifstConstants::kLmertWriteParams );
     if ( writeParamsFileName.length() ) {
       std::ofstream ofs ( writeParamsFileName.c_str() );
 
@@ -90,7 +90,7 @@ class RandomLineSearch {
     }
   }
 
- private:
+private:
 
   void GenerateDirections() {
     directions_.clear();
@@ -106,8 +106,8 @@ class RandomLineSearch {
 
     for ( int i = 0; i < numRandDirs_; i++ ) {
       boost::random::variate_generator<boost::random::mt19937&,
-																			 boost::random::uniform_on_sphere<float> >
-      sg ( rand_gen, unif_sphere );
+				       boost::random::uniform_on_sphere<float> >
+	sg ( rand_gen, unif_sphere );
       directions_.push_back ( sg() );
       //      std::cerr << directions_.back() << std::endl;
     }
@@ -122,13 +122,11 @@ class RandomLineSearch {
     }
   }
 
-	typedef ucam::fsttools::PARAMS32 PARAMS32;
-	typedef ucam::fsttools::Bleu Bleu;
   boost::random::mt19937 rand_gen;
-  vector< PARAMS32 > directions_;
-  PARAMS32 lambda_;
-	Bleu optBleu_;
-	Bleu iBleu_;
+  vector< ucam::fsttools::PARAMS32 > directions_;
+  ucam::fsttools::PARAMS32 lambda_;
+  ucam::fsttools::Bleu optBleu_;
+  ucam::fsttools::Bleu iBleu_;
   float minBleuGain_;
   float gammaMin_;
   int fdim_;
