@@ -245,7 +245,7 @@ inline std::string printout(Container<T> const& container) {
 };
 
 inline std::ostream& operator<< (std::ostream& o, std::basic_string<unsigned> const& container) {
-	typename std::basic_string<unsigned>::const_iterator itx = container.begin();
+	std::basic_string<unsigned>::const_iterator itx = container.begin();
   while(itx != container.end()) {
     o << *itx++ << " ";
   }  
