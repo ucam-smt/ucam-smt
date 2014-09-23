@@ -42,27 +42,21 @@ import uk.ac.cam.eng.util.Pair;
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class TTableClient implements Closeable {
+public class TTableClient {
 
 	private static final String S2T_FEATURE_NAME = "source2target_lexical_probability";
 
 	private static final String T2S_FEATURE_NAME = "target2source_lexical_probability";
 
-	private static final String S2T_HOST_NAME = "ttable.s2t.host";
+	private static final String S2T_HOST_NAME = "ttable_s2t_host";
 
-	private static final String T2S_HOST_NAME = "ttable.t2s.host";
+	private static final String T2S_HOST_NAME = "ttable_t2s_host";
 
 	private String hostName;
 
 	private int port;
 
-	private Socket clientSocket;
-
 	private LexicalProbability prob;
-
-	private DataInputStream in;
-
-	private DataOutputStream out;
 
 	private Map<List<Integer>, Double> wordAlignments = new HashMap<>();
 
@@ -90,29 +84,34 @@ public class TTableClient implements Closeable {
 
 	private double[] query(Collection<List<Integer>> query) throws IOException {
 
-		clientSocket = new Socket(hostName, port);
-		in = new DataInputStream(new BufferedInputStream(
-				clientSocket.getInputStream(), TTableServer.BUFFER_SIZE));
-		out = new DataOutputStream(new BufferedOutputStream(
-				clientSocket.getOutputStream(), TTableServer.BUFFER_SIZE));
-		double[] result = new double[query.size()];
-		out.writeInt(query.size());
-		for (List<Integer> queryKey : query) {
-			out.writeInt(queryKey.get(0));
-			out.writeInt(queryKey.get(1));
-			out.writeInt(queryKey.get(2));
-		}
-		out.flush();
+		try (Socket clientSocket = new Socket(hostName, port);
+				DataInputStream in = new DataInputStream(
+						new BufferedInputStream(clientSocket.getInputStream(),
+								TTableServer.BUFFER_SIZE));
+				DataOutputStream out = new DataOutputStream(
+						new BufferedOutputStream(
+								clientSocket.getOutputStream(),
+								TTableServer.BUFFER_SIZE))) {
 
-		for (int i = 0; i < query.size(); ++i) {
-			double val = in.readDouble();
-			result[i] = val;
-		}
-		clientSocket.close();
-		in.close();
-		out.close();
-		return result;
+			double[] result = new double[query.size()];
+			out.writeInt(query.size());
+			for (List<Integer> queryKey : query) {
+				out.writeInt(queryKey.get(0));
+				out.writeInt(queryKey.get(1));
+				out.writeInt(queryKey.get(2));
+			}
+			out.flush();
 
+			for (int i = 0; i < query.size(); ++i) {
+				double val = in.readDouble();
+				result[i] = val;
+			}
+			return result;
+		} catch (java.net.ConnectException e) {
+			String message = "Failed to connect to ttable server. Hostname: "
+					+ hostName + " Port: " + port;
+			throw new IOException(message, e);
+		}
 	}
 
 	public void queryRules(
@@ -145,10 +144,4 @@ public class TTableClient implements Closeable {
 		}
 	}
 
-	@Override
-	public void close() throws IOException {
-		clientSocket.close();
-		in.close();
-		out.close();
-	}
 }
