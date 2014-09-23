@@ -48,9 +48,9 @@ public class TTableClient implements Closeable {
 
 	private static final String T2S_FEATURE_NAME = "target2source_lexical_probability";
 
-	private static final String S2T_HOST_NAME = "ttable.s2t.host";
+	private static final String S2T_HOST_NAME = "ttable_s2t_host";
 
-	private static final String T2S_HOST_NAME = "ttable.t2s.host";
+	private static final String T2S_HOST_NAME = "ttable_t2s_host";
 
 	private String hostName;
 
@@ -89,30 +89,36 @@ public class TTableClient implements Closeable {
 	}
 
 	private double[] query(Collection<List<Integer>> query) throws IOException {
+		try {
+			clientSocket = new Socket(hostName, port);
+			in = new DataInputStream(new BufferedInputStream(
+					clientSocket.getInputStream(), TTableServer.BUFFER_SIZE));
+			out = new DataOutputStream(new BufferedOutputStream(
+					clientSocket.getOutputStream(), TTableServer.BUFFER_SIZE));
+			double[] result = new double[query.size()];
+			out.writeInt(query.size());
+			for (List<Integer> queryKey : query) {
+				out.writeInt(queryKey.get(0));
+				out.writeInt(queryKey.get(1));
+				out.writeInt(queryKey.get(2));
+			}
+			out.flush();
 
-		clientSocket = new Socket(hostName, port);
-		in = new DataInputStream(new BufferedInputStream(
-				clientSocket.getInputStream(), TTableServer.BUFFER_SIZE));
-		out = new DataOutputStream(new BufferedOutputStream(
-				clientSocket.getOutputStream(), TTableServer.BUFFER_SIZE));
-		double[] result = new double[query.size()];
-		out.writeInt(query.size());
-		for (List<Integer> queryKey : query) {
-			out.writeInt(queryKey.get(0));
-			out.writeInt(queryKey.get(1));
-			out.writeInt(queryKey.get(2));
+			for (int i = 0; i < query.size(); ++i) {
+				double val = in.readDouble();
+				result[i] = val;
+			}
+			clientSocket.close();
+			in.close();
+			out.close();
+			return result;
+		} catch (IOException e) {
+			// port and host are not logged when throwing java.net.ConnectException
+			System.err.println("Port: " + port);
+			System.err.println("Host: " + hostName);
+			e.printStackTrace();
+			throw e;
 		}
-		out.flush();
-
-		for (int i = 0; i < query.size(); ++i) {
-			double val = in.readDouble();
-			result[i] = val;
-		}
-		clientSocket.close();
-		in.close();
-		out.close();
-		return result;
-
 	}
 
 	public void queryRules(
