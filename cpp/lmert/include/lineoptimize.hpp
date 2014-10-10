@@ -46,8 +46,6 @@ public:
     lambda_ ( lambda ),
     direction_ ( direction ),
     nthreads_ ( rg.get<int> ( HifstConstants::kNThreads.c_str()) ) {
-		
-
     envelopes_.clear();
     envelopes_.resize ( ts.sidMax );
     {
@@ -71,7 +69,6 @@ public:
     }
     prev.resize ( envelopes_.size() );
     initials.resize ( envelopes_.size() );
-
     for ( Sid sidx = 0; sidx < envelopes_.size(); sidx++ ) {
       MertEnvelope<Arc> env = envelopes_[sidx];
       // iterate over lines
@@ -84,7 +81,6 @@ public:
       prev[sidx] = bs.SentenceBleuStats ( sidx, h );
       IntervalBoundary bd1 ( sidx, env.lines[i].x, prev[sidx] );
       initials[sidx] = bd1;
-
       // CreateInterval()
       for ( i = 1; i < env.lines.size(); ++i ) {
         offset = ( env.lines[i].t.size() < 2 ? 0 : 1 );
@@ -96,7 +92,6 @@ public:
         prev[sidx] = next;
       }
     }
-
     Surface ( bs );
   }
 
@@ -110,36 +105,28 @@ public:
             initials.begin(); it != initials.end(); ++it ) {
       aggregateBleuStats = aggregateBleuStats + it->bleuStats_;
     }
-
-    //    std::cerr << aggregateBleuStats << std::endl;
     optimalGamma = -std::numeric_limits<double>::infinity();
-
     if ( boundaries.size() == 0 ) {
       LINFO("no boundaries - returning");
       return;
     }
-
     sort ( boundaries.begin(), boundaries.end(),
            IntervalBoundarySortPredicate<IntervalBoundary> );
     unbounded = true;     // initial interval is unbounded
     optimalGamma = boundaries.front().gamma_ - 1;
     optimalBleu = bs.ComputeBleu ( aggregateBleuStats );
     //    std::cerr << "OO " << optimalGamma << " " << optimalBleu << " :: " << boundaries.size() << std::endl;
-    typename std::vector<IntervalBoundary>::iterator itNext = ++
-      ( boundaries.begin() );
-
+    typename std::vector<IntervalBoundary>::iterator itNext = ++( boundaries.begin() );
     for ( typename std::vector<IntervalBoundary>::iterator it = boundaries.begin();
           it != boundaries.end(); ++it ) {
       aggregateBleuStats = aggregateBleuStats + it->bleuStats_;
       ucam::fsttools::Bleu current = bs.ComputeBleu ( aggregateBleuStats );
-
       if ( current > optimalBleu ) {
         optimalBleu = current;
         unbounded = ( itNext == boundaries.end() );
-        optimalGamma = ( itNext == boundaries.end() ) ? it->gamma_ + 1.0 : 0.5 *
-	  ( it->gamma_ + itNext->gamma_ );
+        optimalGamma = ( itNext == boundaries.end() ) ? it->gamma_ + 1.0 : 
+	  0.5 * ( it->gamma_ + itNext->gamma_ );
       }
-
       ++itNext;
     }
   }

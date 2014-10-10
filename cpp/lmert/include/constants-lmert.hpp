@@ -12,6 +12,8 @@ std::string const kLmertMinBleuGain="min_bleu_gain";
 std::string const kLmertRandomSeed="random_seed";
 std::string const kLmertNumRandomDirections="num_random_directions";
 std::string const kLmertWriteParams="write_params";
+std::string const kLmertExternalTokenizer="external_tokenizer";
+std::string const kLmertBleuCacheSize="bleu_cache_size";
 }
 
 #endif

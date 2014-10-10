@@ -22,16 +22,18 @@ inline void init_param_options ( int argc, const char* argv[],
       ( kLmertInitialParams.c_str(), po::value<std::string>(),
 	"Initial parameter value (lambda)" )
       ( kLmertRefs.c_str(), po::value<std::string>(), "MERT reference translations" )
-      ( kLmertMinGamma.c_str(), po::value<float>()->default_value ( 0.0005f ),
+      ( kLmertMinGamma.c_str(), po::value<float>()->default_value ( 0.000005f ),
 	"minimum gamma value for a line segment" )
       ( kLmertMinBleuGain.c_str(), po::value<float>()->default_value ( 0.000001f ),
 	"minimum accepted bleu gain (stopping criterion)" )
       ( kLmertRandomSeed.c_str(), po::value<int>()->default_value ( time ( 0 ) ),
 	"seed for randomline search" )
       ( kNThreads.c_str() , po::value<int>()->default_value ( 1 ), "number of threads" )
-      ( kLmertNumRandomDirections.c_str(), po::value<int>()->default_value ( 0 ),
+      ( kLmertNumRandomDirections.c_str(), po::value<int>()->default_value ( 10 ),
 	"number of random directions; default is 2xfeature_dim" )
       ( kLmertWriteParams.c_str(), po::value<std::string>(), "output parameter file" )
+      ( kLmertExternalTokenizer.c_str(), po::value<std::string>(), "external tokenization command" )
+      ( kLmertBleuCacheSize.c_str(), po::value<int>()->default_value(10000), "number of hyps per sentence for which to LRU cache Bleu stats");
       ;
 
     // \todo is this option supported?

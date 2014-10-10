@@ -81,6 +81,26 @@ inline void ParseParamString ( const std::string& stringparams ,
 }
 
 /**
+ * \brief Write parameter vector to a file, with comma separators
+ */
+
+void WriteParamFile(const std::string& filename, std::vector<float> params_) {
+  std::ofstream ofs ( filename.c_str() );
+  if ( !ofs.good() ) {
+    LERROR("Can't write to " << filename);
+    exit ( EXIT_FAILURE );
+  }
+  LINFO("Writing final Lambda to " << filename );
+  float ev = params_.back();
+  params_.pop_back();
+  for (size_t i=0; i<params_.size(); i++) {
+    ofs << params_[i] << ",";
+  }
+  ofs << ev << std::endl;
+  ofs.close();
+}
+
+/**
  * \brief Initializes a set of parameters from environment variables PARAMS_FILE or PARAMS
  */
 template<typename T>
