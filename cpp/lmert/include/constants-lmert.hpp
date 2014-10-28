@@ -6,7 +6,8 @@
 namespace HifstConstants {
 
 std::string const kLmertInitialParams="initial_params";
-std::string const kLmertRefs="refs";
+std::string const kLmertWordRefs="word_refs";
+std::string const kLmertIntRefs="int_refs";
 std::string const kLmertMinGamma="min_gamma";
 std::string const kLmertMinBleuGain="min_bleu_gain";
 std::string const kLmertRandomSeed="random_seed";

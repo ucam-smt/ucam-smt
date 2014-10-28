@@ -21,7 +21,8 @@ inline void init_param_options ( int argc, const char* argv[],
 	"Fst(s) to count strings (use ? for multiple instances) " )
       ( kLmertInitialParams.c_str(), po::value<std::string>(),
 	"Initial parameter value (lambda)" )
-      ( kLmertRefs.c_str(), po::value<std::string>(), "MERT reference translations" )
+      ( kLmertWordRefs.c_str(), po::value<std::string>(), "MERT reference translations words" )
+      ( kLmertIntRefs.c_str(), po::value<std::string>(), "MERT reference translations ints" )
       ( kLmertMinGamma.c_str(), po::value<float>()->default_value ( 0.000005f ),
 	"minimum gamma value for a line segment" )
       ( kLmertMinBleuGain.c_str(), po::value<float>()->default_value ( 0.000001f ),

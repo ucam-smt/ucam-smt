@@ -168,17 +168,21 @@ public:
   typedef unordered_map<NGram, unsigned int,
 			ucam::util::hashfvecint64, 
 			ucam::util::hasheqvecint64> NGramToCountMap;
-  vector<NGramToCountMap> refCounts;
-  vector<unsigned int> refLengths;
+  std::vector<NGramToCountMap> refCounts;
+  std::vector< std::vector<unsigned int> > refLengths;
 
-  BleuScorer(std::string const & refFile, std::string const & extTokCmd, 
-	     unsigned int cacheSize) : chits_(0), cmisses_(0){
+  BleuScorer(std::string const & refFiles, std::string const & extTokCmd, 
+	     unsigned int const & cacheSize, bool const & intRefs) : 
+    chits_(0), cmisses_(0), intRefs_(intRefs){
     externalTokenizer_ = (extTokCmd.size() > 0);
     useCache_ = (cacheSize > 0);
-
+    if (!intRefs_ && !externalTokenizer_) {
+      FORCELINFO("If not using external tokenizer, must use integer references");
+      exit ( EXIT_FAILURE );
+    }
     // -- pipez
     if (externalTokenizer_) {
-      FORCELINFO("External tokenizer");
+      FORCELINFO("Starting external tokenizer");
       int fd[2];
       OpenPipe(fd, extTokCmd);
       pipe_in *pIn = new pipe_in();
@@ -190,31 +194,64 @@ public:
       normalIn = new std::istream(pIn);
       intOut = new std::ostream(pOut);
       oovId_ = 0;
-    } else {
-      FORCELINFO("No external tokenizer");
     }
+    LoadReferences(refFiles);
+    if (useCache_) {
+      bleuStatsCache.resize( refCounts.size()  );
+      FORCELINFO("bleu stats cache size: " << cacheSize << " x " << refCounts.size());
+    }
+  }
 
-    FORCELINFO("Processing file " << refFile );
-    std::ifstream ifs ( refFile.c_str() );
-    std::string line;
-    int nr = 0;
-    while ( getline ( ifs, line ) ) {
-      SentenceIdx sidx;
-      if (externalTokenizer_)
-	sidx = ExternalRefTokenizer( line );
-      else
-	sidx = StringToSentenceIdx( line );
-      refLengths.push_back ( sidx.size() );
-      refCounts.push_back ( ScanNGrams ( sidx ) );
-      nr++;
+  void LoadReferences(std::string const & refFiles) {
+    FORCELINFO("Processing reference(s) " << refFiles );
+    std::vector<std::string> fv;
+    boost::split(fv, refFiles, boost::is_any_of(","));
+    int nr;
+    for (int k = 0; k < fv.size(); k++) {
+      std::string refFile = fv[k];
+      FORCELINFO("Processing reference " << refFile );
+      std::ifstream ifs ( refFile.c_str() );
+      std::string line;
+      int nrk = 0;
+      while ( getline ( ifs, line ) ) {
+	SentenceIdx sidx;
+	if (intRefs_)  
+	  sidx = externalTokenizer_ ? LoadIntRefExternalTokenizer(line) : LoadIntRef(line);
+	else 
+	  sidx = LoadWordRef(line);
+	NGramToCountMap ngc = ScanNGrams ( sidx ); 
+	if ( k == 0 ) { 
+	  std::vector<unsigned int> l;
+	  l.push_back(sidx.size());
+	  refLengths.push_back(l);
+	  refCounts.push_back(ngc);
+	} else {
+	  refLengths[nrk].push_back( sidx.size() );
+	  for (NGramToCountMap::const_iterator it = ngc.begin(); it != ngc.end(); it++) {
+	    NGramToCountMap::const_iterator it2 = refCounts[nrk].find(it->first);
+	    if (it2 == refCounts[k].end()) {
+	      refCounts[nrk][it->first] = it->second;
+	    } else {
+	      refCounts[nrk][it->first] = std::max(refCounts[nrk][it->first], it->second);
+	    }
+	  }
+	}
+	nrk++;
+      }
+      ifs.close();
+      if (k==0)
+	nr = nrk;
+      if (nr != nrk) {
+	FORCELINFO("unequal number of reference sentences");
+	exit ( EXIT_FAILURE );
+      }
     }
-    ifs.close();
+    if (nr == 0) {
+      FORCELINFO("Unable to load any references.");
+      exit(EXIT_FAILURE);
+    }
     FORCELINFO("refLengths.size() " << refLengths.size());
     FORCELINFO("refCounts.size() " << refCounts.size() );
-    if (useCache_) {
-      bleuStatsCache.resize( nr );
-      FORCELINFO("bleu stats cache size: " << cacheSize << " x " << nr);
-    }
   }
 
   string CacheStats() {
@@ -227,7 +264,16 @@ public:
 
   unsigned int ClosestReferenceLength ( Sid sid,
 					const unsigned int hypLength ) const {
-    return refLengths[sid];
+    unsigned int rD = std::numeric_limits<unsigned int>::max();
+    unsigned int rL;
+    for (unsigned int k=0; k<refLengths[sid].size(); k++) {
+      unsigned int d = abs( (int) refLengths[sid][k] - (int) hypLength);
+      if (d < rD) {
+	rD = d;
+	rL = refLengths[sid][k];
+      }
+    }
+    return rL;
   }
 
   BleuStats SentenceBleuStats ( const Sid sid, const SentenceIdx& hypIdx ) {
@@ -237,7 +283,7 @@ public:
       return bs;
     }
     cmisses_++;
-    SentenceIdx hyp = (externalTokenizer_) ? ExternalHypTokenizer(hypIdx) : hypIdx;
+    SentenceIdx hyp = (externalTokenizer_) ? HypExternalTokenizer(hypIdx) : hypIdx;
     bs.refLength_ = ClosestReferenceLength ( sid, hyp.size() );
     for ( unsigned int n = 0; n < BleuStats::MAX_BLEU_ORDER
 	    && n < hyp.size(); ++n ) {
@@ -296,16 +342,19 @@ private:
   unordered_map<std::string, Wid> refWordMap_;
   Wid oovId_;
   bool externalTokenizer_;
+  bool intRefs_;
   boost::mutex mutex;
   vector< LRUCache > bleuStatsCache;
   unsigned int chits_;
   unsigned int cmisses_;
   bool useCache_;
 
+  SentenceIdx WordsToSentenceIdx;
+
   // n.b. not to be multithreaded - references are loaded only once by main
-  SentenceIdx ExternalRefTokenizer(std::string const &s) {
-    (*intOut) << s << endl;
+  SentenceIdx LoadIntRefExternalTokenizer(std::string const &s) {
     string si;
+    (*intOut) << s << endl;
     getline(*normalIn, si);
     std::istringstream is(si);
     SentenceIdx rs;
@@ -322,9 +371,38 @@ private:
     return rs;
   }
 
+  // read in ascii refs that are already correctly tokenized  
+  // for use with external tokenization of hyps
+  // n.b. not to be multithreaded - references are loaded only once by main
+  SentenceIdx LoadWordRef(std::string const &s) {
+    std::istringstream is(s);
+    SentenceIdx rs;
+    string w;
+    while (is >> w) {
+      unordered_map<std::string, Wid>::iterator it = refWordMap_.find(w);
+      if (it == refWordMap_.end()) {
+	rs.push_back(oovId_);
+	refWordMap_[w] = oovId_++;
+      }	else {
+	rs.push_back(it->second);
+      }
+    }
+    return rs;
+  }
+
+  // n.b. not to be multithreaded - references are loaded only once by main
+  SentenceIdx LoadIntRef(std::string const & s) {
+    SentenceIdx rv;
+    std::istringstream is(s);
+    Wid w;
+    while (is >> w)
+      rv.push_back(w);
+    return rv;
+  }
+
   // returns wordid if word is in references; oov otherwise
   // ok for threading
-  SentenceIdx ExternalHypTokenizer(SentenceIdx const &s) {
+  SentenceIdx HypExternalTokenizer(SentenceIdx const &s) {
     if (s.size() == 0)
       return s;
     std::ostringstream os;
@@ -348,15 +426,6 @@ private:
       }
     }
     return rs;
-  }
-
-  SentenceIdx StringToSentenceIdx(std::string const & s) {
-    SentenceIdx rv;
-    std::istringstream is(s);
-    Wid w;
-    while (is >> w)
-      rv.push_back(w);
-    return rv;
   }
 
   void OpenPipe(int *fd, string command) {
