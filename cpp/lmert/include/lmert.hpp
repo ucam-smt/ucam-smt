@@ -27,9 +27,9 @@ class MertLine {
  public:
   MertLine() : x ( -std::numeric_limits<double>::infinity() ), y ( 0.0 ),
     m ( 0.0 ) {}
-  MertLine ( double y, double m,
-             Wid word ) : x ( -std::numeric_limits<double>::infinity() ),
-													y ( y ), m ( m ) {}
+
+  MertLine ( double y, double m, Wid word ) : 
+    x ( -std::numeric_limits<double>::infinity() ), y ( y ), m ( m ) {}
 
   double x; // x-intercept of left-adjacent line
   double y; // y-intercept of line
@@ -62,19 +62,15 @@ class MertEnvelope {
     SortLines();
     int j = 0;
 
-    for ( typename std::vector<MertLine<Arc> >::size_type i = 0; i < lines.size();
-          i++ ) {
+    for ( typename std::vector<MertLine<Arc> >::size_type i = 0; i < lines.size(); i++ ) {
       MertLine<Arc> l = lines[i];
       l.x = -std::numeric_limits<double>::infinity();
-
       if ( 0 < j ) {
         if ( lines[j - 1].m == l.m ) {
           if ( l.y <= lines[j - 1].y )
             continue;
-
           --j;
         }
-
         while ( 0 < j ) {
           l.x = ( l.y - lines[j - 1].y ) / ( lines[j - 1].m - l.m );
 
@@ -83,7 +79,6 @@ class MertEnvelope {
 
           --j;
         }
-
         if ( 0 == j )
           l.x = -std::numeric_limits<double>::infinity();
 
@@ -92,7 +87,6 @@ class MertEnvelope {
         lines[j++] = l;
       }
     }
-
     lines.resize ( j );
   }
 
@@ -126,40 +120,30 @@ class MertLattice {
  public:
   MertEnvelope<Arc> finalEnvelope;
   std::vector<ucam::fsttools::BleuStats> prev;
-	//	Sid sid;
 
-  MertLattice ( 
-							 //							 Sid sidx,
-							 fst::VectorFst<Arc>* fst, const PARAMS32& lambda,
-                const PARAMS32& direction ) :
-		//    sid ( sidx ), 
-		fst_ ( fst ), lambda_ ( lambda ), direction_ ( direction ) {
+  MertLattice (fst::VectorFst<Arc>* fst, const PARAMS32& lambda, const PARAMS32& direction ) :
+    fst_ ( fst ), lambda_ ( lambda ), direction_ ( direction ) {
     finalEnvelope.lines.clear();
     // InializeEnvelopes()
     envelopes_.clear();
     envelopes_.resize ( fst_->NumStates() + 1 );
     // InitializeStartState()
     envelopes_[fst->Start()].lines.push_back ( MertLine<Arc>() );
-
     // ComputeStateEnvelopes()
     for ( fst::StateIterator < fst::VectorFst<Arc> > si ( *fst ); !si.Done();
           si.Next() ) {
       const typename Arc::StateId& s = si.Value();
       envelopes_[s].SweepLine();
-
       for ( fst::ArcIterator < fst::VectorFst<Arc> > ai ( *fst, si.Value() );
             !ai.Done(); ai.Next() ) {
         const Arc& a = ai.Value();
         PropagateEnvelope ( s, a.nextstate, a.weight, a.ilabel );
       }
-
       if ( fst->Final ( s ) != Arc::Weight::Zero() ) {
         PropagateEnvelope ( s, fst->NumStates(), fst->Final ( s ) );
       }
-
       envelopes_[s].lines.clear();
     }
-
     // ComputeFinalEnvelopes()
     envelopes_[fst->NumStates()].SweepLine();
     //
@@ -175,11 +159,9 @@ class MertLattice {
       line.y += fst::DotProduct<float> ( weight, lambda_ ) * -1;
       line.m += fst::DotProduct<float> ( weight, direction_ ) * -1;
       line.weight = fst::Times<float> ( weight, line.weight );
-
       if ( w != 0 ) {
         line.t.push_back ( w );
       }
-
       envelopes_[trg].lines.push_back ( line );
     }
   }
@@ -201,7 +183,6 @@ class MertLatticeWrap {
     env_ ( env ) {}
 
   void operator() () {
-		//    MertLattice<Arc> ml ( sid_, fst_, lambda_, direction_ );
     MertLattice<Arc> ml ( fst_, lambda_, direction_ );
     env_[sid_] = ml.finalEnvelope;
   };

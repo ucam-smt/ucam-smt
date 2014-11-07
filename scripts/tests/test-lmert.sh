@@ -31,7 +31,7 @@ test_0002_lmert_run() {
     $lmert --logger.verbose \
         --input=data/lmert/VECFEA/?.fst.gz \
 				--initial_params=file://$paramsfile \
-				--refs=$reffile \
+				--int_refs=$reffile \
 				--range=$range  \
 				--min_gamma=1.0 \
 				--random_seed=17 \
