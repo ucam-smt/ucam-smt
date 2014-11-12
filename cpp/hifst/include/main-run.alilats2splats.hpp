@@ -81,11 +81,18 @@ void setScales ( const ucam::util::RegistryPO& rg,
  * \brief Full single-threaded Alignment lattices to Sparse lattices
  */
 
-template <class Data = AlilatsToSparseWeightLatsData<lm::ngram::Model>
-          , class KenLMModelT = lm::ngram::Model >
+//template <class Data = AlilatsToSparseWeightLatsData<lm::ngram::Model>
+//          , class KenLMModelT = lm::ngram::Model >
+template < template <class, class> class DataT
+           , class KenLMModelT
+           , class ArcT = void
+           >
+//class SingleThreadedAliLatsToSparseVecLatsTask: public
+//  ucam::util::TaskInterface<Data> {
 class SingleThreadedAliLatsToSparseVecLatsTask: public
-  ucam::util::TaskInterface<Data> {
+ucam::util::TaskInterface<DataT<KenLMModelT, TupleArc32 > > {
  private:
+  typedef DataT<KenLMModelT, TupleArc32 > Data;
   typedef ucam::fsttools::LoadWordMapTask< Data > LoadWordMap;
   typedef ucam::fsttools::WriteFstTask < Data , TupleArc32 > WriteFst;
   typedef ucam::fsttools::ReadFstTask < Data , fst::LexStdArc > ReadFst;
@@ -165,11 +172,17 @@ class SingleThreadedAliLatsToSparseVecLatsTask: public
 /**
  * \brief Multithreaded implementation of alilats2splats pipeline
  */
-template <class Data = AlilatsToSparseWeightLatsData<lm::ngram::Model> , class KenLMModelT = lm::ngram::Model  >
+//template <class Data = AlilatsToSparseWeightLatsData<lm::ngram::Model> , class KenLMModelT = lm::ngram::Model  >
+//class MultiThreadedAliLatsToSparseVecLatsTask: public
+//  ucam::util::TaskInterface<Data> {
+template < template <class, class> class DataT
+           , class KenLMModelT
+           , class ArcT = void
+           >
 class MultiThreadedAliLatsToSparseVecLatsTask: public
-  ucam::util::TaskInterface<Data> {
-
+ucam::util::TaskInterface<DataT<KenLMModelT, TupleArc32 > > {
  private:
+  typedef DataT<KenLMModelT, TupleArc32 > Data;
   typedef ucam::fsttools::LoadWordMapTask< Data > LoadWordMap;
   typedef ucam::fsttools::WriteFstTask < Data , TupleArc32 > WriteFst;
   typedef ucam::fsttools::ReadFstTask < Data , fst::LexStdArc > ReadFst;
@@ -213,7 +226,7 @@ class MultiThreadedAliLatsToSparseVecLatsTask: public
       ucam::util::TrivialThreadPool tp ( threadcount_ );
       bool finished = false;
       for ( ucam::util::IntRangePtr ir (ucam::util::IntRangeFactory ( rg_ ,
-                                        HifstConstants::kRangeOne ) );
+                                       HifstConstants::kRangeOne ) );
             !ir->done ();
             ir->next () ) {
         Data *d = new Data; //( original_data ); // reset.

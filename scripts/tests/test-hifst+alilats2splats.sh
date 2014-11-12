@@ -305,7 +305,7 @@ test_0017_align_nthreads() {
 
 
 test_0018_extractFeatures_nthreads() {
-( set -
+( set -x
     $alilats2splats --nthreads=4 \
 	--range=$range \
 	--ruleflowerlattice.load=$grammar \

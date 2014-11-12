@@ -74,6 +74,8 @@ const std::string kHifstLocalpruneNumstates = "hifst.localprune.numstates";
 const std::string kHifstPrune = "hifst.prune";
 const std::string kHifstWritertn = "hifst.writertn";
 
+const std::string kHifstDisableRuleFeatures = "hifst.disablerulefeatures";
+
 const std::string kPostproInput = "postpro.input";
 
 const std::string kPostproWordmapLoad = "postpro.wordmap.load";
@@ -111,6 +113,11 @@ const std::string kSparseweightvectorlatticeStorenolm =
   "sparseweightvectorlattice.storenolm";
 const std::string kSparseweightvectorlatticeStripSpecialEpsilonLabels =
   "sparseweightvectorlattice.stripspecialepsilonlabels";
+
+// rules2weights specific
+const std::string kRulesToWeightsNumberOfLanguageModels = "rulestoweights.numlms";
+
+
 // lmbr-specific
 
 const std::string kLmbrLexstdarc =

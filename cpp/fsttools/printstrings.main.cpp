@@ -137,6 +137,7 @@ int run ( ucam::util::RegistryPO const& rg) {
   unsigned n = rg.get<unsigned> (HifstConstants::kNbest.c_str() );
   boost::scoped_ptr<oszfstream> out;
   bool unique =  rg.exists (HifstConstants::kUnique.c_str() );
+  bool printOutputLabels = rg.exists(HifstConstants::kPrintOutputLabels.c_str());
   std::string old;
   for ( ucam::util::IntRangePtr ir (ucam::util::IntRangeFactory ( rg,
                                     HifstConstants::kRangeOne ) );
@@ -155,6 +156,11 @@ int run ( ucam::util::RegistryPO const& rg) {
       *out << "[EMPTY]" << std::endl;
       continue;
     }
+    // Projecting allows unique to work for all cases.
+    if (printOutputLabels)
+      fst::Project(&*ifst, PROJECT_OUTPUT);
+    else
+      fst::Project(&*ifst, PROJECT_INPUT);
     ShortestPath (*ifst, &nfst, n, unique );
     std::vector<HypT> hyps;
     fst::printStrings<Arc> (nfst, &hyps);

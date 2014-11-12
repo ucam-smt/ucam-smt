@@ -28,11 +28,9 @@ namespace hifst {
  *\brief Data class containing relevant variables. To be used as template for task classes using it.
  *
  */
-template <class KenLMModelT = lm::ngram::ProbingModel>
+template <class KenLMModelT = lm::ngram::ProbingModel
+          , class ArcT = fst::LexicographicArc< fst::StdArc::Weight, fst::StdArc::Weight> >
 class HifstTaskData {
-  typedef fst::LexicographicArc< fst::StdArc::Weight, fst::StdArc::Weight> Arc;
-  typedef fst::LexicographicWeight<fst::StdArc::Weight, fst::StdArc::Weight>
-  Weight;
   typedef ucam::util::WordMapper WordMapper;
   typedef ucam::fsttools::StatsData StatsData;
   typedef typename ucam::fsttools::KenLMData<KenLMModelT> KenLMData;
@@ -49,7 +47,7 @@ class HifstTaskData {
   };
 
   /// Sentence index
-  uint sidx;
+  unsigned sidx;
   ///Contains translation grammar
   const GrammarData *grammar;
 
@@ -66,7 +64,7 @@ class HifstTaskData {
 
   ///Holds instanced patterns (string) over the sentence, mapped to extra information pair<1,2>: positions at which these were encountered (1), and minimum span (2).
   ///\todo Possibly, add minimum span
-  unordered_map<std::string, std::vector< pair <uint, uint> > > hpinstances;
+  unordered_map<std::string, std::vector< pair <unsigned, unsigned> > > hpinstances;
 
   ///Sentence-specific grammar information -- hashes to rule indices.
   SentenceSpecificGrammarData *ssgd;
@@ -79,16 +77,16 @@ class HifstTaskData {
 
   //Filters, e.g. translation lattice substring for alignment or others
   //\todo delete and add in fsts ?
-  std::vector< fst::VectorFst<Arc> *> filters;
+  std::vector< fst::VectorFst<ArcT> *> filters;
 
   ///Pointers to lattices (e.g. translation lattice, lmbr, etc) , and related, accessed by unique keys
-  //  unordered_map<string, fst::VectorFst<Arc> * > fsts;
+  //  unordered_map<string, fst::VectorFst<ArcT> * > fsts;
   unordered_map<std::string, void * > fsts;
 
   ///Collections of language models accessed by keys (e.g. in translation we need a bunch for hifst and one for recaser)
   unordered_map<std::string, std::vector <const KenLMData *> > klm;
   ///Number of local language models used in hifst
-  uint numlocallm;
+  unsigned numlocallm;
 
   ///To collect statistics across the whole pipeline.
   boost::shared_ptr<StatsData> stats;

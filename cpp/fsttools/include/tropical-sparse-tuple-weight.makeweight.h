@@ -27,7 +27,7 @@ namespace fst {
 ///Templated Functor to generate a sparse vector weight from any other representation
 template<typename Arc = StdArc>
 struct MakeSparseVectorWeight {
-  MakeSparseVectorWeight ( int32_t k ) :
+  explicit MakeSparseVectorWeight ( int32_t k ) :
     k ( k ) {
   }
 
@@ -45,7 +45,7 @@ struct MakeSparseVectorWeight {
 ///Template specialization of MakeSparseVectorWeight  functor for LexStdArc.
 template<>
 struct MakeSparseVectorWeight<LexStdArc> {
-  MakeSparseVectorWeight ( int32_t k ) :
+  explicit MakeSparseVectorWeight ( int32_t k ) :
     k ( k ) {
   }
 
@@ -64,7 +64,8 @@ template<>
 struct MakeWeight<TupleArc32> {
   ///It is specially important that k defaults to 0 in this case, as MakeWeight is used by applylanguagemodeltask to transparently handle different arcs.
   explicit MakeWeight ( int32_t k = 0 ) :
-    k_ ( k ) {  };
+    k_ ( k ) {
+  };
 
   ///Creates a weight given a float.
   inline TupleArc32::Weight operator () ( const float weight )  const {
@@ -80,7 +81,7 @@ struct MakeWeight<TupleArc32> {
 
   ///Increases index. Provides a way to do sequentially transparent operations, e.g. language model composition with three language models (see fstutils.applylmonthefly.hpp).
   inline void update() {
-    k_++;
+    ++k_;
   };
   inline int32_t get_k() {
     return k_;

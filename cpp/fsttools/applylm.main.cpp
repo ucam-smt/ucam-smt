@@ -38,6 +38,7 @@ int main ( int argc, const char* argv[] ) {
   using ucam::fsttools::SingleThreadedApplyLanguageModelTask;
   using ucam::fsttools::MultiThreadedApplyLanguageModelTask;
   using ucam::fsttools::ApplyLMData;
+  using namespace HifstConstants;
   ucam::util::initLogger ( argc, argv );
   FORCELINFO ( argv[0] << " starts!" );
   ucam::util::RegistryPO rg ( argc, argv );
@@ -46,9 +47,9 @@ int main ( int argc, const char* argv[] ) {
   // Detect here kenlm binary type
   // it's a bit ugly this way of initializing the correct kenlm handler
   lm::ngram::ModelType kenmt = ucam::util::detectkenlm (rg.getVectorString (
-                                 HifstConstants::kLmLoad, 0) );
-  if (rg.get<std::string> (HifstConstants::kHifstSemiring.c_str() ) ==
-      HifstConstants::kHifstSemiringStdArc )
+                                 kLmLoad, 0) );
+  if (rg.get<std::string> (kHifstSemiring.c_str() ) ==
+      kHifstSemiringStdArc )
     switch (kenmt) {
     case lm::ngram::PROBING:
       ( Runner2<SingleThreadedApplyLanguageModelTask<ApplyLMData<lm::ngram::ProbingModel> >
@@ -82,8 +83,8 @@ int main ( int argc, const char* argv[] ) {
         ( rg ) ) ();
       break;
     }
-  else if (rg.get<std::string> (HifstConstants::kHifstSemiring) ==
-           HifstConstants::kHifstSemiringLexStdArc )
+  else if (rg.get<std::string> (kHifstSemiring) ==
+           kHifstSemiringLexStdArc )
     switch (kenmt) {
     case lm::ngram::PROBING:
       ( Runner2<SingleThreadedApplyLanguageModelTask<ApplyLMData<lm::ngram::ProbingModel>, lm::ngram::ProbingModel, fst::LexStdArc >

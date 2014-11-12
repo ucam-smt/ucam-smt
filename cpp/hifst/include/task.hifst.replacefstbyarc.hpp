@@ -23,6 +23,28 @@
 namespace ucam {
 namespace hifst {
 
+template<class Arc>
+struct GenerateTrivialFst {
+  bool aligner_;
+  explicit GenerateTrivialFst(bool alignmode)
+      : aligner_(alignmode)
+  {};
+
+  fst::VectorFst<Arc> *operator()(typename Arc::Label const& hieroindex) const {
+    fst::VectorFst<Arc>* outfst = new fst::VectorFst<Arc>;
+    outfst->AddState();
+    outfst->SetStart ( 0 );
+    outfst->AddState();
+    outfst->SetFinal ( 1, Arc::Weight::One() );
+    if ( aligner_ )
+      outfst->AddArc ( 0, Arc ( NORULE, hieroindex, Arc::Weight::One() , 1 ) );
+    else
+      outfst->AddArc ( 0, Arc ( hieroindex, hieroindex, Arc::Weight::One() , 1 ) );
+    return outfst;
+  };
+};
+
+
 /**
  * \brief Creates FST replacement or not depending on conditions.
  * \remark The criterion in this case is simply the number of states. If It is higher than a threshold,
@@ -35,16 +57,17 @@ class ReplaceFstByArc {
 
  private:
   ///Aligner mode
-  bool aligner_;
+  //  bool aligner_;
   ///Number of states threshold
   const std::size_t minns_;
+  GenerateTrivialFst<Arc> gtf_;
  public:
   ////Constructor accepting two parameters: alignment mode and minimum number of states
   ReplaceFstByArc ( bool alignmode,
-                    std::size_t min_numstates = 2 ) :
-    aligner_ ( alignmode ),
-    minns_ ( min_numstates ) {
-  };
+                    std::size_t min_numstates = 2 )
+      : minns_ ( min_numstates )
+      , gtf_(alignmode)
+  {};
 
   /**
    * \brief Determines whether an FST is replaceable
@@ -55,15 +78,7 @@ class ReplaceFstByArc {
   inline fst::VectorFst<Arc> *operator() ( fst::VectorFst<Arc> const& fst,
       Label const& hieroindex ) const {
     if ( fst.NumStates() <= minns_ ) return NULL;
-    fst::VectorFst<Arc>* outfst = new fst::VectorFst<Arc>;
-    outfst->AddState();
-    outfst->SetStart ( 0 );
-    outfst->AddState();
-    outfst->SetFinal ( 1, Weight::One() );
-    if ( aligner_ ) outfst->AddArc ( 0, Arc ( NORULE, hieroindex, Weight::One() ,
-                                       1 ) );
-    else outfst->AddArc ( 0, Arc ( hieroindex, hieroindex, Weight::One() , 1 ) );
-    return outfst;
+    return gtf_(hieroindex);
   };
 
  private:
@@ -82,14 +97,15 @@ class ManualReplaceFstByArc {
   typedef typename Arc::Weight Weight;
 
  private:
-  ///Alignment mode
-  bool aligner_;
-  ///Set of unique non-terminals. Cells representing theses non-terminals will be replaced
+  /// Alignment mode
+  // bool aligner_;
+  /// Set of unique non-terminals. Cells representing theses non-terminals will be replaced
   unordered_set<std::string> replacefstbyarc_;
   unordered_set<std::string> replacefstbyarcexceptions_;
   grammar_inversecategories_t vcat_;
-  ///Minimum number of states
-  const std::size_t minns_;
+  /// Minimum number of states
+  std::size_t const minns_;
+  GenerateTrivialFst<Arc> gtf_;
  public:
   /**
    * \brief
@@ -102,25 +118,25 @@ class ManualReplaceFstByArc {
                           unordered_set<std::string> const& replacefstbyarc,
                           bool alignmode,
                           std::size_t min_numstates = std::numeric_limits<std::size_t>::max()
-                        ) :
-    vcat_ ( vcat ),
-    replacefstbyarc_ ( replacefstbyarc ),
-    aligner_ ( alignmode ),
-    minns_ ( min_numstates ) {
-  };
+                        )
+      : vcat_ ( vcat )
+      , replacefstbyarc_ ( replacefstbyarc )
+      , minns_ ( min_numstates )
+      , gtf_(alignmode)
+  {};
 
   ManualReplaceFstByArc ( grammar_inversecategories_t const& vcat,
                           unordered_set<std::string> const& replacefstbyarc,
                           unordered_set<std::string> const& replacefstbyarcexceptions,
                           bool alignmode,
                           std::size_t min_numstates = std::numeric_limits<std::size_t>::max()
-                        ) :
-    vcat_ ( vcat ),
-    replacefstbyarc_ ( replacefstbyarc ),
-    replacefstbyarcexceptions_ ( replacefstbyarcexceptions ),
-    aligner_ ( alignmode ),
-    minns_ ( min_numstates ) {
-  };
+                          )
+      : vcat_ ( vcat )
+      , replacefstbyarc_ ( replacefstbyarc )
+      , replacefstbyarcexceptions_ ( replacefstbyarcexceptions )
+      , minns_ ( min_numstates )
+      , gtf_(alignmode)
+  {};
 
   /**
    * \brief Determines whether an FST is replaceable
@@ -144,15 +160,7 @@ class ManualReplaceFstByArc {
     if ( replacefstbyarc_.find ( itx->second ) != replacefstbyarc_.end()
          || fst.NumStates() >= minns_
        ) {
-      fst::VectorFst<Arc>* outfst = new fst::VectorFst<Arc>;
-      outfst->AddState();
-      outfst->SetStart ( 0 );
-      outfst->AddState();
-      outfst->SetFinal ( 1, Weight::One() );
-      if ( aligner_ ) outfst->AddArc ( 0, Arc ( NORULE, hieroindex, Weight::One() ,
-                                         1 ) );
-      else outfst->AddArc ( 0, Arc ( hieroindex, hieroindex, Weight::One() , 1 ) );
-      return outfst;
+      return gtf_(hieroindex);
     }
     return NULL;
   };

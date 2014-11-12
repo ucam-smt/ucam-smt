@@ -27,7 +27,7 @@
 #include "task.hifst.localpruningconditions.hpp"
 #include "task.hifst.rtn.hpp"
 #include "task.hifst.optimize.hpp"
-
+#include "task.hifst.makeweights.hpp"
 namespace ucam {
 namespace hifst {
 
@@ -41,6 +41,7 @@ template <class Data ,
           class OptimizeT = OptimizeMachine<Arc> ,
           class CYKdataT = CYKdata ,
           class MultiUnionT = fst::MultiUnionRational<Arc> ,
+          //          class MultiUnionT = fst::MultiUnionReplace<Arc> ,
           class ExpandedNumStatesRTNT = ExpandedNumStatesRTN<Arc> ,
           class ReplaceFstByArcT = ManualReplaceFstByArc<Arc> ,
           class RTNT = RTN<Arc>
@@ -116,8 +117,8 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
   /// checks whether it qualifies or not for local pruning
   LocalPruningConditions lpc_;
 
-  /// Defines a weight in the appropriate semiring (Lex or Std)
-  fst::MakeWeight2<Arc> mw_;
+  /// Defines a weight in the appropriate semiring (Lex, Std , or TupleArc)
+  MakeWeightHifst<Arc> mw_;
 
   /// Likelihood weight
   float pruneweight_;
@@ -140,7 +141,8 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
 
   //If false, no determinization/minimization will be applied anywhere to any of the components of the RTN, expanded or not.
   bool optimize_;
-
+  const ucam::util::RegistryPO& rg_;
+  //  const int localLmPos_;
  public:
 
   ///Constructor with registry object and several keys to access data object and registry
@@ -151,32 +153,37 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
                 HifstConstants::kReferencefilterNosubstringStore ,
               const std::string& lmkey = HifstConstants::kLmLoad
             ) :
-    optimize_ (rg.getBool (HifstConstants::kHifstOptimizecells) ),
-    numlocallm_ (rg.getVectorString (locallmkey).size() ),
-    warned_ (false),
-    rtnfiles_ (rg.get<std::string> (HifstConstants::kHifstWritertn) ),
-    fullreferencelatticekey_ ( fullreferencelatticekey ),
-    lmkey_ ( lmkey ),
-    locallmkey_ ( locallmkey ),
-    outputkey_ ( outputkey ),
-    piscount_ ( 0 ),
-    aligner_ ( rg.getBool ( HifstConstants::kHifstAlilatsmode ) ),
-    //    cellredm_ ( rg.getBool ( "hifst.cellredm" ) ),
-    //    finalredm_ ( rg.getBool ( "hifst.finalredm" ) ),
-    hipdtmode_ (rg.getBool (HifstConstants::kHifstUsepdt) ),
-    rtnopt_ (rg.getBool (HifstConstants::kHifstRtnopt) ),
-    replacefstbyarc_ ( rg.getSetString (
-                         HifstConstants::kHifstReplacefstbyarcNonterminals ) ),
-    replacefstbyarcexceptions_ ( rg.getSetString (
-                                   HifstConstants::kHifstReplacefstbyarcExceptions ) ),
-    replacefstbynumstates_ ( rg.get<unsigned>
-                             ( HifstConstants::kHifstReplacefstbyarcNumstates ) ),
-    localprune_ ( rg.getBool ( HifstConstants::kHifstLocalpruneEnable ) ),
-    pruneweight_ ( rg.get<float> ( HifstConstants::kHifstPrune ) ),
-    numstatesthreshold_ ( rg.get<unsigned>
-                          ( HifstConstants::kHifstLocalpruneNumstates ) ),
-    lpctuples_ ( rg.getVectorString (
-                   HifstConstants::kHifstLocalpruneConditions ) ) {
+      optimize_ (rg.getBool (HifstConstants::kHifstOptimizecells) ),
+      numlocallm_ (rg.getVectorString (locallmkey).size() ),
+      warned_ (false),
+      rtnfiles_ (rg.get<std::string> (HifstConstants::kHifstWritertn) ),
+      fullreferencelatticekey_ ( fullreferencelatticekey ),
+      lmkey_ ( lmkey ),
+      locallmkey_ ( locallmkey ),
+      outputkey_ ( outputkey ),
+      piscount_ ( 0 ),
+      aligner_ ( rg.getBool ( HifstConstants::kHifstAlilatsmode ) ),
+      //    cellredm_ ( rg.getBool ( "hifst.cellredm" ) ),
+      //    finalredm_ ( rg.getBool ( "hifst.finalredm" ) ),
+      hipdtmode_ (rg.getBool (HifstConstants::kHifstUsepdt) ),
+      rtnopt_ (rg.getBool (HifstConstants::kHifstRtnopt) ),
+      replacefstbyarc_ ( rg.getSetString (
+                             HifstConstants::kHifstReplacefstbyarcNonterminals ) ),
+      replacefstbyarcexceptions_ ( rg.getSetString (
+                                       HifstConstants::kHifstReplacefstbyarcExceptions ) ),
+      replacefstbynumstates_ ( rg.get<unsigned>
+                               ( HifstConstants::kHifstReplacefstbyarcNumstates ) ),
+      localprune_ ( rg.getBool ( HifstConstants::kHifstLocalpruneEnable ) ),
+      pruneweight_ ( rg.get<float> ( HifstConstants::kHifstPrune ) ),
+      numstatesthreshold_ ( rg.get<unsigned>
+                            ( HifstConstants::kHifstLocalpruneNumstates ) ),
+      lpctuples_ ( rg.getVectorString (
+                       HifstConstants::kHifstLocalpruneConditions ) ),
+      mw_(rg),
+      rg_(rg)
+      //      localLmPos_(rg.getVectorString(HifstConstants::kLmFeatureweights).size() + 1 + 1)
+  {
+
     LINFO ("Number of local language models=" << numlocallm_);
     LINFO ("aligner mode=" << aligner_);
     LINFO ("localprune mode=" << localprune_);
@@ -547,9 +554,10 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     rulefst->AddState();
     rulefst->SetStart ( 0 );
     rulefst->AddState();
+    Label iw2 = gd.getIdx ( rule_idx ) + 1;
     Label iw;
     if ( !aligner_ ) iw = 0;
-    else iw = gd.getIdx ( rule_idx ) + 1;
+    else iw = iw2;
     LINFO ("Building FST for rule " << gd.getRule ( rule_idx ) );
     unsigned kmax = translation.size();
     unsigned nonterminal = 0;
@@ -574,7 +582,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       rulefst->AddArc ( k, Arc ( iw, ow, Weight::One(), k + 1 ) );
     }
     float w = gd.getWeight ( rule_idx );
-    Weight weight = mw_ ( w );
+    Weight weight = mw_ ( w , iw2 );
     rulefst->AddArc ( kmax, Arc ( iw, 0, weight, kmax + 1 ) );
     rulefst->SetFinal ( kmax + 1, Weight::One() );
     fst::VectorFst<Arc>* auxi;
@@ -647,8 +655,12 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     }
   };
 
-  inline fst::VectorFst<Arc> *applyLanguageModel ( const fst::Fst<Arc>& localfst ,
-      const std::string& lmkey) {
+  // \todo Merge/refactor this code with task.applylm.hpp.
+  template< template<class> class MakeWeightT>
+  inline fst::VectorFst<Arc> *applyLanguageModel ( const fst::Fst<Arc>& localfst
+                                                   , const std::string& lmkey
+                                                   , MakeWeightT<Arc> &mw
+                                                   ) {
     if ( d_->klm.find ( lmkey ) == d_->klm.end() ) {
       if (!warned_) {
         FORCELINFO ( "No Language models for key=" << lmkey
@@ -659,6 +671,8 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     }
     fst::VectorFst<Arc> *output = new fst::VectorFst<Arc> (*
         (const_cast<fst::Fst<Arc> *> ( &localfst ) ) );
+
+    //    fst::MakeWeight<Arc> mw;
     for ( unsigned k = 0; k < d_->klm[lmkey].size(); ++k ) {
       USER_CHECK ( d_->klm[lmkey][k] != NULL, "Language model pointer is NULL!" );
       KenLMModelT& model = *d_->klm[lmkey][k]->model;
@@ -681,9 +695,9 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       LINFO ( "Composing with " << k << "-th language model" );
       d_->stats->setTimeStart ( "on-the-fly-composition "
                                 +  ucam::util::toString ( k ) );
-      boost::scoped_ptr<fst::ApplyLanguageModelOnTheFly<Arc, fst::MakeWeight<Arc>, KenLMModelT > >
+      boost::scoped_ptr<fst::ApplyLanguageModelOnTheFly<Arc, MakeWeightT<Arc>, KenLMModelT > >
       f ( new fst::ApplyLanguageModelOnTheFly<Arc
-          , fst::MakeWeight<Arc>
+          , MakeWeightT<Arc>
           , KenLMModelT> ( *output,
                            model,
                            epsilons,
@@ -691,15 +705,18 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
                            d_->klm[lmkey][k]->lmscale ,
                            d_->klm[lmkey][k]->lmwp ,
                            d_->klm[lmkey][k]->idb ) );
+      f->setMakeWeight ( mw );
       fst::VectorFst<Arc> *aux = ( *f ) ();
       if ( !aux ) {
         LERROR ("Something very wrong happened in composition with the lm...");
         exit (EXIT_FAILURE);
       }
       *output = *aux;
-      d_->stats->setTimeEnd ( "on-the-fly-composition " + ucam::util::toString (
-                                k ) );
+      d_->stats->setTimeEnd ( "on-the-fly-composition "
+                              + ucam::util::toString ( k ) );
+
       LDEBUG ( "After applying language model, NS=" <<  output->NumStates() );
+      mw.update();
     }
     LINFO ( "Connect!" );
     Connect (output);
@@ -711,15 +728,19 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
    * \brief Applies the language model (Full translation lattice!). Currently applies on-the-fly the language model using kenlm.
    * \param localfst: lattice to score with the language model.
    */
-
-  inline fst::VectorFst<Arc> *applyLanguageModel ( const fst::Fst<Arc>& localfst ,
-      bool local = false ) {
+  inline fst::VectorFst<Arc> *applyLanguageModel ( const fst::Fst<Arc>& localfst
+                                                   , bool local = false ) {
     if ( local ) {
-      LINFO ( "Composing with local lm for inadmissible pruning" );
+      LINFO ( "Composing with local lm for inadmissible pruning (unless on top cell)" );
+
+      MakeWeightHifstLocalLm<Arc> mw(rg_);
+      //      MakeWeightHifstLocalLm<Arc> mw;
+      return applyLanguageModel (localfst, locallmkey_, mw);
     } else {
       LINFO ( "Composing with full lm for admissible pruning" );
+      fst::MakeWeight<Arc> mw;
+      return applyLanguageModel (localfst, lmkey_, mw);
     }
-    return applyLanguageModel (localfst, local ? locallmkey_ : lmkey_);
   };
 
   inline fst::VectorFst<Arc> *expand ( const fst::VectorFst<Arc>& localfst,
@@ -799,10 +820,11 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
           pdtparens_.clear();
         }
         LINFO ( "Delete LM scores" );
-        //Deletes LM scores if using lexstdarc. Note -- will copy through on stdarc!
-        fst::MakeWeight2<Arc> mwcopy;
+        //Deletes LM scores if using lexstdarc or tuplearc
+        //        fst::MakeWeight2<Arc> mwcopy;
+        MakeWeightHifstLocalLm<Arc > mwcopy(rg_);
         fst::Map<Arc> ( latlm,
-                        fst::GenericWeightAutoMapper<Arc, fst::MakeWeight2<Arc> > ( mwcopy ) );
+                        fst::GenericWeightAutoMapper<Arc, MakeWeightHifstLocalLm<Arc> > ( mwcopy ) );
         LINFO ( "AT " << cc << "," << x << "," << y << ": pruned with weight=" << weight
                 << ",NS=" << latlm->NumStates() );
         return latlm;

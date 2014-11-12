@@ -51,6 +51,8 @@ inline void init_param_options ( int argc, const char* argv[],
     ( HifstConstants::kTupleArcWeights.c_str(), po::value<std::string>(),
       "Tropic sparse tuple arc weights. "
       "Comma-separated floats. This needs to be set when the option --semiring=tuplearc is chosen.")
+        ( HifstConstants::kPrintOutputLabelsExtended.c_str(),
+      "Prints output labels instead of input labels" )
     ;
     parseOptionsGeneric (desc, vm, argc, argv);
   } catch ( std::exception& e ) {

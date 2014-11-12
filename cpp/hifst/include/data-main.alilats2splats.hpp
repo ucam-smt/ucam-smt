@@ -28,7 +28,7 @@ namespace hifst {
  *\brief Data class containing relevant variables. To be used as template for task classes using it.
  *
  */
-template <class KenLMModelT >
+template <class KenLMModelT , class ArcT = void >
 class AlilatsToSparseWeightLatsData {
  public:
   AlilatsToSparseWeightLatsData() :

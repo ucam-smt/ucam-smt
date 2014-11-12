@@ -58,6 +58,8 @@ const std::string kWeight = "weight";
 const std::string kWeightExtended = kWeight + ",w";
 const std::string kLabelMap = "label-map";
 const std::string kLabelMapExtended = kLabelMap + ",m";
+const std::string kPrintOutputLabels = "print-output-labels";
+const std::string kPrintOutputLabelsExtended = kPrintOutputLabels + ",pol";
 
 // lexmap
 const std::string kAction = "action";

@@ -26,7 +26,40 @@
 #include <main.custom_assert.hpp>
 #include <main.logger.hpp>
 #include <main-run.hifst.hpp>
-#include <kenlmdetect.hpp>
+#include <common-helpers.hpp>
+
+/**
+ * @brief Concrete RunTaskT implementation for Hifst tool.
+ */
+template < template <class, class> class DataT
+           , class KenLMModelT
+           , class ArcT
+           >
+struct RunHifst {
+  explicit RunHifst(ucam::util::RegistryPO const &rg){
+  using ucam::hifst::SingleThreadedHifstTask;
+  using ucam::hifst::MultiThreadedHifstTask;
+  using ucam::hifst::HifstServerTask;
+  using ucam::fsttools::RunTask3;
+  (RunTask3<SingleThreadedHifstTask
+          , MultiThreadedHifstTask
+          , HifstServerTask
+          , DataT
+          , KenLMModelT
+          , ArcT >
+   (rg) );
+  }
+};
+
+void ucam::fsttools::MainClass::run() {
+  using namespace HifstConstants;
+  std::string const arctype =rg_->get<std::string>(kHifstSemiring);
+  using namespace ucam::hifst;
+  if (arctype == kHifstSemiringLexStdArc || arctype == kHifstSemiringStdArc) {
+    runTaskWithKenLMTemplate<RunHifst, HifstTaskData, fst::LexStdArc>(*rg_);
+  } else if (arctype == HifstConstants::kHifstSemiringTupleArc)
+    runTaskWithKenLMTemplate<RunHifst, HifstTaskData, TupleArc32>(*rg_);
+}
 
 /**
  * \brief Main function.
@@ -36,60 +69,7 @@
  * First parses program options with boost, then loads and chains several task classes.
  * Finally, kick off translation for a range of sentences.
  */
-
-int
-main ( int argc, const char *argv[] ) {
-  using ucam::util::Runner3;
-  using ucam::hifst::HifstTaskData;
-  using ucam::hifst::SingleThreadedHifstTask;
-  using ucam::hifst::MultiThreadedHifstTask;
-  using ucam::hifst::HifstServerTask;
-  ucam::util::initLogger ( argc, argv );
-  FORCELINFO ( argv[0] << " starts!" );
-  ucam::util::RegistryPO rg ( argc, argv );
-  FORCELINFO ( rg.dump ( "CONFIG parameters:\n====================="
-                         , "=====================" ) );
-  // Detect here kenlm binary type
-  // it's a bit ugly this way of initializing the correct kenlm handler
-  lm::ngram::ModelType kenmt = ucam::util::detectkenlm (rg.getVectorString (
-                                 HifstConstants::kLmLoad, 0) );
-  switch (kenmt) {
-  case lm::ngram::PROBING:
-    ( Runner3<SingleThreadedHifstTask<>
-      , MultiThreadedHifstTask<>
-      , HifstServerTask<> > ( rg ) ) ();
-    break;
-  case lm::ngram::REST_PROBING:
-    ( Runner3<SingleThreadedHifstTask<HifstTaskData<lm::ngram::RestProbingModel>, lm::ngram::RestProbingModel>
-      , MultiThreadedHifstTask<HifstTaskData<lm::ngram::RestProbingModel>, lm::ngram::RestProbingModel>
-      , HifstServerTask<HifstTaskData<lm::ngram::RestProbingModel>, lm::ngram::RestProbingModel> >
-      ( rg ) ) ();
-    break;
-  case lm::ngram::TRIE:
-    ( Runner3<SingleThreadedHifstTask<HifstTaskData<lm::ngram::TrieModel>, lm::ngram::TrieModel>
-      , MultiThreadedHifstTask<HifstTaskData<lm::ngram::TrieModel>, lm::ngram::TrieModel>
-      , HifstServerTask<HifstTaskData<lm::ngram::TrieModel>, lm::ngram::TrieModel> >
-      ( rg ) ) ();
-    break;
-  case lm::ngram::QUANT_TRIE:
-    ( Runner3<SingleThreadedHifstTask<HifstTaskData<lm::ngram::QuantTrieModel>, lm::ngram::QuantTrieModel>
-      , MultiThreadedHifstTask<HifstTaskData<lm::ngram::QuantTrieModel>, lm::ngram::QuantTrieModel>
-      , HifstServerTask<HifstTaskData<lm::ngram::QuantTrieModel>, lm::ngram::QuantTrieModel> >
-      ( rg ) ) ();
-    break;
-  case lm::ngram::ARRAY_TRIE:
-    ( Runner3<SingleThreadedHifstTask<HifstTaskData<lm::ngram::ArrayTrieModel>, lm::ngram::ArrayTrieModel>
-      , MultiThreadedHifstTask<HifstTaskData<lm::ngram::ArrayTrieModel>, lm::ngram::ArrayTrieModel>
-      , HifstServerTask<HifstTaskData<lm::ngram::ArrayTrieModel>, lm::ngram::ArrayTrieModel> >
-      ( rg ) ) ();
-    break;
-  case lm::ngram::QUANT_ARRAY_TRIE:
-    ( Runner3<SingleThreadedHifstTask<HifstTaskData<lm::ngram::QuantArrayTrieModel>, lm::ngram::QuantArrayTrieModel>
-      , MultiThreadedHifstTask<HifstTaskData<lm::ngram::QuantArrayTrieModel>, lm::ngram::QuantArrayTrieModel>
-      , HifstServerTask<HifstTaskData<lm::ngram::QuantArrayTrieModel>, lm::ngram::QuantArrayTrieModel> >
-      ( rg ) ) ();
-    break;
-  }
-  FORCELINFO ( argv[0] << " ends!" );
+int main ( int argc, const char *argv[] ) {
+  (ucam::fsttools::MainClass(argc,argv).run());
   return 0;
 }
