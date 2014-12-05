@@ -65,7 +65,6 @@ void printWeight<TupleArc32> (const TupleW32& weight, std::ostream& os) {
              ; ++itx) {
       os << itx->first << "," << itx->second << ",";
     }
-    os << std::endl;
     return;
   }
   std::size_t nonSparseSize = TupleW32::Params().size();

@@ -157,14 +157,14 @@ test_0013_translate_pdt2_sparse() {
         --hifst.localprune.enable=yes --hifst.localprune.conditions=S,-1,1,9 --hifst.localprune.lm.featureweights=1 --hifst.localprune.lm.load=$weaklanguagemodel --hifst.localprune.lm.wps=-2.30 \
         --semiring=tuplearc &>/dev/null
 )
-( #set -x
+
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
 	if [ "`zcat $BASEDIR/pdt-lats2/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	mkdir -p tmp; zcat $BASEDIR/pdt-lats2/$k.fst.gz > tmp/$k.test.fst; zcat $REFDIR/lats/$k.fst.gz > tmp/$k.ref.fst;
 	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ; 
     done
-)
+
 ###Success
     echo 1
 
@@ -174,7 +174,7 @@ test_0014_convert_lats_to_veclats() {
 
 # # 1. Take output from 0012 of 0009 and run the tool that maps to veclats.
 # # 2. Test: The tool should generate veclats equivalent to hifst+alilats2splats pipeline.
-( set -x
+( #set -x
     $rules2weights \
 	--range=$range \
 	--ruleflowerlattice.load=$grammar \
@@ -186,7 +186,21 @@ test_0014_convert_lats_to_veclats() {
 # 
 ) &>/dev/null
 
- }
+
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    for k in `seq $seqrange`; do 
+	if [ "`zcat $BASEDIR/vwlats/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
+	mkdir -p tmp; zcat $BASEDIR/vwlats/$k.fst.gz > tmp/$k.test.fst; zcat $REFDIR/vwlats/$k.fst.gz > tmp/$k.ref.fst;
+	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ; 
+    done
+
+###Success
+    echo 1 
+
+
+
+
+}
 
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
