@@ -53,31 +53,69 @@ void printWeight (typename Arc::Weight const& weight, std::ostream& os) {
  */
 template <>
 void printWeight<TupleArc32> (const TupleW32& weight, std::ostream& os) {
-  if (sparseformat) {
-    os << weight;
-  } else {
-    // size of the parameter vector
-    std::size_t nonSparseSize = TupleW32::Params().size();
-    std::size_t counter = 1;
-    std::string separator ("");
-    for (fst::SparseTupleWeightIterator<fst::TropicalWeight, int> it (weight);
-         !it.Done(); it.Next() ) {
-      std::size_t featureIndex = it.Value().first;
-      for (std::size_t featureMissingIndex = counter;
-           featureMissingIndex < featureIndex; ++featureMissingIndex) {
-        os << separator << "0";
-        separator = ",";
-        counter++;
-      }
-      os << separator << it.Value().second;
-      separator = ",";
-      counter++;
-    }
-    for (; counter <= nonSparseSize; ++counter) {
-      os << separator << "0";
-      separator = ",";
-    }
+  std::map<int,float> costs;
+  for (fst::SparseTupleWeightIterator<fst::TropicalWeight, int> it (weight);
+       !it.Done(); it.Next() ) {
+    costs[it.Value().first] += it.Value().second.Value();
   }
+  if (sparseformat) {
+    os << "0," << costs.size() << ",";
+    for (std::map<int,float>::const_iterator itx=costs.begin()
+             ; itx != costs.end()
+             ; ++itx) {
+      os << itx->first << "," << itx->second << ",";
+    }
+    os << std::endl;
+    return;
+  }
+  std::size_t nonSparseSize = TupleW32::Params().size();
+  std::size_t counter = 1;
+  std::string separator (",");
+
+  for (std::map<int,float>::const_iterator itx=costs.begin()
+           ; itx != costs.end()
+           ; ++itx) {
+    if (itx->first < 1 ) continue;
+    std::size_t featureIndex = itx->first;
+    for (std::size_t featureMissingIndex = counter;
+         featureMissingIndex < featureIndex; ++featureMissingIndex) {
+      os << "0" << separator;
+    }
+    os << itx->second << separator;
+    counter = itx->first + 1;
+  }
+  for (; counter <= nonSparseSize; ++counter)
+    os << "0" << separator;
+
+
+
+
+  // dense format is buggy. We also want sparse format to sum contributions to the same index.
+  // if (sparseformat) {
+  //   os << weight;
+  // } else {
+  //   // size of the parameter vector
+  //   std::size_t nonSparseSize = TupleW32::Params().size();
+  //   std::size_t counter = 1;
+  //   std::string separator ("");
+  //   for (fst::SparseTupleWeightIterator<fst::TropicalWeight, int> it (weight);
+  //        !it.Done(); it.Next() ) {
+  //     std::size_t featureIndex = it.Value().first;
+  //     for (std::size_t featureMissingIndex = counter;
+  //          featureMissingIndex < featureIndex; ++featureMissingIndex) {
+  //       os << separator << "0";
+  //       separator = ",";
+  //       counter++;
+  //     }
+  //     os << separator << it.Value().second;
+  //     separator = ",";
+  //     counter++;
+  //   }
+  //   for (; counter <= nonSparseSize; ++counter) {
+  //     os << separator << "0";
+  //     separator = ",";
+  //   }
+  // }
 }
 
 /**
