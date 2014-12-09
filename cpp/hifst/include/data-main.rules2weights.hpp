@@ -12,8 +12,7 @@
 
 // Copyright 2012 - Gonzalo Iglesias, Adrià de Gispert, William Byrne
 
-#ifndef TASK_ALILATS2SPLATS_HPP
-#define TASK_ALILATS2SPLATS_HPP
+#pragma once
 
 /** \file
  *\brief Data object for alilats to sparse weight lats binary
@@ -34,7 +33,6 @@ class RuleIdsToSparseWeightLatsData {
   RuleIdsToSparseWeightLatsData()
       : sidx ( 0 )
       , weights(NULL)
-        //      , stats ( new ucam::fsttools::StatsData )
   {};
 
   /// Sentence index
@@ -44,22 +42,10 @@ class RuleIdsToSparseWeightLatsData {
   typedef unordered_map<unsigned,TupleArc32::Weight> WeightsTable;
   typedef WeightsTable::const_iterator WeightsTableIt;
   WeightsTable *weights;
-
-  ///Pointers to lattices (e.g. translation lattice, lmbr, etc) , accessed by unique keys. Notice that it is a void pointer, so any type of Fst/Arc will fit in nicely.
+  // pointers to lattices
   unordered_map<std::string, void * > fsts;
-
-  ///Collections of language models accessed by keys
-  //   unordered_map<std::string, std::vector <const ucam::fsttools::KenLMData<KenLMModelT> *>   klm;
-
-  //   boost::scoped_ptr<ucam::fsttools::StatsData>  stats;
-
-  ///Wordmap/Integer map objects. Will be necessary if alilats2splats uses non integer-mapped language models
-  //   unordered_map<std::string, ucam::util::WordMapper *> wm;
-
 };
 
-}
-} // end namespaces
+}} // end namespaces
 
-#endif //TASKALILATS2SPLATS_HPP
 

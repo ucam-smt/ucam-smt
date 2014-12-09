@@ -20,5 +20,14 @@
 *.out
 *.app
 
+
+# others
+*~
+*\#
+bin/
+obj/
+externals/*/
+scripts/tests/TESTFILES/
+
 # Generated files
 Makefile.inc

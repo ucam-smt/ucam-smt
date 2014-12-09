@@ -53,13 +53,6 @@ extern const bool detailed;
 #include "main.rules2weights.init_param_options.hpp"
 
 #include "params.hpp"
-
-//KenLM
-// #define KENLM_MAX_ORDER 6
-// #include "lm/model.hh"
-
-// Although not really needed, but won't compile for ...
-// reasons
 #include "lexicographic-tropical-tropical-incls.h"
 #include "lexicographic-tropical-tropical-decls.h"
 #include "lexicographic-tropical-tropical-funcs.h"
@@ -71,26 +64,14 @@ extern const bool detailed;
 
 #include "fstio.hpp"
 #include "fstutils.hpp"
-// #include "fstutils.applylmonthefly.hpp"
-// #include "fstutils.multiepsiloncompose.hpp"
 #include "fstutils.mapper.hpp"
-// #include "fstutils.multiunion.hpp"
-// #include "fstutils.ftcompose.hpp"
-
-#include <params.hpp>
-// #include <data.lm.hpp>
 
 #include <task.readfst.hpp>
 #include <task.writefst.hpp>
 
-// #include <data.stats.hpp>
 #include <data-main.rules2weights.hpp>
 
-// #include <task.loadwordmap.hpp>
-// #include <task.loadlm.hpp>
 #include <task.loadsparseweightflowerfst.hpp>
-// #include <task.sparseweightvectorlattices.hpp>
-// #include <task.applylm.hpp>
-// #include <task.dumpnbestfeatures.hpp>
+
 
 #endif

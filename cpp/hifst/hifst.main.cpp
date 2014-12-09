@@ -17,7 +17,7 @@
 /**
  * \file
  * \brief Hifst main entry file.
- * \date 8-8-2012
+ * \date 8-12-2014
  * \author Gonzalo Iglesias
  */
 
@@ -26,7 +26,9 @@
 #include <main.custom_assert.hpp>
 #include <main.logger.hpp>
 #include <main-run.hifst.hpp>
+#include <main-run.rules2weights.hpp>
 #include <common-helpers.hpp>
+#include <main.hpp>
 
 /**
  * @brief Concrete RunTaskT implementation for Hifst tool.
@@ -51,25 +53,24 @@ struct RunHifst {
   }
 };
 
-void ucam::fsttools::MainClass::run() {
+void ucam::util::MainClass::run() {
   using namespace HifstConstants;
+  using namespace ::ucam::fsttools;
   std::string const arctype =rg_->get<std::string>(kHifstSemiring);
   using namespace ucam::hifst;
-  if (arctype == kHifstSemiringLexStdArc || arctype == kHifstSemiringStdArc) {
+  if (arctype == kHifstSemiringLexStdArc) {
     runTaskWithKenLMTemplate<RunHifst, HifstTaskData, fst::LexStdArc>(*rg_);
-  } else if (arctype == HifstConstants::kHifstSemiringTupleArc)
+  } else if (arctype == HifstConstants::kHifstSemiringTupleArc) {
     runTaskWithKenLMTemplate<RunHifst, HifstTaskData, TupleArc32>(*rg_);
-}
-
-/**
- * \brief Main function.
- * \param       argc: Number of command-line program options.
- * \param       argv: Actual program options.
- * \remarks     Main function. Runs hifst tool.
- * First parses program options with boost, then loads and chains several task classes.
- * Finally, kick off translation for a range of sentences.
- */
-int main ( int argc, const char *argv[] ) {
-  (ucam::fsttools::MainClass(argc,argv).run());
-  return 0;
+    if (rg_->getBool(kRulesToWeightsEnable)) {
+      ucam::hifst::SingleThreadededRulesToWeightsSparseLatsTask r2w(*rg_);
+      r2w();
+    }
+  } else if (arctype == kHifstSemiringStdArc) {
+    LWARN("Untested, might work in exact decoding:" << kHifstSemiringStdArc );
+    runTaskWithKenLMTemplate<RunHifst, HifstTaskData, fst::StdArc >(*rg_);
+  } else {
+    LERROR("Unsupported semiring option");
+    exit(EXIT_FAILURE);
+  }
 }

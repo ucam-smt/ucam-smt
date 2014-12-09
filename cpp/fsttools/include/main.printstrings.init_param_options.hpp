@@ -45,6 +45,7 @@ inline void init_param_options ( int argc, const char* argv[],
     ( HifstConstants::kUniqueExtended.c_str(), "Unique strings" )
     ( HifstConstants::kWeightExtended.c_str(), "Print weight" )
     ( HifstConstants::kSparseFormat.c_str(), "Print weight in sparse format" )
+    ( HifstConstants::kSparseDotProduct.c_str(), "Print dot product" )
     ( HifstConstants::kHifstSemiring.c_str(),
       po::value<std::string>()->default_value ("stdarc"),
       "Choose between stdarc, lexstdarc, and tuplearc (for the tropical sparse tuple arc semiring)")

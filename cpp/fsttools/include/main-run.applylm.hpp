@@ -28,18 +28,22 @@ namespace fsttools {
  * \brief Class for single threaded application of language model.
  * It inherits taskinterface behaviour and also provides standalone function object behaviour.
  */
-
-template <class Data = ApplyLMData<lm::ngram::Model>
-          , class KenLMModelT = lm::ngram::Model
-          , class Arc = fst::StdArc >
-class SingleThreadedApplyLanguageModelTask: public
-  ucam::util::TaskInterface<Data> {
+template < template <class, class> class DataT
+           , class KenLMModelT
+           , class ArcT
+           >
+class SingleThreadedApplyLanguageModelTask: public ucam::util::TaskInterface<DataT<KenLMModelT, ArcT>  > {
+// template <class Data = ApplyLMData<lm::ngram::Model>
+//           , class KenLMModelT = lm::ngram::Model
+//           , class Arc = fst::StdArc >
+//class SingleThreadedApplyLanguageModelTask: public ucam::util::TaskInterface<Data> {
  private:
+  typedef DataT<KenLMModelT, ArcT> Data;
   typedef LoadWordMapTask< Data > LoadWordMap;
   typedef LoadLanguageModelTask < Data, KenLMModelT > LoadLanguageModel;
-  typedef ApplyLanguageModelTask<Data , KenLMModelT, Arc > ApplyLanguageModel;
-  typedef ReadFstTask<Data, Arc> ReadFst;
-  typedef WriteFstTask< Data , Arc> WriteFst;
+  typedef ApplyLanguageModelTask<Data , KenLMModelT, ArcT > ApplyLanguageModel;
+  typedef ReadFstTask<Data, ArcT> ReadFst;
+  typedef WriteFstTask< Data , ArcT> WriteFst;
   typedef SpeedStatsTask<Data> SpeedStats;
 
   //Command-line/config file options
@@ -97,17 +101,18 @@ class SingleThreadedApplyLanguageModelTask: public
  * \brief Class for multithreaded application of language model.
  * Inherits taskinterface and provides standalone function object behaviour.
  */
-
-template <class Data = ApplyLMData<lm::ngram::Model>
-          , class KenLMModelT = lm::ngram::Model, class Arc = fst::StdArc >
-class MultiThreadedApplyLanguageModelTask: public
-  ucam::util::TaskInterface<Data> {
+template < template <class, class> class DataT
+           , class KenLMModelT
+           , class ArcT
+           >
+class MultiThreadedApplyLanguageModelTask: public ucam::util::TaskInterface<DataT<KenLMModelT, ArcT>  > {
  private:
+  typedef DataT<KenLMModelT, ArcT> Data;
   typedef LoadWordMapTask< Data > LoadWordMap;
   typedef LoadLanguageModelTask < Data, KenLMModelT > LoadLanguageModel;
-  typedef ApplyLanguageModelTask<Data , KenLMModelT, Arc > ApplyLanguageModel;
-  typedef ReadFstTask<Data, Arc> ReadFst;
-  typedef WriteFstTask< Data , Arc> WriteFst;
+  typedef ApplyLanguageModelTask<Data , KenLMModelT, ArcT > ApplyLanguageModel;
+  typedef ReadFstTask<Data, ArcT> ReadFst;
+  typedef WriteFstTask< Data , ArcT> WriteFst;
   typedef SpeedStatsTask<Data> SpeedStats;
 
   ///Command-line/config file options

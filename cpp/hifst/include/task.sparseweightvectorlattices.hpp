@@ -128,8 +128,7 @@ class SparseWeightVectorLatticesTask: public ucam::util::TaskInterface<Data> {
     LINFO ( "Mapping Arc Target Lattice to TupleArc32" );
     fst::MakeSparseVectorWeight<Arc> mwcopy ( 1 );
     fst::Map<Arc> ( prvfst, vwfst,
-                    fst::GenericWeightMapper<Arc, TupleArc32, fst::MakeSparseVectorWeight<Arc>  >
-                    ( mwcopy ) );
+                    fst::GenericWeightMapper<Arc, TupleArc32, fst::MakeSparseVectorWeight<Arc>  > ( mwcopy ) );
     fst::VectorFst<TupleArc32> *output = new fst::VectorFst<TupleArc32>;
     LDBG_EXECUTE ( vwfst->Write ( "fsts/aplats/vw-beforecomposing.fst" ) );
     LINFO ( "Compose (TupleArc32)" );

@@ -17,85 +17,133 @@
 /**
  * \file
  * \brief Implements lats2splats tool
- * \date 2-12-2014
+ * \date 10-12-2014
  * \author Gonzalo Iglesias
  */
 
 namespace ucam {
 namespace hifst {
 
+
+struct RulesToWeightsMapperObject {
+  typedef TupleArc32 FromArc;
+  typedef TupleArc32 ToArc;
+  typedef ToArc::Weight Weight;
+  ucam::hifst::RuleIdsToSparseWeightLatsData<> *d_;
+  unsigned lmOffset_;
+  typedef ucam::hifst::RuleIdsToSparseWeightLatsData<>::WeightsTableIt WeightsTableIt;
+  explicit RulesToWeightsMapperObject(ucam::hifst::RuleIdsToSparseWeightLatsData<> &d
+                                      , unsigned lmOffset )
+      : d_(&d)
+      , lmOffset_(lmOffset)
+  { }
+
+  ToArc operator()(FromArc const &arc) const {
+    if ( arc.weight == FromArc::Weight::Zero() ) //irrelevant labels
+      return ToArc ( arc.ilabel, arc.olabel, ToArc::Weight::Zero(), arc.nextstate );
+
+    Weight nw(arc.weight.DefaultValue()); // new weights;
+    for (fst::SparseTupleWeightIterator<FeatureWeight32, int> it ( arc.weight )
+             ; !it.Done()
+             ; it.Next() ) {
+      if (it.Value().first > (int) lmOffset_ ) {
+        continue;
+      }
+      if (it.Value().first < 0 ) {
+        WeightsTableIt itx = d_->weights->find(-it.Value().first );
+        if (itx == d_->weights->end()) {
+          std::cerr << "RULE NOT FOUND:" << -it.Value().first  << "," << d_->weights->size() << std::endl;
+          exit(EXIT_FAILURE);
+        }
+        Weight aux = itx->second;
+        for (fst::SparseTupleWeightIterator<FeatureWeight32, int> auxit ( aux )
+                 ; !auxit.Done()
+                 ; auxit.Next() ) {
+          nw.Push(auxit.Value().first
+                  , auxit.Value().second.Value() * it.Value().second.Value());
+        }
+        continue;
+      }
+      // if weight is positive and index less than numlms, copy as-is.
+      nw.Push(it.Value().first, it.Value().second);
+    }
+    return ToArc ( arc.ilabel, arc.olabel, nw, arc.nextstate );
+  }
+};
+
 /**
  * \brief Full single-threaded Alignment lattices to Sparse lattices
  */
 
-template <class Data = RuleIdsToWeightsData<lm::ngram::Model>
-          , class KenLMModelT = lm::ngram::Model >
-class SingleThreadedRulesToWeightsSparseLatsTask: public
-  ucam::util::TaskInterface<Data> {
+class SingleThreadededRulesToWeightsSparseLatsTask: public  ucam::util::TaskInterface<RuleIdsToSparseWeightLatsData<> > {
  private:
-  typedef ucam::fsttools::LoadWordMapTask< Data > LoadWordMap;
-  typedef ucam::fsttools::WriteFstTask < Data , TupleArc32 > WriteFst;
-  typedef ucam::fsttools::ReadFstTask < Data , fst::LexStdArc > ReadFst;
-  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT >
-  LoadLanguageModel;
-  typedef LoadSparseWeightFlowerLatticeTask < Data >
-  LoadSparseWeightFlowerLattice;
-  typedef SparseWeightVectorLatticesTask <Data, fst::LexStdArc >
-  SparseWeightVectorLattices;
-  typedef ucam::fsttools::ApplyLanguageModelTask<Data, KenLMModelT, TupleArc32 >
-  ApplyLanguageModel;
-  typedef DumpNbestFeaturesTask < Data  > DumpNbestFeatures;
-
+  typedef RuleIdsToSparseWeightLatsData<> Data;
   const ucam::util::RegistryPO& rg_;
  public:
-  /**
-   *\brief Constructor
-   *\param rg: pointer to ucam::util::RegistryPO object with all parsed parameters.
-   */
-  SingleThreadedRulesToWeightsSparseLatsTask ( const ucam::util::RegistryPO& rg ) :
+  SingleThreadededRulesToWeightsSparseLatsTask ( const ucam::util::RegistryPO& rg ) :
     rg_ ( rg ) {
   };
 
-  /**
-   * \brief Reads an input sentence, tokenizes and integer-maps.
-   */
   bool run ( Data& d ) {
-    unsigned numlms;
-    setScales ( rg_ , &numlms);
-    boost::scoped_ptr < LoadSparseWeightFlowerLattice>
-    mytask (new LoadSparseWeightFlowerLattice ( rg_ , numlms,
-            HifstConstants::kSparseweightvectorlatticeLoadalilats ) );
-    mytask->appendTask
-    ( WriteFst::init ( rg_, HifstConstants::kRuleflowerlatticeStore ) )
-    ( LoadWordMap::init ( rg_, HifstConstants::kLmWordmap, true ) )
-    ( new LoadLanguageModel ( rg_, HifstConstants::kLmLoad,
-                              "" ) ) //Here, language model weights always to 1
-    ( new ReadFst ( rg_
-                    , HifstConstants::kSparseweightvectorlatticeLoadalilats ) )
-    ( new SparseWeightVectorLattices ( rg_
-                                       , HifstConstants::kSparseweightvectorlatticeLoadalilats
-                                       , HifstConstants::kRuleflowerlatticeStore
-                                       , HifstConstants::kSparseweightvectorlatticeStorenolm ) )
-    ( new ApplyLanguageModel ( rg_
-                               , HifstConstants::kLmLoad
-                               , HifstConstants::kSparseweightvectorlatticeStorenolm
-                               , HifstConstants::kSparseweightvectorlatticeStore ) )
-    ( WriteFst::init ( rg_
-                       , HifstConstants::kSparseweightvectorlatticeStore ) )
-    ( LoadWordMap::init ( rg_
-                          , HifstConstants::kSparseweightvectorlatticeWordmap ) )
-    ( DumpNbestFeatures::init ( rg_
-                                , numlms
-                                , HifstConstants::kSparseweightvectorlatticeStore ) )
-    ;
-    for ( ucam::util::IntRangePtr ir (ucam::util::IntRangeFactory ( rg_ ,
-                                      HifstConstants::kRangeOne ) );
-          !ir->done ();
-          ir->next () ) {
-      d.sidx = ir->get ();
-      mytask->chainrun ( d ); // Run!
+    using namespace HifstConstants;
+    using namespace ucam::hifst;
+    using namespace fst;
+    using namespace ucam::util;
+
+    unsigned offset = 1;
+    if (rg_.exists(kRulesToWeightsNumberOfLanguageModels)) {
+      offset = rg_.get<unsigned>(kRulesToWeightsNumberOfLanguageModels);
+    } else if (rg_.exists(kLmFeatureweights)) {
+      offset = rg_.getVectorString(kLmFeatureweights).size();
+    } else {
+      LERROR("Cannot determine parameter to find the number of language models! (" << kRulesToWeightsNumberOfLanguageModels << "," << kLmFeatureweights << ")");
+      exit(EXIT_FAILURE);
     }
-    return false;
+    LINFO("#LMs =" << offset);
+
+    std::string alilats;
+    std::string range = kRangeOne;
+    if (rg_.exists(kRulesToWeightsLoadalilats)) {
+      alilats = kRulesToWeightsLoadalilats;
+    } else if (rg_.exists(kHifstLatticeStore)) {
+      alilats = kHifstLatticeStore;
+      range = kRangeInfinite; // hifst doesn't have range.
+    } else {
+      LERROR("Could not determine parameter to find input lattices ! (" << kRulesToWeightsLatticeFilterbyAlilats << "," << kHifstLatticeStore << ")" );
+      exit(EXIT_FAILURE);
+    }
+    std::string loadgrammar;
+    if (rg_.exists(kRulesToWeightsLoadGrammar)) {
+      loadgrammar=kRulesToWeightsLoadGrammar;
+    } else if (rg_.exists(kGrammarLoad)) {
+      loadgrammar=kGrammarLoad;
+    } else {
+      LERROR("Grammar parameter is unavailable ! (" << kRulesToWeightsLoadGrammar << "," << kGrammarLoad << ")" );
+      exit(EXIT_FAILURE);
+    }
+
+    LoadSparseWeightsTask<Data> p(rg_, offset, alilats, loadgrammar);
+    p.run(d);
+
+    typedef TupleArc32 Arc;
+    PatternAddress<unsigned> pi (rg_.get<std::string> (alilats ) );
+    PatternAddress<unsigned> po (rg_.get<std::string> (kRulesToWeightsLatticeStore ) );
+    for ( IntRangePtr ir (IntRangeFactory ( rg_, range ) );
+          !ir->done();
+          ir->next() ) {
+
+      if (!ucam::util::fileExists(pi (ir->get() ))
+          && range == kRangeInfinite) {
+        // silently finish
+        break;
+      }
+      VectorFst<Arc> *mfst = VectorFstRead<Arc> (pi (ir->get() ) );
+      FORCELINFO("Reading: " << pi (ir->get() ) );
+      myMappingProcedure(mfst, d, offset);
+      std::string auxs = po (ir->get() );
+      FORCELINFO("Writing: " << auxs);
+      FstWrite<Arc> (*mfst, auxs);
+    }
   };
 
   inline bool operator() () {
@@ -105,99 +153,18 @@ class SingleThreadedRulesToWeightsSparseLatsTask: public
 
  private:
 
-  DISALLOW_COPY_AND_ASSIGN ( SingleThreadedRulesToWeightsSparseLatsTask );
+  void myMappingProcedure(fst::VectorFst<TupleArc32> *mfst
+                          , Data &d
+                          , unsigned lmOffset) {
 
-};
-
-/**
- * \brief Multithreaded implementation of alilats2splats pipeline
- */
-template <class Data = RuleIdsToWeightsData<lm::ngram::Model> , class KenLMModelT = lm::ngram::Model  >
-class MultiThreadedRulesToWeightsSparseLatsTask: public
-  ucam::util::TaskInterface<Data> {
-
- private:
-  typedef ucam::fsttools::LoadWordMapTask< Data > LoadWordMap;
-  typedef ucam::fsttools::WriteFstTask < Data , TupleArc32 > WriteFst;
-  typedef ucam::fsttools::ReadFstTask < Data , fst::LexStdArc > ReadFst;
-  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT >
-  LoadLanguageModel;
-  typedef LoadSparseWeightFlowerLatticeTask < Data >
-  LoadSparseWeightFlowerLattice;
-  typedef SparseWeightVectorLatticesTask <Data, fst::LexStdArc >
-  SparseWeightVectorLattices;
-  typedef ucam::fsttools::ApplyLanguageModelTask<Data, KenLMModelT, TupleArc32 >
-  ApplyLanguageModel;
-  typedef DumpNbestFeaturesTask < Data  > DumpNbestFeatures;
-
-  ///Registry object
-  const ucam::util::RegistryPO& rg_;
-  ///Number of threads requested by user
-  unsigned threadcount_;
- public:
-  MultiThreadedRulesToWeightsSparseLatsTask ( const ucam::util::RegistryPO& rg ) :
-    threadcount_ ( rg.get<unsigned> ( HifstConstants::kNThreads ) ),
-    rg_ (rg) {
+    RulesToWeightsMapperObject m(d, lmOffset);
+    fst::GenericArcAutoMapper<TupleArc32, RulesToWeightsMapperObject> gam(m);
+    fst::Map(mfst, gam);
   }
 
-  bool run ( Data& original_data ) {
-    unsigned numlms;
-    setScales ( rg_ , &numlms);
-    boost::scoped_ptr < LoadSparseWeightFlowerLattice>
-    loadtask ( new LoadSparseWeightFlowerLattice ( rg_
-               , numlms
-               , HifstConstants::kSparseweightvectorlatticeLoadalilats ) );
-    loadtask->appendTask
-    ( WriteFst::init ( rg_  , HifstConstants::kRuleflowerlatticeStore ) )
-    ( new LoadLanguageModel ( rg_  , HifstConstants::kLmLoad,
-                              "" ) ) //Forcing language model scales always to 1
-    ( LoadWordMap::init ( rg_  , HifstConstants::kLmWordmap , true ) )
-    ( LoadWordMap::init ( rg_  ,
-                          HifstConstants::kSparseweightvectorlatticeWordmap ) )
-    ;
-    loadtask->chainrun ( original_data ); // Load grammar and language model;
-    {
-      ucam::util::TrivialThreadPool tp ( threadcount_ );
-      bool finished = false;
-      for ( ucam::util::IntRangePtr ir (ucam::util::IntRangeFactory ( rg_ ,
-                                       HifstConstants::kRangeOne ) );
-            !ir->done ();
-            ir->next () ) {
-        Data *d = new Data; //( original_data ); // reset.
-        d->sidx = ir->get();
-        d->klm = original_data.klm;
-        d->fsts = original_data.fsts;
-        d->wm = original_data.wm;
-        FORCELINFO ( "=====Extract features for sentence " << d->sidx << ":" );
-        ReadFst *runtask = new ReadFst ( rg_  ,
-                                         HifstConstants::kSparseweightvectorlatticeLoadalilats );
-        runtask->appendTask
-        ( new SparseWeightVectorLattices ( rg_
-                                           , HifstConstants::kSparseweightvectorlatticeLoadalilats
-                                           , HifstConstants::kRuleflowerlatticeStore
-                                           , HifstConstants::kSparseweightvectorlatticeStorenolm ) )
-        ( new ApplyLanguageModel ( rg_
-                                   , HifstConstants::kLmLoad
-                                   , HifstConstants::kSparseweightvectorlatticeStorenolm
-                                   , HifstConstants::kSparseweightvectorlatticeStore ) )
-        ( WriteFst::init ( rg_  , HifstConstants::kSparseweightvectorlatticeStore ) )
-        ( DumpNbestFeatures::init ( rg_  , numlms,
-                                    HifstConstants::kSparseweightvectorlatticeStore ) )
-        ;
-        tp ( ucam::util::TaskFunctor<Data> ( runtask,
-                                             d ) ); //tp takes ownership of runtask and d
-      }
-    }
-    return false;
-  };
-
-  inline bool operator() () {
-    Data d;
-    return run ( d );
-  };
-
- private:
-  DISALLOW_COPY_AND_ASSIGN ( MultiThreadedRulesToWeightsSparseLatsTask );
+  DISALLOW_COPY_AND_ASSIGN ( SingleThreadededRulesToWeightsSparseLatsTask );
 };
+
 }} // end namespaces
+
 

@@ -57,15 +57,16 @@ inline void extractSourceVocabulary ( const fst::VectorFst<Arc>& myfst,
 };
 
 /**
- * \brief Extract source (left-side) vocabulary from an fst.
- * \param myfst: The fst or lattice for which we want to extract the vocabulary.
- * \param vcb: To store the vocabulary (as Arc::Labels)
+ * \brief Extract source (left-side) vocabulary (integers) from an fst.
+ * \param myfst The fst or lattice for which we want to extract the vocabulary.
+ * \param vcb To store the vocabulary (as Arc::Labels)
+ * \param offset Offset summed to each label id
  */
 
 template<class Arc >
-
 inline void extractSourceVocabulary ( const fst::VectorFst<Arc>& myfst,
-                                      unordered_set<unsigned> *vcb ) {
+                                      unordered_set<unsigned> *vcb, 
+                                      unsigned offset = 0) {
   USER_CHECK ( vcb, "NULL pointer not accepted" );
   using fst::StateIterator;
   using fst::VectorFst;
@@ -75,7 +76,7 @@ inline void extractSourceVocabulary ( const fst::VectorFst<Arc>& myfst,
     StateId state_id = si.Value();
     for ( ArcIterator< VectorFst<Arc> > ai ( myfst, si.Value() ); !ai.Done();
           ai.Next() ) {
-      vcb->insert ( ai.Value().ilabel  );
+      vcb->insert ( ai.Value().ilabel + offset );
     }
   }
 };

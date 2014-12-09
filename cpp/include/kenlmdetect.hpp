@@ -22,9 +22,9 @@ namespace util {
  * code recycled from kenlm tool
  */
 
-enum {KENLM_NPLM=-1}
+enum {KENLM_NPLM=-1};
 
-inline lm::ngram::ModelType detectkenlm (std::string const& kenlmfile) {
+inline int detectkenlm (std::string const& kenlmfile) {
   lm::ngram::ModelType model_type;
   if (kenlmfile == "" ) return lm::ngram::PROBING;
   if (lm::ngram::RecognizeBinary (kenlmfile.c_str(), model_type) ) {
@@ -46,8 +46,8 @@ inline lm::ngram::ModelType detectkenlm (std::string const& kenlmfile) {
     return KENLM_NPLM;
 #endif
   } else { // possibly arpa file?
-
-  return lm::ngram::PROBING;
+    return lm::ngram::PROBING;
+  }
 }
 
 }} // end namespaces

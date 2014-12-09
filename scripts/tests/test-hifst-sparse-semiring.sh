@@ -21,7 +21,7 @@ export PATH=$OPENFST_BIN:$PATH
 ################### - Each bash test file contains a series of test functions test_NUMBER_NAME. They return 1 if success or 0 if failure.
 ################### - These functions do not necessarily have to be independent from each other. The NUMBER in the test should be unique to guarantee they get executed in the proper order
 
-test_0001_hifst_rules2weights_found(){
+test_0001_hifst_found(){
     if [ ! -f $hifst ]; then echo 0 ; return; fi
     echo 1
 }
@@ -172,18 +172,13 @@ test_0013_translate_pdt2_sparse() {
 
 test_0014_convert_lats_to_veclats() {
 
-# # 1. Take output from 0012 of 0009 and run the tool that maps to veclats.
-# # 2. Test: The tool should generate veclats equivalent to hifst+alilats2splats pipeline.
-( #set -x
+(# set -x
     $rules2weights \
 	--range=$range \
-	--ruleflowerlattice.load=$grammar \
-        --sparseweightvectorlattice.loadalilats=$BASEDIR/lats/?.fst.gz \
- 	--sparseweightvectorlattice.store=$BASEDIR/vwlats/?.fst.gz
-#        --ruleflowerlattice.filterbyalilats \
-#         --sparseweightvectorlattice.storenbestfile=$BASEDIR/nbest/?.nbest.gz\
-#         --sparseweightvectorlattice.storefeaturefile=$BASEDIR/fea/?.features.gz \
-# 
+	--rulestoweights.loadgrammar=$grammar \
+        --rulestoweights.loadalilats=$BASEDIR/lats/?.fst.gz \
+ 	--rulestoweights.store=$BASEDIR/vwlats/?.fst.gz --logger.verbose
+
 ) &>/dev/null
 
 
@@ -196,10 +191,32 @@ test_0014_convert_lats_to_veclats() {
 
 ###Success
     echo 1 
+}
 
 
+test_0015_align_convert_lats_to_veclats() {
 
+(# set -x
+    $hifst \
+        --grammar.load=$grammar \
+        --source.load=$tstidx  \
+        --hifst.lattice.store=$BASEDIR/lats/?.fst.gz  \
+        --lm.load=$languagemodel  \
+        --lm.featureweights=0.5 \
+        --hifst.prune=9  \
+        --semiring=tuplearc --rulestoweights.store=$BASEDIR/vwlats2/?.fst.gz --rulestoweights.enable=yes
+)
+# &>/dev/null
 
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    for k in `seq $seqrange`; do 
+	if [ "`zcat $BASEDIR/vwlats/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
+	mkdir -p tmp; zcat $BASEDIR/vwlats2/$k.fst.gz > tmp/$k.test.fst; zcat $REFDIR/vwlats/$k.fst.gz > tmp/$k.ref.fst;
+	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ; 
+    done
+
+###Success
+    echo 1 
 }
 
 ################### STEP 2

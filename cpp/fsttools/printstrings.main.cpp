@@ -15,6 +15,7 @@ typedef labelmap_t::iterator labelmap_iterator_t;
 labelmap_t vmap;
 bool printweight = false;
 bool sparseformat = false;
+bool dotproduct = false;
 
 using fst::Hyp;
 
@@ -54,23 +55,39 @@ void printWeight (typename Arc::Weight const& weight, std::ostream& os) {
 template <>
 void printWeight<TupleArc32> (const TupleW32& weight, std::ostream& os) {
   std::map<int,float> costs;
+  std::string separator (",");
+
   for (fst::SparseTupleWeightIterator<fst::TropicalWeight, int> it (weight);
        !it.Done(); it.Next() ) {
     costs[it.Value().first] += it.Value().second.Value();
   }
   if (sparseformat) {
-    os << "0," << costs.size() << ",";
+
+    os << "0" << separator << costs.size();
     for (std::map<int,float>::const_iterator itx=costs.begin()
              ; itx != costs.end()
              ; ++itx) {
-      os << itx->first << "," << itx->second << ",";
+      os << separator << itx->first << separator << itx->second;
     }
+    return;
+  } 
+  if (dotproduct) {
+    float w =0;
+    std::vector<float> const &fws = TupleW32::Params();
+    for (std::map<int,float>::const_iterator itx=costs.begin()
+             ; itx != costs.end()
+             ; ++itx) {
+      if (itx->first < 1) continue;
+
+      float fw = fws[itx->first - 1];
+      w = w + fw * itx->second;
+    }
+    os << w;
     return;
   }
   std::size_t nonSparseSize = TupleW32::Params().size();
   std::size_t counter = 1;
-  std::string separator (",");
-
+  separator = "";
   for (std::map<int,float>::const_iterator itx=costs.begin()
            ; itx != costs.end()
            ; ++itx) {
@@ -78,17 +95,17 @@ void printWeight<TupleArc32> (const TupleW32& weight, std::ostream& os) {
     std::size_t featureIndex = itx->first;
     for (std::size_t featureMissingIndex = counter;
          featureMissingIndex < featureIndex; ++featureMissingIndex) {
-      os << "0" << separator;
+      os << separator << "0";
+      separator = ","; // @todo should be possible to avoid resetting every time.
     }
-    os << itx->second << separator;
+    os << separator << itx->second;
     counter = itx->first + 1;
+    separator = ",";
   }
-  for (; counter <= nonSparseSize; ++counter)
-    os << "0" << separator;
-
-
-
-
+  for (; counter <= nonSparseSize; ++counter) {
+    os << separator << "0";
+    separator = ",";
+  }
   // dense format is buggy. We also want sparse format to sum contributions to the same index.
   // if (sparseformat) {
   //   os << weight;
@@ -224,6 +241,13 @@ int  main ( int argc, const char* argv[] ) {
   }
   if (rg.exists (HifstConstants::kSparseFormat) ) {
     sparseformat = true;
+  }
+  if (rg.exists (HifstConstants::kSparseDotProduct) ) {
+    if (sparseformat == true) {
+      LERROR("Sparse format and dot product are not available at the same time.");
+      exit(EXIT_FAILURE);
+    }
+    dotproduct = true;
   }
   // check that tuplearc weights are set for the tuplearc semiring
   if (rg.get<std::string> (HifstConstants::kHifstSemiring.c_str() ) ==

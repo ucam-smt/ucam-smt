@@ -53,6 +53,7 @@ const std::string kUniqueExtended = kUnique + ",u";
 const std::string kNbest = "nbest";
 const std::string kNbestExtended = kNbest + ",n";
 const std::string kSparseFormat = "sparseformat";
+const std::string kSparseDotProduct = "dotproduct";
 const std::string kTupleArcWeights = "tuplearc.weights";
 const std::string kWeight = "weight";
 const std::string kWeightExtended = kWeight + ",w";

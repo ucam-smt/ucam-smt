@@ -29,7 +29,8 @@ namespace hifst {
 /// Implements a class that loads the grammar sparseweight flower lattice and stores a pointer on the data object
 template<class DataT>
 class LoadSparseWeightFlowerLatticeTask: public ucam::util::TaskInterface<DataT> {
- private:
+  // private:
+ protected:
 
   ///Fst with the flower lattice itself
   fst::VectorFst<TupleArc32> flowerlattice_;
@@ -67,8 +68,7 @@ class LoadSparseWeightFlowerLatticeTask: public ucam::util::TaskInterface<DataT>
   LoadSparseWeightFlowerLatticeTask ( const ucam::util::RegistryPO& rg,
                                       const unsigned offset =
                                         1, //minimum offset considering only one language model...
-                                      const std::string& alignmentlattices =
-                                        HifstConstants::kRuleflowerlatticeFilterbyalilats,
+                                      const std::string& alignmentlattices = "",
                                       const std::string& grammarloadkey = HifstConstants::kRuleflowerlatticeLoad,
                                       const std::string& grammarstorekey = HifstConstants::kRuleflowerlatticeStore
                                     ) :
@@ -121,11 +121,15 @@ class LoadSparseWeightFlowerLatticeTask: public ucam::util::TaskInterface<DataT>
     previousfile_ = filename;
   }
 
-  void gatherRuleIds(unordered_set<unsigned> &idxrules) {
+  virtual void gatherRuleIds(unordered_set<unsigned> &idxrules
+                             , bool filterbyalilats
+                             , ucam::util::IntegerPatternAddress &alilats
+                             , ucam::util::RegistryPO const &rg ) {
+
     using namespace ucam::util;
     using namespace fst;
-    if ( filterbyalilats_ )
-      for ( IntRangePtr ir (IntRangeFactory ( rg_ ) )
+    if ( filterbyalilats )
+      for ( IntRangePtr ir (IntRangeFactory ( rg ) )
                 ; !ir->done ()
                 ; ir->next () ) {
         VectorFst<LexStdArc> *alilatsfst =
@@ -159,12 +163,10 @@ class LoadSparseWeightFlowerLatticeTask: public ucam::util::TaskInterface<DataT>
     if (!checkGrammarFile(filename)) return false;
     updateFilename(filename);
 
-    FORCELINFO ( "building rule flower from " << filename );
+    FORCELINFO ( "loading grammar from " << filename );
     if ( directload ( filename ) ) return true;
-    ///Read alilats and get rules
-    //    unordered_set<TupleArc32::Label> idxrules;
     unordered_set<unsigned> idxrules;
-    gatherRuleIds(idxrules);
+    gatherRuleIds(idxrules, filterbyalilats_, alilats_, rg_ );
     this->initStructure();
 
     unsigned lc = 0, llc = 0;
@@ -240,11 +242,10 @@ class LoadSparseWeightsTask: public LoadSparseWeightFlowerLatticeTask<DataT> {
  public:
   LoadSparseWeightsTask( const ucam::util::RegistryPO& rg,
                          const unsigned offset =1, //minimum offset considering only one language model...
-                         const std::string& alignmentlattices = HifstConstants::kRuleflowerlatticeFilterbyalilats,
-                         const std::string& grammarloadkey = HifstConstants::kRuleflowerlatticeLoad,
-                         const std::string& grammarstorekey = HifstConstants::kRuleflowerlatticeStore
+                         const std::string& alignmentlattices = HifstConstants::kRulesToWeightsLoadalilats,
+                         const std::string& grammarloadkey = HifstConstants::kRulesToWeightsLoadGrammar
                          )
-      : LoadSparseWeightFlowerLatticeTask<DataT>(rg, offset, alignmentlattices, grammarloadkey, grammarstorekey)
+      : LoadSparseWeightFlowerLatticeTask<DataT>(rg, offset, alignmentlattices, grammarloadkey)
   {}
   bool run ( DataT& d ) {
     LoadSparseWeightFlowerLatticeTask<DataT>::run(d);
@@ -255,14 +256,23 @@ class LoadSparseWeightsTask: public LoadSparseWeightFlowerLatticeTask<DataT> {
 
   virtual void fillStructure(unsigned label, TupleArc32::Weight const & vtcost) {
     // rule ids start from 2 for "reasons" (openfst).
-    LINFO("Loading rule id=" << label + 1 << " with weights=" << vtcost );
     weights_[label + 2 ] = vtcost;
     weights_[label + 2 ].SetDefaultValue(0);
-
+    LDEBUG("Loading rule id=" << label + 2 << " with weights=" << weights_[label + 2 ] );
   }
 
   virtual void closeStructure() {}
 
+  virtual void gatherRuleIds(unordered_set<unsigned> &idxrules
+                             , bool filterbyalilats
+                             , ucam::util::IntegerPatternAddress &alilats
+                             , ucam::util::RegistryPO const &rg ) {
+    using namespace ucam::util;
+    using namespace fst;
+
+    if ( ! filterbyalilats )  return;
+  // @todo -- need to read into the weights, gather rule ids there.
+  }
 };
 
 

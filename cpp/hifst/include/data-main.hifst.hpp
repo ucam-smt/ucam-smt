@@ -83,6 +83,18 @@ class HifstTaskData {
   //  unordered_map<string, fst::VectorFst<ArcT> * > fsts;
   unordered_map<std::string, void * > fsts;
 
+  inline fst::VectorFst<ArcT> *getFst(std::string const &key) {
+    unordered_map<std::string, void * >::iterator itx
+        = fsts.find ( key);
+    if ( itx == fsts.end() ) {
+      LWARN("Empty lattice key=" << key);
+      return NULL;
+    }
+    return reinterpret_cast<fst::VectorFst<ArcT> *>(itx->second);
+  }
+
+
+
   ///Collections of language models accessed by keys (e.g. in translation we need a bunch for hifst and one for recaser)
   unordered_map<std::string, std::vector <const KenLMData *> > klm;
   ///Number of local language models used in hifst
@@ -105,8 +117,9 @@ class HifstTaskData {
 
 };
 
-}
-} // end namespaces
+
+
+}} // end namespaces
 
 #endif
 

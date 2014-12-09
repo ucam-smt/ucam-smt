@@ -12,6 +12,8 @@
 
 // Copyright 2012 - Gonzalo Iglesias, Adrià de Gispert, William Byrne
 
+#include <main.rules2weights.init_param_options_common.hpp>
+
 /** \file
  * \brief To initialize boost parameter options
  * \date 5-12-2014
@@ -41,59 +43,14 @@ inline void init_param_options ( int argc, const char* argv[],
   using namespace HifstConstants;
   try {
     po::options_description desc ( "Command-line/configuration file options" );
-    desc.add_options()
-    ( kRangeExtended.c_str(),
-      po::value<std::string>()->default_value ("1"),
-      "Indices of sentences to translate" )
-    ( kNThreads.c_str(), po::value<unsigned>(),
-      "Number of threads (trimmed to number of cpus in the machine) " )
-     ( kFeatureweights.c_str()
-       , po::value<std::string>()->default_value ( "" )
-       , "Feature weights applied in hifst. This is a comma-separated sequence "
-       "of language model(s) and grammar feature weights.\n"
-       "IMPORTANT: If this option is not empty string, then it will override "
-       "any values in lm.featureweights and ruleflowerlattice.featureweights"
-     )
-    ( kRuleflowerlatticeFilterbyalilats.c_str(),
-      "Filter the flower lattice with the vocabulary of the alignment lattices" )
-    ( kRuleflowerlatticeLoad.c_str(), po::value<std::string>(),
-      "Load a synchronous context-free grammar file" )
-    // ( kRuleflowerlatticeStore.c_str(),
-    //   po::value<std::string>()->default_value ( "" ), "Store the fst (SparseWeight)" )
-    // ( kRuleflowerlatticeFeatureweights.c_str(),
-    //   po::value<std::string>()->default_value ( "1" ),
-    //   "One or more feature weights. Must match the number of features in the grammar" )
-    ( kSparseweightvectorlatticeLoadalilats.c_str() ,
-      po::value<std::string>(), "Load hifst sparse weight translation lattice" )
-    ( kSparseweightvectorlatticeStore.c_str() ,
-      po::value<std::string>()->default_value ( "" ),
-      "Store the fst (SparseWeight) containing a vector of weights " )
-    // ( kSparseweightvectorlatticeStripSpecialEpsilonLabels.c_str() ,
-    //   po::value<std::string>()->default_value ( "no" ),
-    //   "Strip any special Hifst epsilon labels (e.g. oov, deletion rule, ...)" )
-    // ( kSparseweightvectorlatticeStorenbestfile.c_str(),
-    //   po::value<std::string>()->default_value ( "" ),
-    //   "Store the fst (SparseWeight) containing a vector of weights " )
-    // ( kSparseweightvectorlatticeWordmap.c_str(),
-    //   po::value<std::string>()->default_value ( "" ),
-    //   "Use wordmap when dumping nbest list (to use with storenbestfile option )" )
-    // ( kSparseweightvectorlatticeStorefeaturefile.c_str(),
-    //   po::value<std::string>()->default_value ( "" ),
-    //   "Store the fst (SparseWeight) containing a vector of weights " )
-    // ( kSparseweightvectorlatticeFirstsparsefeatureatindex.c_str(),
-    //   po::value<uint>()->default_value ( 50 ),
-    //   "Number for which the feature output will printed in sparse format (weight_1@position_1 ... weight_n@position_n" )
-        ( kRulesToWeightsNumberOfLanguageModels.c_str()
-        , po::value<unsigned>()->default_value ( 1 )
-        , "Number of language models" )
-    ;
-    //    initCommonApplylmOptions (desc); // Add generic language model options
+    initRules2WeightsOptions(desc);
     parseOptionsGeneric (desc, vm, argc, argv);
-    if ( vm->count ( kRuleflowerlatticeLoad.c_str() ) ) {
-      LDEBUG ( "ruleflowerlattice.load=" <<
-               ( *vm ) [kRuleflowerlatticeLoad.c_str()].as<std::string>() );
+    checkRules2Weightptions(vm);
+    if ( vm->count ( kRulesToWeightsLoadGrammar.c_str() ) ) {
+      LDEBUG ( kRulesToWeightsLoadGrammar <<
+               ( *vm ) [kRulesToWeightsLoadGrammar.c_str()].as<std::string>() );
     } else {
-      LERROR ( "parameter ruleflowerlattice.load not defined" );
+      LERROR ( "parameter " << kRulesToWeightsLoadGrammar << " not defined" );
       exit ( EXIT_FAILURE );
     }
   } catch ( std::exception& e ) {

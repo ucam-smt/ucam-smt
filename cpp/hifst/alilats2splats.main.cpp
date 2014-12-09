@@ -27,6 +27,7 @@
 #include <main.logger.hpp>
 #include <main-run.alilats2splats.hpp>
 #include <common-helpers.hpp>
+#include <main.hpp>
 
 /**
  * @brief Concrete RunTaskT implementation for Hifst tool.
@@ -49,7 +50,7 @@ struct RunAlilatsToSplats {
   }
 };
 
-void ucam::fsttools::MainClass::run() {
+void ucam::util::MainClass::run() {
   using namespace HifstConstants;
   using namespace ucam::hifst;
   using namespace ucam::fsttools;
@@ -57,17 +58,4 @@ void ucam::fsttools::MainClass::run() {
   runTaskWithKenLMTemplate<RunAlilatsToSplats
                            , AlilatsToSparseWeightLatsData
                            , TupleArc32>(*rg_);
-}
-
-/**
- * \brief Main function.
- * \param       argc: Number of command-line program options.
- * \param       argv: Actual program options.
- * \remarks     Main function. Runs alilats2splats tool. See main-run.alilats2splats.hpp
- */
-
-int
-main ( int argc, const char *argv[] ) {
-  (ucam::fsttools::MainClass(argc,argv).run());
-  return 0;
 }

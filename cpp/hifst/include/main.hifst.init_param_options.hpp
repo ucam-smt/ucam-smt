@@ -14,6 +14,7 @@
 
 #include <main.createssgrammar.init_param_options_common.hpp>
 #include <main.applylm.init_param_options_common.hpp>
+#include <main.rules2weights.init_param_options_common.hpp>
 
 /** \file
  * \brief To initialize boost parameter options for hifst tool
@@ -67,6 +68,9 @@ inline void init_param_options ( int argc, const char* argv[],
     ( kReferencefilterLoad.c_str()
       , po::value<std::string>()->default_value ( "" )
       , "Reference lattice to filter the translation" )
+    ( kReferencefilterLoadSemiring.c_str()
+      , po::value<std::string>()->default_value ( "" )
+      , "Load lattices from other semirings. These will be converted automatically. Possible values: tropical, lexstdarc, tuplearc")
     ( kReferencefilterWrite.c_str()
       , po::value<std::string>()->default_value ( "" )
       , "Write reference lattice" )
@@ -94,6 +98,9 @@ inline void init_param_options ( int argc, const char* argv[],
     ( kHifstLatticeStore.c_str()
       , po::value<std::string>()->default_value ( "" )
       , "Store hifst translation lattice" )
+    ( kHifstLatticeOptimize.c_str()
+      , po::value<std::string>()->default_value ( "no" )
+      , "Optimize translation lattices (yes|no)" )
     ( kHifstAlilatsmode.c_str()
       , po::value<std::string>()->default_value ( "no" )
       , "Include derivations in the left side of transducers (yes|no)" )
@@ -187,9 +194,17 @@ inline void init_param_options ( int argc, const char* argv[],
       po::value<std::string>()->default_value ("no"),
       "If using tuplearc, rules are passed in by default as 0-weighted sparse features. Use this parameter to disable (i.e. not pass them)."
       "This option is ignored for other arc types.")
+    ( kRulesToWeightsEnable.c_str()
+      , po::value<std::string>()->default_value ( "no" )
+      , "Enable postprocessing rule-ids-to-rule-specific-features. This option only works if semiring=tuplearc" )
     ;
+
+    initRules2WeightsOptions(desc, false);
     parseOptionsGeneric (desc, vm, argc, argv);
     checkCreateSSGrammarOptions (vm);
+
+
+
     if ( (*vm) [kPatternstoinstancesMaxspan.c_str() ].as<unsigned>()
          < (*vm) [ kCykparserHrmaxheight.c_str()].as<unsigned>() ) {
       LERROR ( kPatternstoinstancesMaxspan <<

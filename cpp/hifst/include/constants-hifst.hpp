@@ -36,6 +36,7 @@ const std::string kSsgrammarAddoovsSourcedeletions =
 
 // only hifst
 const std::string kReferencefilterLoad = "referencefilter.load";
+const std::string kReferencefilterLoadSemiring = "referencefilter.load.semiring";
 const std::string kReferencefilterWrite = "referencefilter.write";
 const std::string kReferencefilterSubstring = "referencefilter.substring";
 const std::string kReferencefilterPrunereferenceweight =
@@ -54,6 +55,7 @@ const std::string kCykparserNtexceptionsmaxspan =
   "cykparser.ntexceptionsmaxspan";
 
 const std::string kHifstLatticeStore = "hifst.lattice.store";
+const std::string kHifstLatticeOptimize = "hifst.lattice.optimize";
 const std::string kHifstAlilatsmode = "hifst.alilatsmode";
 const std::string kHifstUsepdt = "hifst.usepdt";
 const std::string kHifstRtnopt = "hifst.rtnopt";
@@ -89,6 +91,7 @@ const std::string kStatsHifstCykgridEnable = "stats.hifst.cykgrid.enable";
 const std::string kStatsHifstCykgridCellwidth = "stats.hifst.cykgrid.cellwidth";
 //  const string kStatsWrite="stats.write";
 
+
 // alilats2splats
 const std::string kRuleflowerlatticeFilterbyalilats =
   "ruleflowerlattice.filterbyalilats";
@@ -115,8 +118,12 @@ const std::string kSparseweightvectorlatticeStripSpecialEpsilonLabels =
   "sparseweightvectorlattice.stripspecialepsilonlabels";
 
 // rules2weights specific
+const std::string kRulesToWeightsEnable = "rulestoweights.enable";
 const std::string kRulesToWeightsNumberOfLanguageModels = "rulestoweights.numlms";
-
+const std::string kRulesToWeightsLoadalilats = "rulestoweights.loadalilats";
+const std::string kRulesToWeightsLatticeStore = "rulestoweights.store";
+const std::string kRulesToWeightsLoadGrammar = "rulestoweights.loadgrammar";
+const std::string kRulesToWeightsLatticeFilterbyAlilats = "rulestoweights.filterbyalilats";
 
 // lmbr-specific
 
