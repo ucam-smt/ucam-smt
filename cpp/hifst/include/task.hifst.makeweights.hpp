@@ -4,6 +4,7 @@
 namespace ucam {
 namespace hifst {
 
+// @todo: this codes needs to be merged with other makeweight functors.
 // General template class. This returns error.
 template<class Arc>
 struct MakeWeightHifst {
@@ -134,9 +135,6 @@ struct MakeWeightHifstLocalLm<fst::LexStdArc> {
   inline void update() {};
 };
 
-
-
-
 // singleton-like function to hack in the Mapper state the actual
 // position of the local lm in tuple arc 32.
 // Assumptions: the tropical sparse tuple semiring
@@ -178,15 +176,7 @@ struct MakeWeightHifstLocalLm<TupleArc32> {
       exit(EXIT_FAILURE);
     }
     Weight result;
-    //    result.SetDefaultValue(0);
-    // add weight at k_-th position
     result.Push ( k_, weight);
-    using namespace fst;
-    std::cerr << "New weight for LM (" << weight << "): ";
-    for (SparseTupleWeightIterator<StdArc::Weight, int> it(result); !it.Done(); it.Next()) {
-      std::cerr << it.Value().first << ":" << it.Value().second << ",";
-    }
-    std::cerr << std::endl;
     return result;
   };
   // deletes lm scores under tropical sparse tuple weights
@@ -202,32 +192,9 @@ struct MakeWeightHifstLocalLm<TupleArc32> {
     for (SparseTupleWeightIterator<StdArc::Weight, int> it(weight); !it.Done(); it.Next()) {
       if (it.Value().first != k_)
         result.Push(it.Value());
-      else {
-        std::cerr<< " Note: Did not push:" << it.Value().first << "=>" << it.Value().second << std::endl;
-      }
     }
-    std::cerr << result.DefaultValue() << "; ";
-    for (SparseTupleWeightIterator<StdArc::Weight, int> it(result); !it.Done(); it.Next()) {
-      std::cerr << it.Value().first << ":" << it.Value().second << ",";
-    }
-    std::cerr << std::endl;
     return result;
   };
-
-
-  // It's a pity, but this doesn't work.
-  // The default value is used in the Times operation if
-  // a particular index is missing.
-  // inline Weight operator () (float const weight )  const {
-  //   Weight result;
-  //   result.SetDefaultValue(weight);
-  //   return result;
-  // }
-  // inline Weight operator () (Weight const &weight) const  {
-  //   Weight result = weight;
-  //   result.SetDefaultValue(0);
-  //   return result;
-  // }
 
   // local language model always working on the default value(s)
   inline void update() {};
