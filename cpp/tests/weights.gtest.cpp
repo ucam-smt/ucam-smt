@@ -232,12 +232,12 @@ TEST(lexicographic, makeweighthifst) {
   EXPECT_EQ ( w2check, mw ( w2 ) );
 }
 
-// Test that it stores the language model score in
+// @todo Test that it stores the language model score in
 // a fixed position
 // and it deletes scores on the same position when copied.
-TEST(tropicalsparseweight, makeweighthifstLocalLm) {
-  EXPECT_TRUE(0);
-}
+// TEST(tropicalsparseweight, makeweighthifstLocalLm) {
+//   EXPECT_TRUE(0);
+// }
 
 // We need sparse tuple weight to do the same work as the lexicographic semiring
 // this test simply shows the way these weights work.
