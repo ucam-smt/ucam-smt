@@ -86,6 +86,8 @@ TEST ( HifstReferenceFilter, basic_test ) {
         std::numeric_limits<float>::max() );
   v[HifstConstants::kReferencefilterPrunereferenceshortestpath] = unsigned (
         std::numeric_limits<unsigned>::max() );
+  v[HifstConstants::kReferencefilterLoadSemiring] = std::string("");
+  v[HifstConstants::kHifstSemiring] = std::string("lexstdarc");
   DataForReferenceFilter d;
   d.sidx = 0;
   const uu::RegistryPO rg ( v );
@@ -121,6 +123,8 @@ TEST ( HifstReferenceFilter, empty ) {
         std::numeric_limits<float>::max() );
   v[HifstConstants::kReferencefilterPrunereferenceshortestpath] = unsigned (
         std::numeric_limits<unsigned>::max() );
+  v[HifstConstants::kReferencefilterLoadSemiring] = std::string("lexstdarc");
+  v[HifstConstants::kHifstSemiring] = std::string("lexstdarc");
   DataForReferenceFilter d;
   d.sidx = 0;
   const uu::RegistryPO rg ( v );
