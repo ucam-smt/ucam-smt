@@ -6,14 +6,23 @@ PRO=-pg
 
 LIBS=-lfst -lpthread -lm -ldl $(BOOST_LOG_LIB1) $(BOOST_LOG_LIB2) -lboost_regex -lboost_program_options -lboost_iostreams -lboost_serialization -lboost_filesystem -lboost_system -lkenlm -lboost_thread -pthread -lz -lrt
 INCLUDE=-I./ -Iinclude -I../include -I../fsttools/include
-OINCLUDE=-I$(OPENFST_INCLUDE) -I$(BOOST_INCLUDE) -I./ -Iinclude -I../include -I$(KENLM_DIR) 
+OINCLUDE=-I$(OPENFST_INCLUDE) -I$(BOOST_INCLUDE) -I./ -Iinclude -I../include -I$(KENLM_DIR)
 OLIBDIRS=-L$(OPENFST_LIB) -L$(BOOST_LIB) -L../../bin 
-LIBSSO=-lfst -lm -ldl
+LIBSSO=-lfst -lm -ldl 
 OINCLUDESO=-I$(OPENFST_INCLUDE) -I./ -Iinclude -I../include
 OLIBDIRSSO=-L$(OPENFST_LIB)
 BIN_DIR=bin/
 
 LD_LIBRARY_PATH=$(OPENFST_LIB):$(BOOST_LIB):$(GTEST_LIB)
+
+ifdef NPLM_LIB
+CC+=-DWITH_NPLM
+LIBS+=-lneuralLM -fopenmp
+OINCLUDE+=-I$(EIGEN_INCLUDE) -I$(NPLM_INCLUDE)
+OLIBDIRS+=-L$(NPLM_LIB)
+LD_LIBRARY_PATH+=:$(NPLM_LIB)
+endif
+
 
 default:
 	make usage

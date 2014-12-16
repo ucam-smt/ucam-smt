@@ -24,12 +24,52 @@
 
 #include <lm/config.hh>
 #include <lm/enumerate_vocab.hh>
+#ifdef WITH_NPLM
+#include <lm/wrappers/nplm.hh>
+#endif
 #include <idbridge.hpp>
-
 #include <hifst_enumerate_vocab.hpp>
 
 namespace ucam {
 namespace fsttools {
+
+// External wrapped-in implementations
+// don't necessarily have the same constructor.
+// This class handles the general case
+// and template specialization helps to handle exceptions
+template<class KenLMModelT> 
+struct KenLMModelHelper {
+  std::string const file_;
+  lm::ngram::Config &kenlm_config_;
+  KenLMModelHelper(std::string const &file
+		   , lm::ngram::Config kenlm_config)
+    : file_(file)
+    , kenlm_config_(kenlm_config)
+  {}
+    
+  KenLMModelT *operator()(){
+    return new KenLMModelT ( file_.c_str() , kenlm_config_);
+  }
+
+};
+
+#ifdef WITH_NPLM
+// Specialization for NPLM:
+//lm::np::Model::Model(const char*, lm::ngram::Config&)
+template<>
+struct KenLMModelHelper<lm::np::Model> {
+  std::string const file_;
+  lm::ngram::Config &kenlm_config_;
+  KenLMModelHelper(std::string const &file
+		   , lm::ngram::Config kenlm_config)
+    : file_(file)
+    , kenlm_config_(kenlm_config)
+  {}
+  lm::np::Model *operator()(){
+    return new lm::np::Model( file_);
+  }
+};
+#endif
 
 /**
  * \brief Language model loader task, loads a language model wrapping it in a class to provide.
@@ -136,7 +176,8 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
     }
     lm::HifstEnumerateVocab hev (kld_.idb, wm);
     kenlm_config.enumerate_vocab = &hev;
-    kld_.model = new KenLMModelT ( lmfile_ ( d.sidx ).c_str() , kenlm_config);
+    //    kld_.model = new KenLMModelT ( lmfile_ ( d.sidx ).c_str() , kenlm_config);
+    kld_.model = KenLMModelHelper<KenLMModelT>(lmfile_ ( d.sidx ), kenlm_config)();
     d.stats->setTimeEnd ("lm-load-" + index_ );
     previous_ = lmfile_ ( d.sidx );
     built_ = true;

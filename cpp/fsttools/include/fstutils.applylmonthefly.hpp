@@ -23,8 +23,20 @@
  */
 
 #include <idbridge.hpp>
-
+#include <lm/wrappers/nplm.hh>
 namespace fst {
+
+template <class StateT>
+struct StateHandler {
+  inline void setLength(unsigned length) {}
+  inline unsigned getLength(StateT const &state) { return state.length;}
+};
+template<>
+struct StateHandler<lm::np::State> {
+  unsigned length_;
+  inline void setLength(unsigned length) { length_ = length;}
+  inline unsigned getLength(lm::np::State const &state) const { return length_; }
+};
 
 /**
  * \brief Class that applies language model on the fly using kenlm.
@@ -102,6 +114,8 @@ class ApplyLanguageModelOnTheFly {
 
   const ucam::fsttools::IdBridge& idbridge_;
 
+  StateHandler<typename KenLMModelT::State> sh_;
+
   ///Public methods
  public:
 
@@ -138,7 +152,9 @@ class ApplyLanguageModelOnTheFly {
     wp_ ( lmwp ) ,
     epsilons_ ( epsilons ) ,
     history ( model.Order(), 0),
-    idbridge_ (idbridge) {
+    idbridge_ (idbridge)
+  {
+    sh_.setLength(model.Order());
 #ifdef USE_GOOGLE_SPARSE_HASH
     stateexistence_.set_empty_key ( numeric_limits<ull>::max() );
     statemap_.set_empty_key ( numeric_limits<uint64_t>::max() );
@@ -249,7 +265,9 @@ class ApplyLanguageModelOnTheFly {
   inline void getIdx ( const typename KenLMModelT::State& state,
                        uint order = 4 ) {
     memcpy ( buffer, state.words, buffersize );
-    for ( uint k = state.length; k < history.size(); ++k ) history[k] = 0;
+    //    for ( uint k = state.length; k < history.size(); ++k ) history[k] = 0;
+    for ( uint k = sh_.getLength(state); k < history.size(); ++k ) history[k] = 0;
+
   };
 
   ///Map from output state to input lattice + language model state

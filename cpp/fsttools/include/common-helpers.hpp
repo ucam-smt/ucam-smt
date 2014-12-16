@@ -88,7 +88,7 @@ template< template < template <class, class> class
           >
 inline void runTaskWithKenLMTemplate(util::RegistryPO const &rg) {
   using namespace lm::ngram;
-
+  typedef lm::np::Model NplmModel;
   // Detect here kenlm binary type
   // it's a bit ugly this way of initializing the correct kenlm handler
   //  ModelType kenmt = util::detectkenlm
@@ -117,7 +117,7 @@ inline void runTaskWithKenLMTemplate(util::RegistryPO const &rg) {
       // not tested yet:
     case util::KENLM_NPLM:
 #ifdef WITH_NPLM
-      (RunTaskT<DataT, np::Model, ArcT>(rg));
+      (RunTaskT<DataT, NplmModel, ArcT>(rg));
       break;
 #endif
       std::cerr << "Unsuported format: KENLM_NPLM. Did you compile NPLM library?" << std::endl;

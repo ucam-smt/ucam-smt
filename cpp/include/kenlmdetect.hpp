@@ -8,7 +8,9 @@
 
 #include <lm/binary_format.hh>
 #include <lm/model.hh>
-
+#ifdef WITH_NPLM
+#include <lm/wrappers/nplm.hh>
+#endif 
 /**
  * \file
  */
@@ -42,7 +44,7 @@ inline int detectkenlm (std::string const& kenlmfile) {
     }
 // untested:
 #ifdef WITH_NPLM
-  } else if (lm::np::Model::Recognize(file)) {
+  } else if (lm::np::Model::Recognize(kenlmfile)) {
     return KENLM_NPLM;
 #endif
   } else { // possibly arpa file?
