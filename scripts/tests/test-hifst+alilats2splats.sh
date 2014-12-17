@@ -517,6 +517,36 @@ test_0025_extractFeaturesStripHifstEpsilons() {
     echo 1
 }
 
+test_0026_translate_nnlm() {
+
+    if [ -z $NPLM_LIB ]; then
+	echo 1
+	return
+    fi
+
+( #set -x
+    $hifst \
+        --grammar.load=$grammar \
+        --source.load=$tstidx  \
+        --hifst.lattice.store=$BASEDIR/nnlm-lats/?.fst.gz  \
+        --lm.load=data/lm/inferno.nnlm \
+	--grammar.storentorder=nttable \
+        --hifst.prune=9  &>/dev/null
+
+)
+rm -Rf tmp
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    for k in `seq $seqrange`; do 
+	if [ "`zcat $BASEDIR/nnlm-lats/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;  
+	mkdir -p tmp; zcat $BASEDIR/nnlm-lats/$k.fst.gz > tmp/$k.test.fst; zcat $REFDIR/nnlm-lats/$k.fst.gz > tmp/$k.ref.fst;	
+	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ; 	
+    done
+
+###Success
+    echo 1
+}
+
+
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
 

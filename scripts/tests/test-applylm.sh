@@ -112,6 +112,30 @@ test_0005_applylm_wordslm_execute(){
 }
 
 
+test_0006_applylm_nplm_execute(){
+
+    if [ -z $NPLM_LIB ]; then
+	echo 1
+	return
+    fi
+    $applylm \
+	--range=$range \
+	--lm.load=data/lm/inferno.nnlm \
+	--lm.featureweights=2 \
+	--lattice.load=data/fsts/?.alilats.fst \
+	--lattice.store=$BASEDIR/nplm/?.fst &> /dev/null
+    rm -Rf tmp
+    mkdir -p tmp; 
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    LD_LIBRARY_PATH=$CAM_SMT_DIR/bin
+    for k in `seq $seqrange`; do 
+	if [ "`cat $BASEDIR/nplm/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;  
+	fstproject --project_output $BASEDIR/nplm/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.fst
+	if fstequivalent tmp/$k.fst $REFDIR/nplm/$k.fst; then echo -e ""; else echo 0;  return; fi ; 	
+    done
+
+    echo 1
+}
 
 
 ################### STEP 2
