@@ -2,8 +2,8 @@
 . ../Makefile.inc
 export CXXFLAGS="-DHAVE_ZLIB "
 pushd kenlm; 
-rm {lm,util}/*.o 2>/dev/null
-set -e
+rm -f {lm,util}/*.o {lm,util}/*/*.o 
+set -e # -x
 
 CXX=${CXX:-g++}
 CXXFLAGS+=" -I. -O3 -DNDEBUG -DKENLM_MAX_ORDER=6 "
@@ -25,4 +25,4 @@ for i in util/double-conversion/*.cc util/*.cc lm/*.cc $ADDED_PATHS; do
 done
 
 popd
-mkdir -p ../bin; ar rcs ../bin/libkenlm.a kenlm/lm/*.o kenlm/lm/*/*.o kenlm/util/*.o kenlm/util/*/*.o
+mkdir -p ../bin; ar rcs ../bin/libkenlm.a `find kenlm/ | grep ".o$"`
