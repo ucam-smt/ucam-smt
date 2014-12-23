@@ -61,6 +61,16 @@ const std::string kLabelMap = "label-map";
 const std::string kLabelMapExtended = kLabelMap + ",m";
 const std::string kPrintOutputLabels = "print-output-labels";
 const std::string kPrintOutputLabelsExtended = kPrintOutputLabels + ",pol";
+const std::string kWordRefs = "word_refs";
+const std::string kIntRefs = "int_refs";
+const std::string kExternalTokenizer="external_tokenizer";
+// samplehyps
+const std::string kAlpha = "alpha";
+const std::string kNSamples= "num_samples";
+const std::string kNegativeExamples= "negative_examples";
+const std::string kDontNegate= "dont_negate";
+const std::string kBinaryTarget= "binary_target";
+const std::string kRandomSeed= "random_seed";
 
 // lexmap
 const std::string kAction = "action";

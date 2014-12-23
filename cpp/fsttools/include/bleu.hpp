@@ -318,6 +318,19 @@ public:
     return Bleu ( exp ( logBleu + logBrev ), exp ( logBrev ) );
   }
 
+  Bleu ComputeSBleu ( const BleuStats& bs ) {
+    double logBleu = 0.0;
+    double logBrev = 0.0;
+
+    for ( unsigned int n = 0; n < BleuStats::MAX_BLEU_ORDER; ++n ) {
+      logBleu += std::log ( ( double ) (bs.hits_[n] + 1.0) / ( double ) (bs.tots_[n] + 1.0) );
+    }
+    logBleu *= 1 / ( double ) BleuStats::MAX_BLEU_ORDER;
+    logBrev = std::min ( 0.0, 1 - (bs.refLength_ + 1.0)/ ( double ) ( bs.tots_[0] + 1.0 ) );
+    return Bleu ( exp ( logBleu + logBrev ), exp ( logBrev ) );
+  }
+
+
   NGram SubStr ( const SentenceIdx& s, const unsigned int n,
                  const unsigned int l ) const {
     return NGram ( s.begin() + n, s.begin() + n + l + 1 );

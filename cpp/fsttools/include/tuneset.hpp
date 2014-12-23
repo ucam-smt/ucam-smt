@@ -43,6 +43,23 @@ class TuneSet {
     return &* ( cachedLats[sid] );
   }
 
+  // compute bleu under vw vector weight
+  Bleu ComputeBleu ( BleuScorer& bs ) {
+    using namespace fst;
+    BleuStats bstats;
+    for ( int i = 0; i < sidMax; ++i ) {
+      SentenceIdx h;
+      FstGetBestHypothesis<Arc, Wid> ( *cachedLats[i], h);
+      if ( h.size() > 2 ) { // remove <s> </s>
+        h.erase ( h.begin() );
+        h.pop_back();
+      }
+      bstats = bstats + bs.SentenceBleuStats ( i, h );
+    }
+    return bs.ComputeBleu ( bstats );
+  };
+
+
   // \todo I think this method will only work with Arc=TupleArc32.
   // PARAMS32 temporary replacement should be done externally,
   // perhaps implemented in a semiring-specific wrapper
