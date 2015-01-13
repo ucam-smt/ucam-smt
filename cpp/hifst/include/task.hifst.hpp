@@ -187,12 +187,17 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     LINFO ("Number of local language models=" << numlocallm_);
     LINFO ("aligner mode=" << aligner_);
     LINFO ("localprune mode=" << localprune_);
+    LINFO("reference filtering with: " << rg_.get<std::string> (HifstConstants::kReferencefilterLoad));
     USER_CHECK ( ! ( lpc_.size() % 4 ),
                  "local pruning conditions are defined by tuples of 4 elements: category,x,y,Number-of-states. Category is a string and x,y are int. Number of states is unsigned" );
-    USER_CHECK ( (localprune_ && numlocallm_) || ( localprune_ && !numlocallm_
-                 && aligner_ ) || (!localprune_) ,
-                 "If you want to do cell pruning in translation, you should  use a language model for local pruning. Check --hifst.localprune.lm.load and --hifst.localprune.enable.\n");
+    USER_CHECK ( (localprune_ && numlocallm_ )
+                 || ( localprune_ && !numlocallm_  && rg_.get<std::string> (HifstConstants::kReferencefilterLoad) != ""  )
+                 || (!localprune_) ,
+                 "If you want to do cell pruning in translation, you should  normally use a language model for local pruning. Check --hifst.localprune.lm.load and --hifst.localprune.enable.\n");
     optimize.setAlignMode (aligner_);
+
+
+
     if (hipdtmode_) {
       LINFO ("Hipdt mode enabled!");
     }
@@ -288,11 +293,16 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
         d_->stats->setTimeEnd ("replace-pdt-final");
         LINFO ("Number of pdtparens=" << pdtparens_.size() );
       }
-      LINFO ("Removing Epsilons...");
-      fst::RmEpsilon<Arc> ( &*efst );
+      //      fst::FstWrite ( *efst, "fsts/efst-norm.gz" ) ;
+      // LINFO ("Removing Epsilons...");
+      // fst::RmEpsilon<Arc> ( &*efst );
       LINFO ("Done! NS=" << efst->NumStates() );
-      //Apply filters
-      applyFilters ( &*efst );
+      // The filter is as of now only the substringed reference lattice, so no need really.
+      // fst::FstWrite ( *(d_->filters[0]), "fsts/filter.fst.gz" ) ;
+      // fst::FstWrite ( *efst, "fsts/efst.gz" ) ;
+      // fst::FstWrite ( *(static_cast< fst::VectorFst<Arc> * >(d.fsts[fullreferencelatticekey_])), "fsts/fullfilter.fst.gz" );
+      //      applyFilters ( &*efst );
+      LINFO("Compose with full reference lattice");
       //Compose with full reference lattice to ensure that final lattice is correct.
       if ( d.fsts.find ( fullreferencelatticekey_ ) != d.fsts.end() ) {
         if ( static_cast< fst::VectorFst<Arc> * >
@@ -635,6 +645,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     for ( unsigned k = 0; k < d_->filters.size(); ++k ) {
       LDBG_EXECUTE ( fst::FstWrite ( * (d_->filters[k]), "fsts/filter.fst.gz" ) );
       LDBG_EXECUTE ( fst::FstWrite ( *fst, "fsts/before-composition.fst.gz" ) );
+
       if (!hipdtmode_ || pdtparens_.empty() ) {
         LINFO ("FST composition with filter");
         *fst = (fst::ComposeFst<Arc> (*fst, *d_->filters[k]) );
@@ -802,9 +813,11 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       fst::RmEpsilon<Arc> ( efst );
       LINFO ( "AT " << cc << "," << x << "," << y << ": NS=" << efst->NumStates() );
       ++piscount_;
+      LINFO("Apply filtering");
       applyFilters ( efst );
       LINFO ( "Apply LM" );
       fst::VectorFst<Arc> * latlm = applyLanguageModel ( *efst , true );
+
       if ( latlm != NULL ) {
         delete efst;
         //\todo Include union with shortest path...
