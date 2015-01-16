@@ -78,6 +78,8 @@ const std::string kHifstWritertn = "hifst.writertn";
 
 const std::string kHifstDisableRuleFeatures = "hifst.disablerulefeatures";
 
+const std::string kHifstStripSpecialEpsilonLabels = "hifst.lattice.optimize.stripspecialepsilonlabels";
+
 const std::string kPostproInput = "postpro.input";
 
 const std::string kPostproWordmapLoad = "postpro.wordmap.load";

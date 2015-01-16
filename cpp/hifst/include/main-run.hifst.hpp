@@ -136,7 +136,7 @@ class SingleThreadedHifstTask: public ucam::util::TaskInterface<DataT<KenLMModel
         ( new SentenceSpecificGrammar ( rg_ ) )
         ( new Parse ( rg_ ) )
         ( new HiFST ( rg_ ) )
-        ( OptimizeFst::init(rg_, kHifstLatticeOptimize, kHifstLatticeStore ) )
+        ( OptimizeFst::init(rg_, kHifstLatticeOptimize, kHifstLatticeStore , kHifstStripSpecialEpsilonLabels) )
         ( WriteFst::init ( rg_, kHifstLatticeStore )  )
         ( new Recase ( rg_
                        , kHifstLatticeStore
@@ -322,7 +322,7 @@ class MultiThreadedHifstTask: public ucam::util::TaskInterface<DataT<KenLMModelT
         ( new SentenceSpecificGrammar ( rg_ ) )
         ( new Parse ( rg_ ) )
         ( new HiFST ( rg_ ) )
-        ( OptimizeFst::init(rg_, kHifstLatticeOptimize, kHifstLatticeStore ) )
+        ( OptimizeFst::init(rg_, kHifstLatticeOptimize, kHifstLatticeStore , kHifstStripSpecialEpsilonLabels) )
         ( WriteFst::init ( rg_, kHifstLatticeStore )  )
         ( new Recase ( rg_  ,
                        kHifstLatticeStore,
