@@ -42,7 +42,8 @@ struct RulesToWeightsMapperObject {
     if ( arc.weight == FromArc::Weight::Zero() ) //irrelevant labels
       return ToArc ( arc.ilabel, arc.olabel, ToArc::Weight::Zero(), arc.nextstate );
 
-    Weight nw(arc.weight.DefaultValue()); // new weights;
+    // minimize weight list (this semiring allows for repeated indices!
+    std::map<int, float> wm;
     for (fst::SparseTupleWeightIterator<FeatureWeight32, int> it ( arc.weight )
              ; !it.Done()
              ; it.Next() ) {
@@ -59,13 +60,18 @@ struct RulesToWeightsMapperObject {
         for (fst::SparseTupleWeightIterator<FeatureWeight32, int> auxit ( aux )
                  ; !auxit.Done()
                  ; auxit.Next() ) {
-          nw.Push(auxit.Value().first
-                  , auxit.Value().second.Value() * it.Value().second.Value());
+	  wm[auxit.Value().first] += auxit.Value().second.Value() * it.Value().second.Value();
         }
         continue;
       }
-      // if weight is positive and index less than numlms, copy as-is.
-      nw.Push(it.Value().first, it.Value().second);
+      wm[it.Value().first] += it.Value().second.Value();
+    }
+    // finally create the weights ...
+    Weight nw(arc.weight.DefaultValue()); // new weights;
+    for (std::map<int, float>::const_iterator itx = wm.begin()
+	   ; itx != wm.end()
+	   ; ++itx ) {
+      nw.Push(itx->first, itx->second);	  
     }
     return ToArc ( arc.ilabel, arc.olabel, nw, arc.nextstate );
   }
@@ -80,9 +86,9 @@ class SingleThreadededRulesToWeightsSparseLatsTask: public  ucam::util::TaskInte
   typedef RuleIdsToSparseWeightLatsData<> Data;
   const ucam::util::RegistryPO& rg_;
  public:
-  SingleThreadededRulesToWeightsSparseLatsTask ( const ucam::util::RegistryPO& rg ) :
-    rg_ ( rg ) {
-  };
+  SingleThreadededRulesToWeightsSparseLatsTask ( const ucam::util::RegistryPO& rg )
+    : rg_ ( rg ) 		       
+  {};
 
   bool run ( Data& d ) {
     using namespace HifstConstants;

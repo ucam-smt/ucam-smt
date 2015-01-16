@@ -100,7 +100,12 @@ inline void init_param_options ( int argc, const char* argv[],
       , "Store hifst translation lattice" )
     ( kHifstLatticeOptimize.c_str()
       , po::value<std::string>()->default_value ( "no" )
-      , "Optimize translation lattices (yes|no)" )
+      , "Optimize translation lattices (yes|no)." )
+    (kHifstStripSpecialEpsilonLabels.c_str() ,
+     po::value<std::string>()->default_value ( "no" ),
+     "Strip any special Hifst epsilon labels (e.g. oov, deletion rule, ...)."
+     " Option only available if translation lattices are optimized."
+     " Recommended ONLY for forced decoding" )
     ( kHifstAlilatsmode.c_str()
       , po::value<std::string>()->default_value ( "no" )
       , "Include derivations in the left side of transducers (yes|no)" )

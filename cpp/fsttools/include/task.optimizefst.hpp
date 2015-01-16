@@ -38,19 +38,34 @@ class OptimizeFstTask: public ucam::util::TaskInterface<Data> {
   ///key to access fst in the data object
   std::string fstkey_;
 
+  bool stripHifstEpsilons_;
+  fst::RelabelUtil<Arc> ru_;
  public:
   ///Constructor with RegistryPO object
   OptimizeFstTask ( const ucam::util::RegistryPO& rg
                     , const std::string& fstkey
+		    , const std::string stripEps
                     )
       : fstkey_ (fstkey)
-  {};
+      , stripHifstEpsilons_(rg.getBool (stripEps) )
+  {
+    if (!stripHifstEpsilons_) return;
+    ru_.addIPL (DR, EPSILON)
+      .addIPL (OOV, EPSILON)
+      .addIPL (SEP, EPSILON)
+      .addOPL (DR, EPSILON)
+      .addOPL (OOV, EPSILON)
+      .addOPL (SEP, EPSILON)
+      ;
+  };
 
   inline static OptimizeFstTask * init ( const ucam::util::RegistryPO& rg
-                                      , const std::string& optimizefstkey
-                                      , const std::string& fstkey = ""
-                                    ) {
-    if ( rg.getBool ( optimizefstkey ) ) return new OptimizeFstTask ( rg, fstkey );
+					 , const std::string& optimizefstkey
+					 , const std::string& fstkey
+					 , const std::string& stripepskey
+					 ) {
+    if ( rg.getBool ( optimizefstkey ) ) 
+      return new OptimizeFstTask ( rg, fstkey, stripepskey );
     return NULL;
   };
 
@@ -72,6 +87,10 @@ class OptimizeFstTask: public ucam::util::TaskInterface<Data> {
     if ( d.fsts.find ( parenskey ) != d.fsts.end() ) {
       LWARN("Skipping optimization! PDTs are, in general, non-determinizable.");
       return false;
+    }
+    if (stripHifstEpsilons_) {
+      FORCELINFO ("Remove hifst epsilons");
+      ru_(auxfst);
     }
     FORCELINFO("Rm/Det/Min lattice " << d.sidx );
     Determinize(RmEpsilonFst<Arc>(*auxfst), auxfst);
