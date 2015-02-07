@@ -28,9 +28,9 @@ export KENLM_DIR=${TOPDIR}/externals/kenlm/
 #export NPLM_INCLUDE=...
 #export NPLM_LIB=...
 #export EIGEN_INCLUDE=...
-export NPLM_INCLUDE=/home/blue1/ech57/tools/nplm.heddon/src
-export NPLM_LIB=/home/blue1/ech57/tools/nplm.heddon/lib.shared/
-export EIGEN_INCLUDE=/home/blue1/ech57/tools/eigen-3.1.4/
+#export NPLM_INCLUDE=/home/blue1/ech57/tools/nplm.heddon/src
+#export NPLM_LIB=/home/blue1/ech57/tools/nplm.heddon/lib.shared/
+#export EIGEN_INCLUDE=/home/blue1/ech57/tools/eigen-3.1.4/
 
 
 ### Number of cpus you want to use for compiling. 
