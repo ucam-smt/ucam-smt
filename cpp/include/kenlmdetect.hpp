@@ -24,7 +24,7 @@ namespace util {
  * code recycled from kenlm tool
  */
 
-enum {KENLM_NPLM=-1};
+enum {KENLM_NPLM=-1,MULTIPLE_LMS=-2};
 
 inline int detectkenlm (std::string const& kenlmfile) {
   lm::ngram::ModelType model_type;
@@ -48,7 +48,9 @@ inline int detectkenlm (std::string const& kenlmfile) {
     return KENLM_NPLM;
 #endif
   } else { // possibly arpa file?
+    // possibly multiple lms
     return lm::ngram::PROBING;
+    // return MULTIPLE_LMS;
   }
 }
 

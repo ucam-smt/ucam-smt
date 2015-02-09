@@ -85,7 +85,7 @@ class ApplyLanguageModelOnTheFly {
   seenlmstates_;
 #endif
   ///Actual fst
-  const VectorFst<Arc> fst_;
+  //  const VectorFst<Arc> fst_;
   VectorFst<Arc> *composed_;
 
 /// Queue of states of the new machine to process.
@@ -132,8 +132,7 @@ class ApplyLanguageModelOnTheFly {
    * \param natlog      Use or not natural logs
    * \param lmscale      Language model scale
    */
-  ApplyLanguageModelOnTheFly ( const Fst<Arc>& fst,
-                               KenLMModelT& model,
+  ApplyLanguageModelOnTheFly ( KenLMModelT& model,
 #ifndef USE_GOOGLE_SPARSE_HASH
                                unordered_set<Label>& epsilons,
 #else
@@ -146,7 +145,7 @@ class ApplyLanguageModelOnTheFly {
                              ) :
     composed_ ( NULL ) ,
     natlog10_ ( natlog ? -lmscale* ::log ( 10.0 ) : -lmscale ),
-    fst_ ( fst ),
+    //    fst_ ( fst ),
     lmmodel_ ( model ),
     vocab_ ( model.GetVocabulary() ),
     wp_ ( lmwp ) ,
@@ -163,17 +162,6 @@ class ApplyLanguageModelOnTheFly {
 #endif
     buffersize = ( model.Order() - 1 ) * sizeof ( unsigned int );
     buffer = const_cast<unsigned *> ( history.c_str() );
-    if (!fst_.NumStates() )  {
-      LWARN ("Empty lattice");
-      return;
-    }
-    composed_ = new VectorFst<Arc>;
-    typename KenLMModelT::State bs = model.NullContextState();
-    ///Initialize with first state
-    pair<StateId, bool> nextp = add ( bs, fst_.Start(),
-                                      fst_.Final ( fst_.Start() ) );
-    qc_.push ( nextp.first );
-    composed_->SetStart ( nextp.first );
   };
 
   ///Destructor
@@ -182,11 +170,18 @@ class ApplyLanguageModelOnTheFly {
   };
 
   ///functor:  Run composition itself, separate from load times (e.g. which may include an fst expansion).
-  VectorFst<Arc> * operator() () {
+  VectorFst<Arc> * operator() (const Fst<Arc>& fst) {
+    VectorFst<Arc> fst_(fst); // todo: avoid explicit expansion here.
     if (!fst_.NumStates() ) {
       LWARN ("Empty lattice. ... Skipping LM application!");
       return NULL;
     }
+    composed_ = new VectorFst<Arc>;
+    ///Initialize and push with first state
+    typename KenLMModelT::State bs = lmmodel_.NullContextState();
+    pair<StateId, bool> nextp = add ( bs, fst_.Start(), fst_.Final ( fst_.Start() ) );
+    qc_.push ( nextp.first );
+    composed_->SetStart ( nextp.first );
     while ( qc_.size() ) {
       StateId s = qc_.front();
       qc_.pop();

@@ -46,6 +46,9 @@ inline void init_param_options ( int argc, const char* argv[],
       "Fst(s) to count strings (use ? for multiple instances) " )
     ( HifstConstants::kOutputExtended.c_str(), po::value<std::string>(),
       "Text file output containing counts, one line per fst (use ? for multiple instances )" )
+    ( HifstConstants::kHifstSemiring.c_str(),
+      po::value<std::string>()->default_value ("stdarc"),
+      "Choose between stdarc, lexstdarc, and tuplearc (for the tropical sparse tuple arc semiring)")
     ;
     parseOptionsGeneric (desc, vm, argc, argv);
   } catch ( std::exception& e ) {

@@ -107,17 +107,16 @@ class ApplyLanguageModelTask: public ucam::util::TaskInterface<Data> {
       LDEBUG ( "lattice NS=" << mylmfst_.NumStates() );
       fst::ApplyLanguageModelOnTheFly<Arc, fst::MakeWeight<Arc>, KenLMModelT> *f
         = new fst::ApplyLanguageModelOnTheFly<Arc, fst::MakeWeight<Arc>, KenLMModelT >
-      ( mylmfst_
-        , model
+      ( 
+        model
         , epsilons
         , natlog_
         , d.klm[lmkey_][k]->lmscale
         , d.klm[lmkey_][k]->lmwp
         , d.klm[lmkey_][k]->idb);
       f->setMakeWeight ( mw );
-      d.stats->setTimeStart ( "on-the-fly-composition " +  ucam::util::toString (
-                                k ) );
-      mylmfst_ = * ( ( *f ) () );
+      d.stats->setTimeStart ( "on-the-fly-composition " +  ucam::util::toString ( k ) );
+      mylmfst_ = * ( ( *f ) (mylmfst_) );
       delete f;
       d.stats->setTimeEnd ( "on-the-fly-composition " + ucam::util::toString ( k ) );
       LDEBUG ( mylmfst_.NumStates() );

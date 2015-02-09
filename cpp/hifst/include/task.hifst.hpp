@@ -293,16 +293,14 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
         d_->stats->setTimeEnd ("replace-pdt-final");
         LINFO ("Number of pdtparens=" << pdtparens_.size() );
       }
-      //      fst::FstWrite ( *efst, "fsts/efst-norm.gz" ) ;
+
+      // Currently no need to call this applyFilters: it will do the same
+      // and it is more efficient to compose with the normal lattice
+      // rather than the substringed lattice.
       // LINFO ("Removing Epsilons...");
       // fst::RmEpsilon<Arc> ( &*efst );
-      LINFO ("Done! NS=" << efst->NumStates() );
-      // The filter is as of now only the substringed reference lattice, so no need really.
-      // fst::FstWrite ( *(d_->filters[0]), "fsts/filter.fst.gz" ) ;
-      // fst::FstWrite ( *efst, "fsts/efst.gz" ) ;
-      // fst::FstWrite ( *(static_cast< fst::VectorFst<Arc> * >(d.fsts[fullreferencelatticekey_])), "fsts/fullfilter.fst.gz" );
-      //      applyFilters ( &*efst );
-      LINFO("Compose with full reference lattice");
+      //  LINFO ("Done! NS=" << efst->NumStates() );
+      // applyFilters ( &*efst );
       //Compose with full reference lattice to ensure that final lattice is correct.
       if ( d.fsts.find ( fullreferencelatticekey_ ) != d.fsts.end() ) {
         if ( static_cast< fst::VectorFst<Arc> * >

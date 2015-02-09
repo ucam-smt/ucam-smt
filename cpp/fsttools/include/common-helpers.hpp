@@ -96,32 +96,35 @@ inline void runTaskWithKenLMTemplate(util::RegistryPO const &rg) {
       (rg.getVectorString (HifstConstants::kLmLoad, 0) );
 
   switch (kenmt) {
-    case PROBING:
-      (RunTaskT<DataT, ProbingModel, ArcT>(rg));
-      break;
-    case REST_PROBING:
-      (RunTaskT<DataT, RestProbingModel, ArcT>(rg));
-      break;
-    case TRIE:
-      (RunTaskT<DataT, TrieModel, ArcT>(rg));
+  case PROBING:
+    (RunTaskT<DataT, ProbingModel, ArcT>(rg));
     break;
-    case QUANT_TRIE:
-      (RunTaskT<DataT, QuantTrieModel, ArcT>(rg));
-      break;
-    case ARRAY_TRIE:
-      (RunTaskT<DataT, ArrayTrieModel, ArcT>(rg));
-      break;
-    case QUANT_ARRAY_TRIE:
-      (RunTaskT<DataT, QuantArrayTrieModel, ArcT>(rg));
-      break;
+  case REST_PROBING:
+    (RunTaskT<DataT, RestProbingModel, ArcT>(rg));
+    break;
+  case TRIE:
+    (RunTaskT<DataT, TrieModel, ArcT>(rg));
+    break;
+  case QUANT_TRIE:
+    (RunTaskT<DataT, QuantTrieModel, ArcT>(rg));
+    break;
+  case ARRAY_TRIE:
+    (RunTaskT<DataT, ArrayTrieModel, ArcT>(rg));
+    break;
+  case QUANT_ARRAY_TRIE:
+    (RunTaskT<DataT, QuantArrayTrieModel, ArcT>(rg));
+    break;
+//   case util::MULTIPLE_LMS:
+//     (RunTaskT<DataT, lm::base::Model , ArcT>(rg));
+//     break;
       // not tested yet:
-    case util::KENLM_NPLM:
+  case util::KENLM_NPLM:
 #ifdef WITH_NPLM
-      (RunTaskT<DataT, NplmModel, ArcT>(rg));
-      break;
+    (RunTaskT<DataT, NplmModel, ArcT>(rg));
+    break;
 #endif
-      std::cerr << "Unsuported format: KENLM_NPLM. Did you compile NPLM library?" << std::endl;
-      exit(EXIT_FAILURE);
+    std::cerr << "Unsuported format: KENLM_NPLM. Did you compile NPLM library?" << std::endl;
+    exit(EXIT_FAILURE);
   }
 };
 #endif
