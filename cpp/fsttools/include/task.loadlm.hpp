@@ -55,7 +55,6 @@ struct KenLMModelHelper {
 
 #ifdef WITH_NPLM
 // Specialization for NPLM:
-//lm::np::Model::Model(const char*, lm::ngram::Config&)
 template<>
 struct KenLMModelHelper<lm::np::Model> {
   std::string const file_;
