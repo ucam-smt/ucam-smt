@@ -180,7 +180,7 @@ public:
     useWidMap_ = false;
     if (refFiles == "") {
       FORCELINFO("Must provide reference files(s)");
-      exit(1);
+      exit(EXIT_FAILURE);
     }
     if (wordMapFile != "" ) {
       FORCELINFO ("Loading word map file...");
