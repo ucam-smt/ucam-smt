@@ -31,4 +31,6 @@ export KENLM_DIR=${TOPDIR}/externals/kenlm/
 
 ### Number of cpus you want to use for compiling. 
 ### Each g++ instance can take 1.5G in memory.
+### Increase at your own risk: make sure first you have 
+that number of cpus available on your machine.
 export NUMPROC=1

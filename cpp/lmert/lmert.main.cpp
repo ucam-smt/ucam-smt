@@ -11,6 +11,7 @@ int main ( int argc,  const char* argv[] ) {
   RegistryPO rg ( argc, argv );
   FORCELINFO ( rg.dump ( "CONFIG parameters:\n=====================", "=====================" ) );
   std::string extTok(rg.exists(HifstConstants::kLmertExternalTokenizer) ? rg.getString(HifstConstants::kLmertExternalTokenizer) : "");
+  std::string wMap(rg.exists(HifstConstants::kLmertWMap) ? rg.getString(HifstConstants::kLmertWMap) : "");
   std::string refFiles;
   bool intRefs;
   if (rg.exists(HifstConstants::kLmertWordRefs)) {
@@ -22,7 +23,7 @@ int main ( int argc,  const char* argv[] ) {
     intRefs = true;
   } 
   unsigned int bleuCacheSize = rg.get<int>(HifstConstants::kLmertBleuCacheSize);
-  BleuScorer bleuScorer(refFiles, extTok, bleuCacheSize, intRefs);
+  BleuScorer bleuScorer(refFiles, extTok, bleuCacheSize, intRefs, wMap);
   TuneSet< TupleArc32 > tuneSet(rg);
   ucam::lmert::PARAMS32 lambda = 
     ucam::util::ParseParamString<float>(rg.getString(HifstConstants::kLmertInitialParams));
