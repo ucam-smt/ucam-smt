@@ -29,11 +29,17 @@
 #include "addresshandler.hpp"
 #include "taskinterface.hpp"
 
+#include "tropical-sparse-tuple-weight.h"
+#include "tropical-sparse-tuple-weight-decls.h"
+#include "tropical-sparse-tuple-weight-funcs.h"
+
 #include "lexicographic-tropical-tropical-incls.h"
-#include "lexicographic-tropical-tropical-decls.h"
 #include "lexicographic-tropical-tropical-funcs.h"
+#include "tropical-sparse-tuple-weight.makeweight.h"
+
 #include "fstio.hpp"
 #include "fstutils.hpp"
+#include "fstutils.mapper.hpp"
 #include "task.referencefilter.hpp"
 
 using boost::any_cast;
@@ -80,6 +86,8 @@ TEST ( HifstReferenceFilter, basic_test ) {
         std::numeric_limits<float>::max() );
   v[HifstConstants::kReferencefilterPrunereferenceshortestpath] = unsigned (
         std::numeric_limits<unsigned>::max() );
+  v[HifstConstants::kReferencefilterLoadSemiring] = std::string("");
+  v[HifstConstants::kHifstSemiring] = std::string("lexstdarc");
   DataForReferenceFilter d;
   d.sidx = 0;
   const uu::RegistryPO rg ( v );
@@ -115,6 +123,8 @@ TEST ( HifstReferenceFilter, empty ) {
         std::numeric_limits<float>::max() );
   v[HifstConstants::kReferencefilterPrunereferenceshortestpath] = unsigned (
         std::numeric_limits<unsigned>::max() );
+  v[HifstConstants::kReferencefilterLoadSemiring] = std::string("lexstdarc");
+  v[HifstConstants::kHifstSemiring] = std::string("lexstdarc");
   DataForReferenceFilter d;
   d.sidx = 0;
   const uu::RegistryPO rg ( v );

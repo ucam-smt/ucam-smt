@@ -54,6 +54,9 @@ class ReferenceFilterTask: public ucam::util::TaskInterface<Data> {
   ucam::util::IntegerPatternAddress translationlatticefile_,
        writereferencelatticefile_;
 
+  std::string translationlatticefilesemiring_;
+  std::string semiring_;
+
   std::string oldfile_;
 
   ///Weight to prune reference lattice with
@@ -82,6 +85,10 @@ class ReferenceFilterTask: public ucam::util::TaskInterface<Data> {
     built_ ( false ),
     translationlatticefile_ ( rg.get<std::string>
                               ( HifstConstants::kReferencefilterLoad ) ),
+    translationlatticefilesemiring_ ( rg.get<std::string>
+                                      ( HifstConstants::kReferencefilterLoadSemiring ) ),
+    semiring_ ( rg.get<std::string>
+               ( HifstConstants::kHifstSemiring ) ),
     writereferencelatticefile_ ( rg.get<std::string>
                                  ( HifstConstants::kReferencefilterWrite ) ),
     disablesubstring_ ( rg.getBool ( HifstConstants::kReferencefilterSubstring ) ==
@@ -183,10 +190,12 @@ class ReferenceFilterTask: public ucam::util::TaskInterface<Data> {
     oldfile_ = file;
     unload();
     vocabulary_.clear();
-    referencesubstringlattice_ = fst::VectorFstRead<Arc> ( file );
+    loadLattice(file);
     prune();
     reduce();
+
     referencelattice_ = new fst::VectorFst<Arc> ( *referencesubstringlattice_ );
+
     if ( !disablesubstring_ ) {
       LINFO ( "building substring reference" );
       fst::buildSubstringTransducer<Arc>
@@ -234,6 +243,37 @@ class ReferenceFilterTask: public ucam::util::TaskInterface<Data> {
   };
 
  private:
+
+  void loadLattice(std::string const &file) {
+    using namespace fst;
+    if (translationlatticefilesemiring_ == "" ) { // use default arc
+      referencesubstringlattice_ = VectorFstRead<Arc> ( file );
+      return;
+    }
+    if (semiring_ != "tuplearc") {
+      LERROR("Conversions currently allowed only from lexstdarc,tropical TO tuplearc)");
+      exit(EXIT_FAILURE);
+    }
+    referencesubstringlattice_ = new VectorFst<Arc>;
+
+    if (translationlatticefilesemiring_ == "lexstdarc") {
+      VectorFst<LexStdArc> *aux= VectorFstRead<LexStdArc> ( file );
+      VectorFst<TupleArc32> *vwfst = new VectorFst<TupleArc32>;
+
+      LINFO ( "Mapping Arc Target Lattice to TupleArc32" );
+      MakeSparseVectorWeight<LexStdArc> mwcopy ( 1 );
+      typedef GenericWeightMapper<LexStdArc, TupleArc32, MakeSparseVectorWeight<LexStdArc> > WeightMapper;
+      Map ( *aux, vwfst, WeightMapper(mwcopy));
+      // bypassing template instance conversions with a reinterpret cast
+      // but this code only happens from tuplearc32 to tuplearc32.
+      referencesubstringlattice_ = reinterpret_cast<VectorFst<Arc> *>(vwfst);
+
+      delete aux;
+      return;
+    }
+  }
+
+
   ZDISALLOW_COPY_AND_ASSIGN ( ReferenceFilterTask );
 
 };

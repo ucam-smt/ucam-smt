@@ -24,10 +24,9 @@ namespace util {
 namespace po = boost::program_options;
 
 inline void initAllCreateSSGrammarOptions (po::options_description& desc) {
-  std::cout << HifstConstants::kGrammarLoad << std::endl;
   desc.add_options()
   ( HifstConstants::kRangeExtended.c_str(), po::value<std::string>(),
-    "Indices of sentences to translate" )
+    "Indices of sentences to process" )
   ( HifstConstants::kNThreads.c_str(), po::value<unsigned>(),
     "Number of threads (trimmed to number of cpus in the machine) " )
   ( HifstConstants::kGrammarLoad.c_str(), po::value<std::string>(),

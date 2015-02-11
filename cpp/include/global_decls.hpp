@@ -48,6 +48,7 @@ typedef long long int64;  //int64 is defined this way up to openfst-1.1,...
 #define SIGMA 999999994
 #define UNIQUE 999999993
 #define SEP 999999992
+#define PROTECTEDEPSILON 999999991
 
 #define NORULE 0
 #define EPSILON 0

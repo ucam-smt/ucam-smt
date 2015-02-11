@@ -68,7 +68,9 @@ echo "Running Unit Tests... bin/main.gtest.$TGTBINMKTEST" | tee -a $LOGFILE
 	echo "====================="
 	echo "Unit tests --- Missing???"; 
     fi 
-) 2>&1 | tee $LOGFILE.unit-tests 
+) 2>&1 | tee $LOGFILE.unit-tests
+
+(cd java/ruleXtract; sbt test) 2>&1 | tee -a $LOGFILE.java-unit-tests
 
 echo "Running Regression Tests..." 2>&1 | tee -a $LOGFILE
 ( cd scripts/tests; bash tests.sh  ) 2>&1 | tee $LOGFILE.reg-tests
@@ -76,8 +78,9 @@ echo "Running Regression Tests..." 2>&1 | tee -a $LOGFILE
 rm -Rf fsts
 
 echo "Tests finished on $(date) on $(hostname). RESULTS:" | tee -a $LOGFILE
-tail -n 6 $LOGFILE.unit-tests $LOGFILE.reg-tests | tee -a $LOGFILE
-
+tail -v -n 7 $LOGFILE.unit-tests | tee -a $LOGFILE
+tail -v -n 4 $LOGFILE.reg-tests | tee -a $LOGFILE
+tail -v -n 4 $LOGFILE.java-unit-tests | tee -a $LOGFILE
 echo "Done!" 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATHORIG
 export PATH=$PATHORIG

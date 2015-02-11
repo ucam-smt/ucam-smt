@@ -5,7 +5,7 @@ This package contains the Cambridge SMT system.
 
 GETTING STARTED
  + Requirements: You need to install the following libraries: OpenFST 1.3.*, boost_1_53_0+, and google tests 1.4.0+. 
-   Should compile succesfully with g++ versions 4.2.1 to 4.6.1.
+   Should compile succesfully with g++ versions 4.2.1 to 4.6.1. Also required java 1.7+ and sbt (see java/ruleXtract/README.md).
    Bash environment assumed.
    For more details, i.e. particular extensions/packages these libraries need to be installed with,
    see externals/get-build-libraries.sh. Note that build-test.sh can try to download them for you,
@@ -24,12 +24,14 @@ LICENSING
  See COPYING file for more details.
 
 CONTENTS DESCRIPTION 
-+ doc/: doxygen documentation. 
++ doc/: doxygen documentation (if you run doxygen). 
 + cpp/: All c++ code
 + cpp/fsttools   : code for several basic fst tools 
 + cpp/hifst      : hifst-related binaries 
 + cpp/latmert    : lattice-mert related binaries
 + cpp/tests      : Unit testing
++ java/          : All java code
++ java/ruleXtract: Tool for rule extraction
 + scripts	 : Auxiliary scripts (bash, pl,...)
 + scripts/tests/ : Regression testing
 + externals      : contains KenLM (http://kheafield.com/code/kenlm/)
@@ -47,4 +49,4 @@ the package at some point.
   This can be dealt with automatically by precounting number of times each cell will be visited 
 - Keep track of word alignment in decoding
 - Decoding directly with the tropical sparse vector weight semiring
-- Deal with integer mapping internally, input can be words or ids
+- Deal with integer mapping more transparently.

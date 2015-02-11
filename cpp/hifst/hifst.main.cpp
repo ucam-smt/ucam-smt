@@ -17,7 +17,7 @@
 /**
  * \file
  * \brief Hifst main entry file.
- * \date 8-8-2012
+ * \date 8-12-2014
  * \author Gonzalo Iglesias
  */
 
@@ -26,70 +26,51 @@
 #include <main.custom_assert.hpp>
 #include <main.logger.hpp>
 #include <main-run.hifst.hpp>
-#include <kenlmdetect.hpp>
+#include <main-run.rules2weights.hpp>
+#include <common-helpers.hpp>
+#include <main.hpp>
 
 /**
- * \brief Main function.
- * \param       argc: Number of command-line program options.
- * \param       argv: Actual program options.
- * \remarks     Main function. Runs hifst tool.
- * First parses program options with boost, then loads and chains several task classes.
- * Finally, kick off translation for a range of sentences.
+ * @brief Concrete RunTaskT implementation for Hifst tool.
  */
-
-int
-main ( int argc, const char *argv[] ) {
-  using ucam::util::Runner3;
-  using ucam::hifst::HifstTaskData;
+template < template <class, class> class DataT
+           , class KenLMModelT
+           , class ArcT
+           >
+struct RunHifst {
+  explicit RunHifst(ucam::util::RegistryPO const &rg){
   using ucam::hifst::SingleThreadedHifstTask;
   using ucam::hifst::MultiThreadedHifstTask;
   using ucam::hifst::HifstServerTask;
-  ucam::util::initLogger ( argc, argv );
-  FORCELINFO ( argv[0] << " starts!" );
-  ucam::util::RegistryPO rg ( argc, argv );
-  FORCELINFO ( rg.dump ( "CONFIG parameters:\n====================="
-                         , "=====================" ) );
-  // Detect here kenlm binary type
-  // it's a bit ugly this way of initializing the correct kenlm handler
-  lm::ngram::ModelType kenmt = ucam::util::detectkenlm (rg.getVectorString (
-                                 HifstConstants::kLmLoad, 0) );
-  switch (kenmt) {
-  case lm::ngram::PROBING:
-    ( Runner3<SingleThreadedHifstTask<>
-      , MultiThreadedHifstTask<>
-      , HifstServerTask<> > ( rg ) ) ();
-    break;
-  case lm::ngram::REST_PROBING:
-    ( Runner3<SingleThreadedHifstTask<HifstTaskData<lm::ngram::RestProbingModel>, lm::ngram::RestProbingModel>
-      , MultiThreadedHifstTask<HifstTaskData<lm::ngram::RestProbingModel>, lm::ngram::RestProbingModel>
-      , HifstServerTask<HifstTaskData<lm::ngram::RestProbingModel>, lm::ngram::RestProbingModel> >
-      ( rg ) ) ();
-    break;
-  case lm::ngram::TRIE:
-    ( Runner3<SingleThreadedHifstTask<HifstTaskData<lm::ngram::TrieModel>, lm::ngram::TrieModel>
-      , MultiThreadedHifstTask<HifstTaskData<lm::ngram::TrieModel>, lm::ngram::TrieModel>
-      , HifstServerTask<HifstTaskData<lm::ngram::TrieModel>, lm::ngram::TrieModel> >
-      ( rg ) ) ();
-    break;
-  case lm::ngram::QUANT_TRIE:
-    ( Runner3<SingleThreadedHifstTask<HifstTaskData<lm::ngram::QuantTrieModel>, lm::ngram::QuantTrieModel>
-      , MultiThreadedHifstTask<HifstTaskData<lm::ngram::QuantTrieModel>, lm::ngram::QuantTrieModel>
-      , HifstServerTask<HifstTaskData<lm::ngram::QuantTrieModel>, lm::ngram::QuantTrieModel> >
-      ( rg ) ) ();
-    break;
-  case lm::ngram::ARRAY_TRIE:
-    ( Runner3<SingleThreadedHifstTask<HifstTaskData<lm::ngram::ArrayTrieModel>, lm::ngram::ArrayTrieModel>
-      , MultiThreadedHifstTask<HifstTaskData<lm::ngram::ArrayTrieModel>, lm::ngram::ArrayTrieModel>
-      , HifstServerTask<HifstTaskData<lm::ngram::ArrayTrieModel>, lm::ngram::ArrayTrieModel> >
-      ( rg ) ) ();
-    break;
-  case lm::ngram::QUANT_ARRAY_TRIE:
-    ( Runner3<SingleThreadedHifstTask<HifstTaskData<lm::ngram::QuantArrayTrieModel>, lm::ngram::QuantArrayTrieModel>
-      , MultiThreadedHifstTask<HifstTaskData<lm::ngram::QuantArrayTrieModel>, lm::ngram::QuantArrayTrieModel>
-      , HifstServerTask<HifstTaskData<lm::ngram::QuantArrayTrieModel>, lm::ngram::QuantArrayTrieModel> >
-      ( rg ) ) ();
-    break;
+  using ucam::fsttools::RunTask3;
+  (RunTask3<SingleThreadedHifstTask
+          , MultiThreadedHifstTask
+          , HifstServerTask
+          , DataT
+          , KenLMModelT
+          , ArcT >
+   (rg) );
   }
-  FORCELINFO ( argv[0] << " ends!" );
-  return 0;
+};
+
+void ucam::util::MainClass::run() {
+  using namespace HifstConstants;
+  using namespace ::ucam::fsttools;
+  std::string const arctype =rg_->get<std::string>(kHifstSemiring);
+  using namespace ucam::hifst;
+  if (arctype == kHifstSemiringLexStdArc) {
+    runTaskWithKenLMTemplate<RunHifst, HifstTaskData, fst::LexStdArc>(*rg_);
+  } else if (arctype == HifstConstants::kHifstSemiringTupleArc) {
+    runTaskWithKenLMTemplate<RunHifst, HifstTaskData, TupleArc32>(*rg_);
+    if (rg_->getBool(kRulesToWeightsEnable)) {
+      ucam::hifst::SingleThreadededRulesToWeightsSparseLatsTask r2w(*rg_);
+      r2w();
+    }
+  } else if (arctype == kHifstSemiringStdArc) {
+    LWARN("Untested, might work in exact decoding:" << kHifstSemiringStdArc );
+    runTaskWithKenLMTemplate<RunHifst, HifstTaskData, fst::StdArc >(*rg_);
+  } else {
+    LERROR("Unsupported semiring option");
+    exit(EXIT_FAILURE);
+  }
 }

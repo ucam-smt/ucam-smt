@@ -32,8 +32,9 @@ template<class Arc, class WeightMakerFunctorT>
 class GenericWeightAutoMapper {
  public:
   ///Constructor
-  explicit GenericWeightAutoMapper ( const WeightMakerFunctorT& mw ) : mw_
-    ( mw ) {};
+  explicit GenericWeightAutoMapper ( const WeightMakerFunctorT& mw )
+      : mw_( mw )
+  {};
 
   ///Takes arc as input parameter and returns modified arc
   inline Arc operator() ( const Arc& arc ) const {
@@ -54,7 +55,7 @@ class GenericWeightAutoMapper {
   }
 
   ///Specialized functor that modifies arc weights.
-  WeightMakerFunctorT mw_;
+  WeightMakerFunctorT const &mw_;
 
 };
 
@@ -92,8 +93,64 @@ class GenericWeightMapper {
 
  private:
   ///Specialized functor that modifies arc weights.
-  WeightMakerFunctorT mw_;
+  WeightMakerFunctorT const &mw_;
 };
+
+
+template<class FromArc, class ToArc, class ArcMakerFunctorT >
+class GenericArcMapper {
+ public:
+  explicit GenericArcMapper ( const ArcMakerFunctorT& ma ) : ma_ ( ma ) {};
+
+  ToArc operator() ( const FromArc& arc ) const {
+    return ma_(arc);
+  }
+
+  MapSymbolsAction InputSymbolsAction() const {
+    return MAP_COPY_SYMBOLS;
+  }
+  MapSymbolsAction OutputSymbolsAction() const {
+    return MAP_COPY_SYMBOLS;
+  }
+  MapFinalAction FinalAction() const {
+    return MAP_NO_SUPERFINAL;
+  }
+  uint Properties ( uint props ) const {
+    return ( props & kWeightInvariantProperties ) | kUnweighted;
+  }
+
+ private:
+  ArcMakerFunctorT const &ma_;
+};
+
+
+template<class Arc, class ArcMakerFunctorT >
+class GenericArcAutoMapper {
+ public:
+  explicit GenericArcAutoMapper ( const ArcMakerFunctorT& ma ) : ma_ ( ma ) {};
+
+  Arc operator() ( const Arc& arc ) const {
+    return ma_(arc);
+  }
+
+  MapSymbolsAction InputSymbolsAction() const {
+    return MAP_COPY_SYMBOLS;
+  }
+  MapSymbolsAction OutputSymbolsAction() const {
+    return MAP_COPY_SYMBOLS;
+  }
+  MapFinalAction FinalAction() const {
+    return MAP_NO_SUPERFINAL;
+  }
+  uint Properties ( uint props ) const {
+    return ( props & kWeightInvariantProperties ) | kUnweighted;
+  }
+
+ private:
+  ArcMakerFunctorT const &ma_;
+};
+
+
 
 /**
  * \brief templated Mapper that inserts a word penalty over an FST, skipping user defined epsilon arcs.

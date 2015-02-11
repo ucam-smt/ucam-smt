@@ -34,6 +34,7 @@ export CAM_SMT_DIR=../../
 
 export LD_LIBRARY_PATH=$CAM_SMT_DIR/bin/:$OPENFST_LIB:$BOOST_LIB:$LD_LIBRARY_PATH
 export PATH=$OPENFST_BIN:$PATH
+if [ ! -z $NPLM_LIB ]; then LD_LIBRARY_PATH+=:$NPLM_LIB; fi
 
 runtests() {
 
@@ -43,12 +44,16 @@ runtests() {
     total=0
     passed=0
     failed=0
+    skip=0
     for mytest in `typeset -F | awk '{print $3}'| grep "^test_" `; do 
 	let total=total+1
 	if [[ `$mytest | tail -1 ` -eq 1 ]]; then 
 	printf "%40s  ========== OK!\n" $mytest
 	let passed=passed+1
-	else 
+	elif [[ `$mytest | tail -1 ` -eq 2 ]]; then 
+	    printf "%40s  ========== SKIP!\n" $mytest
+	    let skip=skip+1
+	else
 	    printf "%40s  ========== FAIL!\n" $mytest
 	    let failed=failed+1
 	fi
@@ -57,5 +62,6 @@ runtests() {
     echo "============================================================"
     printf "PASSED: %5d tests (%20s)\n" $passed `basename $0`
     printf "FAILED: %5d tests (%20s) \n" $failed `basename $0`
+    printf "SKIPPED: %5d tests (%20s) \n" $skip `basename $0`
     printf " TOTAL: %5d tests (%20s) \n" $total `basename $0`
 }

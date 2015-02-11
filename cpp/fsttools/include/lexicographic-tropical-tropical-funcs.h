@@ -78,11 +78,12 @@ struct  MakeWeight<LexStdArc> {
 
 template<class Arc>
 struct  MakeWeight2 {
-  inline typename Arc::Weight operator () ( const float weight )  const {
-    return typename Arc::Weight ( weight );
+  typedef typename Arc::Weight Weight;
+  inline Weight operator () (float const weight )  const {
+    return Weight ( weight );
   };
-  inline typename Arc::Weight operator ()  ( const typename Arc::Weight& weight )
-  const  {
+  inline Weight operator () (Weight const & weight) const  {
+
     return weight ;
   };
   inline void update() {};

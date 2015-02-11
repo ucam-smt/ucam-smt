@@ -22,6 +22,8 @@
  * \author Rory Waite
  */
 
+#include <vector>
+
 typedef std::vector<double> PARAMS;
 
 typedef fst::TropicalWeightTpl<double> FeatureWeight;

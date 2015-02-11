@@ -27,12 +27,19 @@ namespace fsttools {
 
 // Applies scale factor to grammar at each cost in the arc.
 template <class Arc>
-inline void SetGsf ( fst::VectorFst<Arc> *grmfst, const float gsf ) {
+void SetGsf ( fst::VectorFst<Arc> *grmfst, const float gsf ) {
   if ( gsf == 1.0f )  return;
   fst::ScaleWeight<Arc> sw ( gsf );
   fst::Map<Arc> ( grmfst,
                   fst::GenericWeightAutoMapper<Arc, fst::ScaleWeight<Arc> > ( sw ) );
 };
+
+template <>
+void SetGsf ( fst::VectorFst<TupleArc32> *grmfst, const float gsf ) {
+  LERROR("Sorry, TupleArc32 not supported!");
+  exit(EXIT_FAILURE);
+};
+
 
 ///Loads flower fst from srilm disambig unigram input file
 template < class Arc >

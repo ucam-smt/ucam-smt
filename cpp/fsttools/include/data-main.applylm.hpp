@@ -28,7 +28,7 @@ namespace fsttools {
  * \brief data structure for applylm tool
  *
  */
-template <class KenLMModelT >
+template <class KenLMModelT, class ArcT = void  >
 struct ApplyLMData {
   ApplyLMData() :
     sidx ( 0 ),

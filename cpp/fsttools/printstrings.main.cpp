@@ -15,6 +15,7 @@ typedef labelmap_t::iterator labelmap_iterator_t;
 labelmap_t vmap;
 bool printweight = false;
 bool sparseformat = false;
+bool dotproduct = false;
 
 using fst::Hyp;
 
@@ -53,31 +54,84 @@ void printWeight (typename Arc::Weight const& weight, std::ostream& os) {
  */
 template <>
 void printWeight<TupleArc32> (const TupleW32& weight, std::ostream& os) {
-  if (sparseformat) {
-    os << weight;
-  } else {
-    // size of the parameter vector
-    std::size_t nonSparseSize = TupleW32::Params().size();
-    std::size_t counter = 1;
-    std::string separator ("");
-    for (fst::SparseTupleWeightIterator<fst::TropicalWeight, int> it (weight);
-         !it.Done(); it.Next() ) {
-      std::size_t featureIndex = it.Value().first;
-      for (std::size_t featureMissingIndex = counter;
-           featureMissingIndex < featureIndex; ++featureMissingIndex) {
-        os << separator << "0";
-        separator = ",";
-        counter++;
-      }
-      os << separator << it.Value().second;
-      separator = ",";
-      counter++;
-    }
-    for (; counter <= nonSparseSize; ++counter) {
-      os << separator << "0";
-      separator = ",";
-    }
+  std::map<int,float> costs;
+  std::string separator (",");
+
+  for (fst::SparseTupleWeightIterator<fst::TropicalWeight, int> it (weight);
+       !it.Done(); it.Next() ) {
+    costs[it.Value().first] += it.Value().second.Value();
   }
+  if (sparseformat) {
+
+    os << "0" << separator << costs.size();
+    for (std::map<int,float>::const_iterator itx=costs.begin()
+             ; itx != costs.end()
+             ; ++itx) {
+      os << separator << itx->first << separator << itx->second;
+    }
+    return;
+  } 
+  if (dotproduct) {
+    float w =0;
+    std::vector<float> const &fws = TupleW32::Params();
+    for (std::map<int,float>::const_iterator itx=costs.begin()
+             ; itx != costs.end()
+             ; ++itx) {
+      if (itx->first < 1) continue;
+
+      float fw = fws[itx->first - 1];
+      w = w + fw * itx->second;
+    }
+    os << w;
+    return;
+  }
+  std::size_t nonSparseSize = TupleW32::Params().size();
+  std::size_t counter = 1;
+  separator = "";
+  for (std::map<int,float>::const_iterator itx=costs.begin()
+           ; itx != costs.end()
+           ; ++itx) {
+    if (itx->first < 1 ) continue;
+    std::size_t featureIndex = itx->first;
+    for (std::size_t featureMissingIndex = counter;
+         featureMissingIndex < featureIndex; ++featureMissingIndex) {
+      os << separator << "0";
+      separator = ","; // @todo should be possible to avoid resetting every time.
+    }
+    os << separator << itx->second;
+    counter = itx->first + 1;
+    separator = ",";
+  }
+  for (; counter <= nonSparseSize; ++counter) {
+    os << separator << "0";
+    separator = ",";
+  }
+  // dense format is buggy. We also want sparse format to sum contributions to the same index.
+  // if (sparseformat) {
+  //   os << weight;
+  // } else {
+  //   // size of the parameter vector
+  //   std::size_t nonSparseSize = TupleW32::Params().size();
+  //   std::size_t counter = 1;
+  //   std::string separator ("");
+  //   for (fst::SparseTupleWeightIterator<fst::TropicalWeight, int> it (weight);
+  //        !it.Done(); it.Next() ) {
+  //     std::size_t featureIndex = it.Value().first;
+  //     for (std::size_t featureMissingIndex = counter;
+  //          featureMissingIndex < featureIndex; ++featureMissingIndex) {
+  //       os << separator << "0";
+  //       separator = ",";
+  //       counter++;
+  //     }
+  //     os << separator << it.Value().second;
+  //     separator = ",";
+  //     counter++;
+  //   }
+  //   for (; counter <= nonSparseSize; ++counter) {
+  //     os << separator << "0";
+  //     separator = ",";
+  //   }
+  // }
 }
 
 /**
@@ -137,6 +191,7 @@ int run ( ucam::util::RegistryPO const& rg) {
   unsigned n = rg.get<unsigned> (HifstConstants::kNbest.c_str() );
   boost::scoped_ptr<oszfstream> out;
   bool unique =  rg.exists (HifstConstants::kUnique.c_str() );
+  bool printOutputLabels = rg.exists(HifstConstants::kPrintOutputLabels.c_str());
   std::string old;
   for ( ucam::util::IntRangePtr ir (ucam::util::IntRangeFactory ( rg,
                                     HifstConstants::kRangeOne ) );
@@ -155,19 +210,24 @@ int run ( ucam::util::RegistryPO const& rg) {
       *out << "[EMPTY]" << std::endl;
       continue;
     }
+    // Projecting allows unique to work for all cases.
+    if (printOutputLabels)
+      fst::Project(&*ifst, PROJECT_OUTPUT);
+    else
+      fst::Project(&*ifst, PROJECT_INPUT);
     ShortestPath (*ifst, &nfst, n, unique );
     std::vector<HypT> hyps;
     fst::printStrings<Arc> (nfst, &hyps);
     for (unsigned k = 0; k < hyps.size(); ++k) {
-      *out << hyps[k] << std::endl;
+      *out->getStream() << hyps[k] << std::endl;
     }
   }
 };
 
 /*
  * \brief Main function.
- * \param       argc: Number of command-line program options.
- * \param       argv: Actual program options.
+ * \param       argc Number of command-line program options.
+ * \param       argv Actual program options.
  * \remarks
  */
 int  main ( int argc, const char* argv[] ) {
@@ -181,6 +241,13 @@ int  main ( int argc, const char* argv[] ) {
   }
   if (rg.exists (HifstConstants::kSparseFormat) ) {
     sparseformat = true;
+  }
+  if (rg.exists (HifstConstants::kSparseDotProduct) ) {
+    if (sparseformat == true) {
+      LERROR("Sparse format and dot product are not available at the same time.");
+      exit(EXIT_FAILURE);
+    }
+    dotproduct = true;
   }
   // check that tuplearc weights are set for the tuplearc semiring
   if (rg.get<std::string> (HifstConstants::kHifstSemiring.c_str() ) ==

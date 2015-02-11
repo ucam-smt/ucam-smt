@@ -55,6 +55,10 @@ extern const bool detailed;
 #include "lexicographic-tropical-tropical-incls.h"
 #include "lexicographic-tropical-tropical-decls.h"
 #include "lexicographic-tropical-tropical-funcs.h"
+#include <tropical-sparse-tuple-weight-incls.h>
+#include <tropical-sparse-tuple-weight.h>
+#include <tropical-sparse-tuple-weight-decls.h>
+#include <tropical-sparse-tuple-weight.makeweight.h>
 
 #include "fstio.hpp"
 #include "fstutils.hpp"

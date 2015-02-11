@@ -32,29 +32,27 @@ typedef boost::shared_ptr<tcp::socket> socket_ptr;
 /**
  * \brief Full single-threaded Translation system
  */
-
-template <class Data = HifstTaskData<lm::ngram::Model>
-          , class KenLMModelT = lm::ngram::Model >
-class SingleThreadedHifstTask: public ucam::util::TaskInterface<Data> {
-
+template < template <class, class> class DataT
+           , class KenLMModelT
+           , class ArcT
+           >
+class SingleThreadedHifstTask: public ucam::util::TaskInterface<DataT<KenLMModelT, ArcT>  > {
  private:
+  typedef DataT<KenLMModelT, ArcT> Data;
   typedef ucam::hifst::GrammarTask < Data > LoadGrammar;
   typedef ucam::fsttools::LoadWordMapTask< Data > LoadWordMap;
-  typedef ucam::fsttools::LoadUnimapTask< Data , fst::LexStdArc > LoadUnimap;
+  typedef ucam::fsttools::LoadUnimapTask< Data , ArcT > LoadUnimap;
   typedef ucam::hifst::PreProTask < Data > PrePro;
-  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT >
-  LoadLanguageModel;
+  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT > LoadLanguageModel;
   typedef ucam::hifst::PatternsToInstancesTask < Data > PatternsToInstances;
-  typedef ucam::hifst::ReferenceFilterTask < Data , fst::LexStdArc >
-  ReferenceFilter;
-  typedef ucam::hifst::SentenceSpecificGrammarTask < Data >
-  SentenceSpecificGrammar;
+  typedef ucam::hifst::ReferenceFilterTask < Data , ArcT > ReferenceFilter;
+  typedef ucam::hifst::SentenceSpecificGrammarTask < Data > SentenceSpecificGrammar;
   typedef ucam::hifst::CYKParserTask < Data > Parse;
-  typedef ucam::hifst::HiFSTTask < Data , KenLMModelT, fst::LexStdArc > HiFST;
-  typedef ucam::fsttools::WriteFstTask< Data , fst::LexStdArc > WriteFst;
-  typedef ucam::fsttools::DisambigTask< Data, KenLMModelT, fst::LexStdArc >
-  Recase;
-  typedef ucam::hifst::PostProTask < Data , fst::LexStdArc > PostPro;
+  typedef ucam::hifst::HiFSTTask < Data , KenLMModelT, ArcT > HiFST;
+  typedef ucam::fsttools::OptimizeFstTask< Data , ArcT > OptimizeFst;
+  typedef ucam::fsttools::WriteFstTask< Data , ArcT > WriteFst;
+  typedef ucam::fsttools::DisambigTask< Data, KenLMModelT, ArcT > Recase;
+  typedef ucam::hifst::PostProTask < Data , ArcT > PostPro;
   typedef ucam::hifst::HifstStatsTask < Data > HifstStats;
   typedef ucam::util::iszfstream iszfstream;
   typedef ucam::util::oszfstream oszfstream;
@@ -65,16 +63,29 @@ class SingleThreadedHifstTask: public ucam::util::TaskInterface<Data> {
   std::string textoutput_;
   ///Registry object
   const ucam::util::RegistryPO& rg_;
+  bool usingTupleArc_;
  public:
   /**
    *\brief Constructor
    *\param rg: pointer to RegistryPO object with all parsed parameters.
    */
-  SingleThreadedHifstTask ( const ucam::util::RegistryPO& rg ) :
-    fastforwardread_ ( new iszfstream ( rg.get<std::string>
-                                        ( HifstConstants::kSourceLoad ) ) ),
-    textoutput_ ( rg.get<std::string> ( HifstConstants::kTargetStore ) ),
-    rg_ ( rg ) {
+  SingleThreadedHifstTask ( const ucam::util::RegistryPO& rg )
+      : fastforwardread_ ( new iszfstream ( rg.get<std::string>
+                                            ( HifstConstants::kSourceLoad ) ) )
+      , textoutput_ ( rg.get<std::string> ( HifstConstants::kTargetStore ) )
+      , rg_ ( rg )
+      , usingTupleArc_(rg.get<std::string>(HifstConstants::kHifstSemiring) == HifstConstants::kHifstSemiringTupleArc )
+  {
+    if (!usingTupleArc_) return;
+    // If we are using the tropical sparse tuple semiring, we need to set feature weights;
+    // Artificial parameters are:
+    // language model(s) feature weights: use the ones provided by the user.
+    // single grammar feature (dot product), hence dot product feature weight=1.
+    // local language models (dot product), hence dot product feature weight=1.
+    std::string params = rg.get<std::string>(HifstConstants::kLmFeatureweights);
+    params += ",1,1";
+    FORCELINFO("fake tuple params=" << params);
+    TupleW32::Params() = ucam::util::ParseParamString<float> (params);
   };
 
   /**
@@ -82,6 +93,7 @@ class SingleThreadedHifstTask: public ucam::util::TaskInterface<Data> {
    * \param d     Data object that communicates all the tasks.
    */
   bool run ( Data& d ) {
+    using namespace HifstConstants;
     // Assigns keys to fetch feature weights appropriately
     // This keeps all current options available
     // User can work with lm.featureweights + grammar.featureweights
@@ -89,51 +101,51 @@ class SingleThreadedHifstTask: public ucam::util::TaskInterface<Data> {
     // (language model features first)
     // Probably lm.featureweights and grammar.featureweights will be deprecated
     // at some point.
-    std::string lmFeatureweights = HifstConstants::kLmFeatureweights;
-    std::string grammarFeatureweights = HifstConstants::kGrammarFeatureweights;
+    std::string lmFeatureweights = kLmFeatureweights;
+    std::string grammarFeatureweights = kGrammarFeatureweights;
     unsigned grammarFeatureweightOffset = 0;
-    if (rg_.get<std::string> (HifstConstants::kFeatureweights) != "") {
-      grammarFeatureweights = lmFeatureweights = HifstConstants::kFeatureweights;
+    if (rg_.get<std::string> (kFeatureweights) != "") {
+      grammarFeatureweights = lmFeatureweights = kFeatureweights;
       grammarFeatureweightOffset = rg_.getVectorString (
-                                     HifstConstants::kLmLoad).size();
+                                     kLmLoad).size();
     }
     boost::scoped_ptr < LoadGrammar> grammartask
-    ( new LoadGrammar ( rg_, grammarFeatureweights, grammarFeatureweightOffset ) );
+        ( new LoadGrammar ( rg_, grammarFeatureweights, grammarFeatureweightOffset ) );
     grammartask->appendTask
-    ( LoadWordMap::init ( rg_  , HifstConstants::kPreproWordmapLoad , true ) )
-    ( LoadWordMap::init ( rg_  , HifstConstants::kPostproWordmapLoad ) )
+        ( LoadWordMap::init ( rg_  , kPreproWordmapLoad , true ) )
+        ( LoadWordMap::init ( rg_  , kPostproWordmapLoad ) )
     //TODO: add an option to ensure that postpro.wordmap uses this one
     //, but then reversed wordmap is forced
-    ( LoadWordMap::init ( rg_  , HifstConstants::kLmWordmap , true) )
-    ( new LoadUnimap ( rg_  , HifstConstants::kRecaserUnimapLoad ) )
-    ( new PrePro ( rg_ ) )
-    ( new LoadLanguageModel ( rg_
-                              , HifstConstants::kLmLoad
-                              , lmFeatureweights ) )
-    ( new LoadLanguageModel ( rg_
-                              , HifstConstants::kHifstLocalpruneLmLoad
-                              , HifstConstants::kHifstLocalpruneLmFeatureweights
-                              , HifstConstants::kHifstLocalpruneLmWordpenalty) )
-    ( new LoadLanguageModel ( rg_
-                              , HifstConstants::kRecaserLmLoad
-                              , HifstConstants::kRecaserLmFeatureweight
-                              , HifstConstants::kRecaserLmWps
-                              , HifstConstants::kRecaserLmWordmap ) )
-    ( new PatternsToInstances ( rg_ ) )
-    ( ReferenceFilter::init ( rg_ ) )
-    ( new SentenceSpecificGrammar ( rg_ ) )
-    ( new Parse ( rg_ ) )
-    ( new HiFST ( rg_ ) )
-    ( WriteFst::init ( rg_  , HifstConstants::kHifstLatticeStore )  )
-    ( new Recase ( rg_
-                   , HifstConstants::kHifstLatticeStore
-                   , HifstConstants::kPostproInput
-                   , HifstConstants::kRecaserLmLoad ) )
-    ( WriteFst::init ( rg_ , HifstConstants::kRecaserOutput,
-                       HifstConstants::kPostproInput ) )
-    ( new PostPro ( rg_ ) )
-    ( new HifstStats ( rg_ ) )
-    ;
+        ( LoadWordMap::init ( rg_  , kLmWordmap , true) )
+        ( new LoadUnimap ( rg_  , kRecaserUnimapLoad ) )
+        ( new PrePro ( rg_ ) )
+        ( new LoadLanguageModel ( rg_
+                                  , kLmLoad
+                                  , (usingTupleArc_)? "":lmFeatureweights ) )
+        ( new LoadLanguageModel ( rg_
+                                  , kHifstLocalpruneLmLoad
+                                  , kHifstLocalpruneLmFeatureweights
+                                  , kHifstLocalpruneLmWordpenalty) )
+        ( new LoadLanguageModel ( rg_
+                                  , kRecaserLmLoad
+                                  , kRecaserLmFeatureweight
+                                  , kRecaserLmWps
+                                  , kRecaserLmWordmap ) )
+        ( new PatternsToInstances ( rg_ ) )
+        ( ReferenceFilter::init ( rg_ ) )
+        ( new SentenceSpecificGrammar ( rg_ ) )
+        ( new Parse ( rg_ ) )
+        ( new HiFST ( rg_ ) )
+        ( OptimizeFst::init(rg_, kHifstLatticeOptimize, kHifstLatticeStore ) )
+        ( WriteFst::init ( rg_, kHifstLatticeStore )  )
+        ( new Recase ( rg_
+                       , kHifstLatticeStore
+                       , kPostproInput
+                       , kRecaserLmLoad ) )
+        ( WriteFst::init ( rg_ , kRecaserOutput, kPostproInput ) )
+        ( new PostPro ( rg_ ) )
+        ( new HifstStats ( rg_ ) )
+        ;
     bool finished = false;
     oszfstream *fileoutput = NULL;
     if ( textoutput_ != "" ) {
@@ -178,28 +190,28 @@ class SingleThreadedHifstTask: public ucam::util::TaskInterface<Data> {
  * \brief Full multi-threaded Translation system
  */
 
-template <class Data = HifstTaskData<lm::ngram::Model>
-          , class KenLMModelT = lm::ngram::Model >
-class MultiThreadedHifstTask: public ucam::util::TaskInterface<Data> {
+template < template <class, class> class DataT
+           , class KenLMModelT
+           , class ArcT
+           >
+class MultiThreadedHifstTask: public ucam::util::TaskInterface<DataT<KenLMModelT, ArcT> > {
 
  private:
+  typedef DataT<KenLMModelT, ArcT> Data;
   typedef ucam::hifst::GrammarTask < Data > LoadGrammar;
   typedef ucam::fsttools::LoadWordMapTask< Data > LoadWordMap;
-  typedef ucam::fsttools::LoadUnimapTask< Data , fst::LexStdArc > LoadUnimap;
+  typedef ucam::fsttools::LoadUnimapTask< Data , ArcT > LoadUnimap;
   typedef ucam::hifst::PreProTask < Data > PrePro;
-  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT >
-  LoadLanguageModel;
+  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT > LoadLanguageModel;
   typedef ucam::hifst::PatternsToInstancesTask < Data > PatternsToInstances;
-  typedef ucam::hifst::ReferenceFilterTask < Data , fst::LexStdArc >
-  ReferenceFilter;
-  typedef ucam::hifst::SentenceSpecificGrammarTask < Data >
-  SentenceSpecificGrammar;
+  typedef ucam::hifst::ReferenceFilterTask < Data , ArcT > ReferenceFilter;
+  typedef ucam::hifst::SentenceSpecificGrammarTask < Data > SentenceSpecificGrammar;
   typedef ucam::hifst::CYKParserTask < Data > Parse;
-  typedef ucam::hifst::HiFSTTask < Data , KenLMModelT, fst::LexStdArc > HiFST;
-  typedef ucam::fsttools::WriteFstTask< Data , fst::LexStdArc > WriteFst;
-  typedef ucam::fsttools::DisambigTask< Data, KenLMModelT, fst::LexStdArc >
-  Recase;
-  typedef ucam::hifst::PostProTask < Data , fst::LexStdArc > PostPro;
+  typedef ucam::hifst::HiFSTTask < Data , KenLMModelT, ArcT > HiFST;
+  typedef ucam::fsttools::OptimizeFstTask< Data , ArcT > OptimizeFst;
+  typedef ucam::fsttools::WriteFstTask< Data , ArcT > WriteFst;
+  typedef ucam::fsttools::DisambigTask< Data, KenLMModelT, ArcT > Recase;
+  typedef ucam::hifst::PostProTask < Data , ArcT > PostPro;
   typedef ucam::hifst::HifstStatsTask < Data > HifstStats;
   typedef ucam::util::iszfstream iszfstream;
   typedef ucam::util::oszfstream oszfstream;
@@ -215,17 +227,30 @@ class MultiThreadedHifstTask: public ucam::util::TaskInterface<Data> {
 
   ///Number of threads requested by user
   unsigned threadcount_;
+  bool usingTupleArc_;
  public:
   /**
    *\brief Constructor
    *\param rg: pointer to ucam::util::RegistryPO object with all parsed parameters.
    */
-  MultiThreadedHifstTask ( const ucam::util::RegistryPO& rg ) :
-    fastforwardread_ ( new iszfstream ( rg.get<std::string>
-                                        ( HifstConstants::kSourceLoad ) ) ),
-    textoutput_ ( rg.get<std::string> ( HifstConstants::kTargetStore ) ),
-    threadcount_ ( rg.get<unsigned> ( HifstConstants::kNThreads ) ),
-    rg_ ( rg ) {
+  MultiThreadedHifstTask ( const ucam::util::RegistryPO& rg )
+      : fastforwardread_ ( new iszfstream ( rg.get<std::string>
+                                        ( HifstConstants::kSourceLoad ) ) )
+      , textoutput_ ( rg.get<std::string> ( HifstConstants::kTargetStore ) )
+      , threadcount_ ( rg.get<unsigned> ( HifstConstants::kNThreads ) )
+      , usingTupleArc_(rg.get<std::string>(HifstConstants::kHifstSemiring) == HifstConstants::kHifstSemiringTupleArc )
+      , rg_ ( rg ) {
+
+    if (!usingTupleArc_) return;
+    // If we are using the tropical sparse tuple semiring, we need to set feature weights;
+    // Artificial parameters are:
+    // language model(s) feature weights: use the ones provided by the user.
+    // single grammar feature (dot product), hence dot product feature weight=1.
+    // local language models (dot product), hence dot product feature weight=1.
+    std::string params = rg.get<std::string>(HifstConstants::kLmFeatureweights);
+    params += ",1,1";
+    FORCELINFO("fake tuple params=" << params);
+    TupleW32::Params() = ucam::util::ParseParamString<float> (params);
   };
 
   /**
@@ -234,32 +259,34 @@ class MultiThreadedHifstTask: public ucam::util::TaskInterface<Data> {
    */
 
   bool run ( Data& original_data ) {
-    std::string lmFeatureweights = HifstConstants::kLmFeatureweights;
-    std::string grammarFeatureweights = HifstConstants::kGrammarFeatureweights;
+    using namespace HifstConstants;
+
+    std::string lmFeatureweights = kLmFeatureweights;
+    std::string grammarFeatureweights = kGrammarFeatureweights;
     unsigned grammarFeatureweightOffset = 0;
-    if (rg_.get<std::string> (HifstConstants::kFeatureweights) != "") {
-      grammarFeatureweights = lmFeatureweights = HifstConstants::kFeatureweights;
+    if (rg_.get<std::string> (kFeatureweights) != "") {
+      grammarFeatureweights = lmFeatureweights = kFeatureweights;
       grammarFeatureweightOffset = rg_.getVectorString (
-                                     HifstConstants::kLmLoad).size();
+                                     kLmLoad).size();
     }
     boost::scoped_ptr < LoadGrammar > grammartask
     ( new LoadGrammar ( rg_, grammarFeatureweights, grammarFeatureweightOffset ) );
     grammartask->appendTask
     ( new LoadLanguageModel ( rg_
-                              , HifstConstants::kLmLoad
+                              , kLmLoad
                               , lmFeatureweights ) )
     ( new LoadLanguageModel ( rg_
-                              , HifstConstants::kHifstLocalpruneLmLoad
-                              , HifstConstants::kHifstLocalpruneLmFeatureweights
-                              , HifstConstants::kHifstLocalpruneLmWordpenalty) )
+                              , kHifstLocalpruneLmLoad
+                              , kHifstLocalpruneLmFeatureweights
+                              , kHifstLocalpruneLmWordpenalty) )
     ( new LoadLanguageModel ( rg_
-                              , HifstConstants::kRecaserLmLoad
-                              , HifstConstants::kRecaserLmFeatureweight
-                              , HifstConstants::kRecaserLmWps
-                              , HifstConstants::kRecaserLmWordmap) )
-    ( new LoadUnimap ( rg_  , HifstConstants::kRecaserUnimapLoad ) )
-    ( LoadWordMap::init ( rg_  , HifstConstants::kPreproWordmapLoad , true ) )
-    ( LoadWordMap::init ( rg_  , HifstConstants::kPostproWordmapLoad ) )
+                              , kRecaserLmLoad
+                              , kRecaserLmFeatureweight
+                              , kRecaserLmWps
+                              , kRecaserLmWordmap) )
+    ( new LoadUnimap ( rg_  , kRecaserUnimapLoad ) )
+    ( LoadWordMap::init ( rg_  , kPreproWordmapLoad , true ) )
+    ( LoadWordMap::init ( rg_  , kPostproWordmapLoad ) )
     ;
     //Load grammar and language model
     grammartask->chainrun ( original_data );
@@ -277,10 +304,10 @@ class MultiThreadedHifstTask: public ucam::util::TaskInterface<Data> {
         translations.push_back ( boost::shared_ptr<std::string>
                                  ( new std::string ( "" ) ) );
         d->translation = translations[translations.size() - 1].get();
-        if ( original_data.fsts.find ( HifstConstants::kRecaserUnimapLoad ) !=
+        if ( original_data.fsts.find ( kRecaserUnimapLoad ) !=
              original_data.fsts.end() )
-          d->fsts[HifstConstants::kRecaserUnimapLoad] =
-            original_data.fsts[HifstConstants::kRecaserUnimapLoad];
+          d->fsts[kRecaserUnimapLoad] =
+            original_data.fsts[kRecaserUnimapLoad];
         d->recasingvcblm = original_data.recasingvcblm;
         d->wm = original_data.wm;
         finished = fastforwardread_ ( d->sidx ,
@@ -295,15 +322,14 @@ class MultiThreadedHifstTask: public ucam::util::TaskInterface<Data> {
         ( new SentenceSpecificGrammar ( rg_ ) )
         ( new Parse ( rg_ ) )
         ( new HiFST ( rg_ ) )
-        ( WriteFst::init ( rg_
-                           , HifstConstants::kHifstLatticeStore )  )
+        ( OptimizeFst::init(rg_, kHifstLatticeOptimize, kHifstLatticeStore ) )
+        ( WriteFst::init ( rg_, kHifstLatticeStore )  )
         ( new Recase ( rg_  ,
-                       HifstConstants::kHifstLatticeStore,
-                       HifstConstants::kPostproInput,
-                       HifstConstants::kRecaserLmLoad,
-                       HifstConstants::kRecaserUnimapLoad ) )
-        ( WriteFst::init ( rg_ , HifstConstants::kRecaserOutput,
-                           HifstConstants::kPostproInput ) )
+                       kHifstLatticeStore,
+                       kPostproInput,
+                       kRecaserLmLoad,
+                       kRecaserUnimapLoad ) )
+        ( WriteFst::init ( rg_ , kRecaserOutput, kPostproInput ) )
         ( new PostPro ( rg_ ) )
         ( new HifstStats ( rg_ ) )
         ;
@@ -335,27 +361,26 @@ class MultiThreadedHifstTask: public ucam::util::TaskInterface<Data> {
  * \brief Translation Server
  */
 
-template <class Data = HifstTaskData<lm::ngram::Model>, class KenLMModelT = lm::ngram::Model >
-class HifstServerTask: public ucam::util::TaskInterface<Data> {
-
+template < template <class, class> class DataT
+           , class KenLMModelT
+           , class ArcT
+           >
+class HifstServerTask: public ucam::util::TaskInterface<DataT<KenLMModelT, ArcT>  > {
  private:
+  typedef DataT<KenLMModelT, ArcT> Data;
   typedef ucam::hifst::GrammarTask < Data > LoadGrammar;
   typedef ucam::fsttools::LoadWordMapTask< Data > LoadWordMap;
-  typedef ucam::fsttools::LoadUnimapTask< Data , fst::LexStdArc > LoadUnimap;
+  typedef ucam::fsttools::LoadUnimapTask< Data , ArcT > LoadUnimap;
   typedef ucam::hifst::PreProTask < Data > PrePro;
-  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT >
-  LoadLanguageModel;
+  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT > LoadLanguageModel;
   typedef ucam::hifst::PatternsToInstancesTask < Data > PatternsToInstances;
-  typedef ucam::hifst::ReferenceFilterTask < Data , fst::LexStdArc >
-  ReferenceFilter;
-  typedef ucam::hifst::SentenceSpecificGrammarTask < Data >
-  SentenceSpecificGrammar;
+  typedef ucam::hifst::ReferenceFilterTask < Data , ArcT > ReferenceFilter;
+  typedef ucam::hifst::SentenceSpecificGrammarTask < Data > SentenceSpecificGrammar;
   typedef ucam::hifst::CYKParserTask < Data > Parse;
-  typedef ucam::hifst::HiFSTTask < Data , KenLMModelT, fst::LexStdArc > HiFST;
-  typedef ucam::fsttools::WriteFstTask< Data , fst::LexStdArc > WriteFst;
-  typedef ucam::fsttools::DisambigTask< Data, KenLMModelT, fst::LexStdArc >
-  Recase;
-  typedef ucam::hifst::PostProTask < Data , fst::LexStdArc > PostPro;
+  typedef ucam::hifst::HiFSTTask < Data , KenLMModelT, ArcT > HiFST;
+  typedef ucam::fsttools::WriteFstTask< Data , ArcT > WriteFst;
+  typedef ucam::fsttools::DisambigTask< Data, KenLMModelT, ArcT > Recase;
+  typedef ucam::hifst::PostProTask < Data , ArcT > PostPro;
   typedef ucam::hifst::HifstStatsTask < Data > HifstStats;
 
   ///Registry object
@@ -388,15 +413,16 @@ class HifstServerTask: public ucam::util::TaskInterface<Data> {
      * \param d         Data object
      */
     bool operator () ( socket_ptr sock, Data& d ) {
+      using namespace HifstConstants;
       ///Make a copy of d, and go for it.
       LINFO ( "Init new taskdata..." );
       boost::scoped_ptr<Data> mydata ( new Data );
       mydata->grammar = d.grammar;
       mydata->klm = d.klm;
       mydata->filters.clear();
-      if ( d.fsts.find ( HifstConstants::kRecaserUnimapLoad ) != d.fsts.end() )
-        mydata->fsts[HifstConstants::kRecaserUnimapLoad] =
-          d.fsts[HifstConstants::kRecaserUnimapLoad];
+      if ( d.fsts.find ( kRecaserUnimapLoad ) != d.fsts.end() )
+        mydata->fsts[kRecaserUnimapLoad] =
+          d.fsts[kRecaserUnimapLoad];
       mydata->recasingvcblm = d.recasingvcblm;
       mydata->wm = d.wm;
       LINFO ("Number of wordmaps... " << mydata->wm.size() );
@@ -434,18 +460,19 @@ class HifstServerTask: public ucam::util::TaskInterface<Data> {
      * \brief Runs actual translation tasks using models in data object
      */
     bool operator () ( Data& d ) {
+      using namespace HifstConstants;
       PrePro p ( rg_ );
       p.appendTask
       ( new PatternsToInstances ( rg_ ) )
       ( new SentenceSpecificGrammar ( rg_ ) )
       ( new Parse ( rg_ ) )
       ( new HiFST ( rg_ ) )
-      ( new WriteFst ( rg_  , HifstConstants::kHifstLatticeStore )  )
+      ( new WriteFst ( rg_  , kHifstLatticeStore )  )
       ( new Recase ( rg_  ,
-                     HifstConstants::kHifstLatticeStore,
-                     HifstConstants::kPostproInput,
-                     HifstConstants::kRecaserLmLoad,
-                     HifstConstants::kRecaserUnimapLoad ) )
+                     kHifstLatticeStore,
+                     kPostproInput,
+                     kRecaserLmLoad,
+                     kRecaserUnimapLoad ) )
       ( new PostPro ( rg_ ) )
       ;
       p.chainrun ( d );        //Run translation!
@@ -466,32 +493,32 @@ class HifstServerTask: public ucam::util::TaskInterface<Data> {
   ///Loads all full models once (grammar, language models, wordmap files).
   ///Pointers to these models will be stored in internal data object d_.
   void load() {
-    std::string lmFeatureweights = HifstConstants::kLmFeatureweights;
-    std::string grammarFeatureweights = HifstConstants::kGrammarFeatureweights;
+    using namespace HifstConstants;
+    std::string lmFeatureweights = kLmFeatureweights;
+    std::string grammarFeatureweights = kGrammarFeatureweights;
     unsigned grammarFeatureweightOffset = 0;
-    if (rg_.get<std::string> (HifstConstants::kFeatureweights) != "") {
-      grammarFeatureweights = lmFeatureweights = HifstConstants::kFeatureweights;
-      grammarFeatureweightOffset = rg_.getVectorString (
-                                     HifstConstants::kLmLoad).size();
+    if (rg_.get<std::string> (kFeatureweights) != "") {
+      grammarFeatureweights = lmFeatureweights = kFeatureweights;
+      grammarFeatureweightOffset = rg_.getVectorString (kLmLoad).size();
     }
     ttask_.reset ( new LoadGrammar ( rg_, grammarFeatureweights,
                                      grammarFeatureweightOffset ) );
     ttask_->appendTask
     ( new LoadLanguageModel ( rg_
-                              , HifstConstants::kLmLoad
+                              , kLmLoad
                               , lmFeatureweights ) )
     ( new LoadLanguageModel ( rg_
-                              , HifstConstants::kHifstLocalpruneLmLoad
-                              , HifstConstants::kHifstLocalpruneLmFeatureweights
-                              , HifstConstants::kHifstLocalpruneLmWordpenalty
+                              , kHifstLocalpruneLmLoad
+                              , kHifstLocalpruneLmFeatureweights
+                              , kHifstLocalpruneLmWordpenalty
                             ) )
     ( new LoadLanguageModel ( rg_
-                              , HifstConstants::kRecaserLmLoad
-                              , HifstConstants::kRecaserLmFeatureweight
+                              , kRecaserLmLoad
+                              , kRecaserLmFeatureweight
                             ) )
-    ( new LoadUnimap ( rg_  , HifstConstants::kRecaserUnimapLoad ) )
-    ( LoadWordMap::init ( rg_  , HifstConstants::kPreproWordmapLoad, true ) )
-    ( LoadWordMap::init ( rg_  , HifstConstants::kPostproWordmapLoad ) )
+    ( new LoadUnimap ( rg_  , kRecaserUnimapLoad ) )
+    ( LoadWordMap::init ( rg_  , kPreproWordmapLoad, true ) )
+    ( LoadWordMap::init ( rg_  , kPostproWordmapLoad ) )
     ;
     //Load grammar and language model
     ttask_->chainrun ( d_ );

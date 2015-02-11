@@ -68,21 +68,20 @@ class WriteFstTask: public ucam::util::TaskInterface<Data> {
    * \returns false (does not break in any case the chain of tasks)
    */
   inline bool run ( Data& d ) {
-    if ( fstfile_ ( d.sidx ) != "" ) {
-      if ( d.fsts.find ( readfstkey_ ) != d.fsts.end() ) {
-        LINFO ( "fst with key=" << readfstkey_ << ", writing to ... " << fstfile_
-                ( d.sidx ) );
-        fst::FstWrite<Arc> ( * ( static_cast< fst::Fst<Arc> *>
-                                 ( d.fsts[readfstkey_] ) ), fstfile_ ( d.sidx ) );
-        std::string parenskey = readfstkey_ + ".parens";
-        if ( d.fsts.find ( parenskey ) != d.fsts.end() )
-          fst::WriteLabelPairs (fstfile_ ( d.sidx )  + ".parens",
-                                * (static_cast< std::vector<pair<Label, Label> > * > (  d.fsts[parenskey] ) ) );
-      } else {
-        LERROR ( "fst with key="  << readfstkey_ << " does not exist!" );
-        exit ( EXIT_FAILURE );
-      }
+    if ( fstfile_ ( d.sidx ) == "" ) return false;
+    if ( d.fsts.find ( readfstkey_ ) == d.fsts.end() ) {
+      LERROR ( "fst with key="  << readfstkey_ << " does not exist!" );
+      exit ( EXIT_FAILURE );
     }
+
+    LINFO ( "Fst with key=" << readfstkey_);
+    FORCELINFO ("Writing lattice " << d.sidx << " to ... " << fstfile_( d.sidx ) );
+    fst::FstWrite<Arc> ( * ( static_cast< fst::Fst<Arc> *>
+                             ( d.fsts[readfstkey_] ) ), fstfile_ ( d.sidx ) );
+    std::string parenskey = readfstkey_ + ".parens";
+    if ( d.fsts.find ( parenskey ) != d.fsts.end() )
+      fst::WriteLabelPairs (fstfile_ ( d.sidx )  + ".parens",
+                            * (static_cast< std::vector<pair<Label, Label> > * > (  d.fsts[parenskey] ) ) );
     return false;
   };
 

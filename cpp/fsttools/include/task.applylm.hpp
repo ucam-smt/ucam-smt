@@ -78,7 +78,7 @@ class ApplyLanguageModelTask: public ucam::util::TaskInterface<Data> {
     mylmfst_ = * (static_cast<fst::VectorFst<Arc> * > ( d.fsts[latticeloadkey_] ) );
     if (deletelmscores_) {
       LINFO ( "Delete old LM scores first" );
-      //Deletes LM scores if using lexstdarc. Note -- will copy through on stdarc!
+      //Deletes LM scores if using lexstdarc. Note -- will copy through on stdarc and ignore on tuplearc!
       fst::MakeWeight2<Arc> mwcopy;
       fst::Map<Arc> ( &mylmfst_,
                       fst::GenericWeightAutoMapper<Arc, fst::MakeWeight2<Arc> > ( mwcopy ) );

@@ -66,6 +66,11 @@ extern const bool detailed;
 #include "lexicographic-tropical-tropical-incls.h"
 //#include "lexicographic-tropical-tropical-decls.h"
 #include "lexicographic-tropical-tropical-funcs.h"
+#include <tropical-sparse-tuple-weight-incls.h>
+#include <tropical-sparse-tuple-weight.h>
+#include <tropical-sparse-tuple-weight-decls.h>
+#include <tropical-sparse-tuple-weight.makeweight.h>
+
 #include "fstio.hpp"
 #include "fstutils.hpp"
 #include "fstutils.applylmonthefly.hpp"
@@ -86,6 +91,7 @@ extern const bool detailed;
 #include <data.ssgrammar.hpp>
 #include <data.cykparser.hpp>
 
+#include <data-main.rules2weights.hpp>
 #include <data-main.hifst.hpp>
 
 #include <task.readfst.hpp>
@@ -101,11 +107,14 @@ extern const bool detailed;
 #include <task.cykparser.hpp>
 #include <task.referencefilter.hpp>
 #include <task.hifst.hpp>
+#include <task.optimizefst.hpp>
 
 #include <task.loadunimap.hpp>
 #include <task.disambig.hpp>
 
 #include <task.postpro.hpp>
 #include <task.hifst-stats.hpp>
+
+#include <task.loadsparseweightflowerfst.hpp>
 
 #endif

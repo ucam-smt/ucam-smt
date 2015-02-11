@@ -22,6 +22,8 @@
  * \author Rory Waite
  */
 
+# include <params.hpp>
+
 namespace fst {
 
 /**
@@ -130,7 +132,9 @@ T DotProduct ( const TropicalSparseTupleWeight<T>& w,
           << "Params: " << vw.size() << " Features: "
           << it.Value().first << endl;
       exit ( 1 );
-    } else {
+    } else if (it.Value().first <  0) // ignore negative indices
+      param = 0;
+    else {
       param = vw[it.Value().first - 1];
     }
     result += it.Value().second.Value() * param;
