@@ -34,8 +34,8 @@ inline void init_param_options ( int argc, const char* argv[],
 	"number of random directions; default is 2xfeature_dim" )
       ( kLmertWriteParams.c_str(), po::value<std::string>(), "output parameter file" )
       ( kLmertExternalTokenizer.c_str(), po::value<std::string>(), "external tokenization command" )
+      ( kLmertWMap.c_str(), po::value<std::string>(), "Maps idx to word; for use with word references" )
       ( kLmertBleuCacheSize.c_str(), po::value<int>()->default_value(10000), "number of hyps per sentence for which to LRU cache Bleu stats");
-      ;
 
     // \todo is this option supported?
     // ( kHifstSemiring.c_str(),

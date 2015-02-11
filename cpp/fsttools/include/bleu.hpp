@@ -171,14 +171,35 @@ public:
   std::vector<NGramToCountMap> refCounts;
   std::vector< std::vector<unsigned int> > refLengths;
 
-  BleuScorer(std::string const & refFiles, std::string const & extTokCmd, 
-	     unsigned int const & cacheSize, bool const & intRefs) : 
+  BleuScorer(std::string const & refFiles, std::string const & extTokCmd,
+	     unsigned int const & cacheSize, bool const & intRefs,
+	     std::string const & wordMapFile) : 
     chits_(0), cmisses_(0), intRefs_(intRefs){
-    externalTokenizer_ = (extTokCmd.size() > 0);
     useCache_ = (cacheSize > 0);
-    if (!intRefs_ && !externalTokenizer_) {
-      FORCELINFO("If not using external tokenizer, must use integer references");
-      exit ( EXIT_FAILURE );
+    externalTokenizer_ = (extTokCmd.size() > 0);
+    useWidMap_ = false;
+    if (refFiles == "") {
+      FORCELINFO("Must provide reference files(s)");
+      exit(EXIT_FAILURE);
+    }
+    if (wordMapFile != "" ) {
+      FORCELINFO ("Loading word map file...");
+      ucam::util::iszfstream f (wordMapFile);
+      unsigned id;
+      std::string word;
+      oovId_ = 0;
+      while (f >> word >> id) {
+	widMap_[id] = word;
+	refWordMap_[word] = id;
+	if (id > oovId_)
+	  oovId_ = id + 100;
+      }
+      FORCELINFO ("Loaded " << widMap_.size() << " symbols");
+      useWidMap_=true;
+    }
+    if (!useWidMap_ && !intRefs_) {
+      FORCELINFO("Must provide a wordmap for use with word references");
+      exit(1);
     }
     // -- pipez
     if (externalTokenizer_) {
@@ -193,7 +214,6 @@ public:
 							  boost::iostreams::close_handle));
       normalIn = new std::istream(pIn);
       intOut = new std::ostream(pOut);
-      oovId_ = 0;
     }
     LoadReferences(refFiles);
     if (useCache_) {
@@ -215,10 +235,7 @@ public:
       int nrk = 0;
       while ( getline ( ifs, line ) ) {
 	SentenceIdx sidx;
-	if (intRefs_)  
-	  sidx = externalTokenizer_ ? LoadIntRefExternalTokenizer(line) : LoadIntRef(line);
-	else 
-	  sidx = LoadWordRef(line);
+	sidx = intRefs_ ? LoadIntRef(line) : LoadWordRef(line);
 	NGramToCountMap ngc = ScanNGrams ( sidx ); 
 	if ( k == 0 ) { 
 	  std::vector<unsigned int> l;
@@ -318,6 +335,19 @@ public:
     return Bleu ( exp ( logBleu + logBrev ), exp ( logBrev ) );
   }
 
+  Bleu ComputeSBleu ( const BleuStats& bs ) {
+    double logBleu = 0.0;
+    double logBrev = 0.0;
+
+    for ( unsigned int n = 0; n < BleuStats::MAX_BLEU_ORDER; ++n ) {
+      logBleu += std::log ( ( double ) (bs.hits_[n] + 1.0) / ( double ) (bs.tots_[n] + 1.0) );
+    }
+    logBleu *= 1 / ( double ) BleuStats::MAX_BLEU_ORDER;
+    logBrev = std::min ( 0.0, 1 - (bs.refLength_ + 1.0)/ ( double ) ( bs.tots_[0] + 1.0 ) );
+    return Bleu ( exp ( logBleu + logBrev ), exp ( logBrev ) );
+  }
+
+
   NGram SubStr ( const SentenceIdx& s, const unsigned int n,
                  const unsigned int l ) const {
     return NGram ( s.begin() + n, s.begin() + n + l + 1 );
@@ -339,9 +369,11 @@ public:
  
 
 private:
+  unordered_map<Wid, std::string> widMap_;
   unordered_map<std::string, Wid> refWordMap_;
   Wid oovId_;
   bool externalTokenizer_;
+  bool useWidMap_;
   bool intRefs_;
   boost::mutex mutex;
   vector< LRUCache > bleuStatsCache;
@@ -349,8 +381,21 @@ private:
   unsigned int cmisses_;
   bool useCache_;
 
-  SentenceIdx WordsToSentenceIdx;
+  // n.b. not to be multithreaded - references are loaded only once by main
+  // load in references in integer format.
+  SentenceIdx LoadIntRef(std::string const & s) {
+    SentenceIdx rv;
+    std::istringstream is(s);
+    Wid w;
+    while (is >> w)
+      rv.push_back(w);
+    return rv;
+  }
 
+  // VESTIGIAL. References in integer format are piped through the external
+  // tokenizer prior and then mapped to integers. 
+  // Rather than include this here, references should be processed prior
+  // to running lmert, etc.
   // n.b. not to be multithreaded - references are loaded only once by main
   SentenceIdx LoadIntRefExternalTokenizer(std::string const &s) {
     string si;
@@ -382,22 +427,14 @@ private:
       unordered_map<std::string, Wid>::iterator it = refWordMap_.find(w);
       if (it == refWordMap_.end()) {
 	rs.push_back(oovId_);
-	refWordMap_[w] = oovId_++;
+	widMap_[oovId_] = w;
+	refWordMap_[w] = oovId_;
+	oovId_++;
       }	else {
 	rs.push_back(it->second);
       }
     }
     return rs;
-  }
-
-  // n.b. not to be multithreaded - references are loaded only once by main
-  SentenceIdx LoadIntRef(std::string const & s) {
-    SentenceIdx rv;
-    std::istringstream is(s);
-    Wid w;
-    while (is >> w)
-      rv.push_back(w);
-    return rv;
   }
 
   // returns wordid if word is in references; oov otherwise
@@ -406,9 +443,15 @@ private:
     if (s.size() == 0)
       return s;
     std::ostringstream os;
-    os << s[0];
-    for (int i=1; i<s.size(); i++)
-      os << " " << s[i];
+    if (useWidMap_) {
+      os << ((widMap_.find(s[0])==widMap_.end())?"#OOV#":widMap_[s[0]]);
+      for (int i=1; i<s.size(); i++)
+	os << " " << ((widMap_.find(s[i])==widMap_.end())?"#OOV#":widMap_[s[i]]);
+    } else {
+      os << s[0];
+      for (int i=1; i<s.size(); i++)
+	os << " " << s[i];
+    } 
     string si;
     mutex.lock();
     (*intOut) << os.str() << endl;
@@ -416,13 +459,20 @@ private:
     mutex.unlock();
     std::istringstream is(si);
     SentenceIdx rs;
-    string w;
-    while (is >> w) {
-      unordered_map<std::string, Wid>::iterator it = refWordMap_.find(w);
-      if (it == refWordMap_.end()) {
-	rs.push_back(oovId_);
-      }	else {
-	rs.push_back(it->second);
+    if (useWidMap_) {
+      string w;
+      while (is >> w) {
+	unordered_map<std::string, Wid>::iterator it = refWordMap_.find(w);
+	if (it == refWordMap_.end()) {
+	  rs.push_back(oovId_);
+	}	else {
+	  rs.push_back(it->second);
+	}
+      }
+    } else {
+      Wid w;
+      while (is >> w) {
+	rs.push_back(w);
       }
     }
     return rs;
