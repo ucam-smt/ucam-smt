@@ -95,6 +95,12 @@ export KENLM_DIR=${TOPDIR}/externals/kenlm/
 #### Number of cpus to be used for compilation. 
 export NUMPROC=1
 
+#### Compilation type. This has been decided the first time you run build-test.sh
+#### The recommended default value is O2, but if you do
+#### > export TGTBINMK=...  (see build-test.sh)
+#### __before__ running build-test.sh, this configuration will get written here.
+export TGTBINMK=${TGTBINMK}
+
 " > Makefile.inc 
 	    
 }
