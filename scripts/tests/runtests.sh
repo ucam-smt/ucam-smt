@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export CAM_SMT_DIR=../../
+. $CAM_SMT_DIR/Makefile.inc
+
 if [ -z "$TGTBINMK" ]; then
 
     cat <<EOF
@@ -29,8 +32,10 @@ EOF
     exit 1
 fi
 
-export CAM_SMT_DIR=../../
-. $CAM_SMT_DIR/Makefile.inc
+
+
+
+
 
 export LD_LIBRARY_PATH=$CAM_SMT_DIR/bin/:$OPENFST_LIB:$BOOST_LIB:$LD_LIBRARY_PATH
 export PATH=$OPENFST_BIN:$PATH
