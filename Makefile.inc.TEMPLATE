@@ -1,3 +1,11 @@
+#### You can use this template to configure yourself
+#### the ucam-smt package.
+#### For example, maybe you already have the libraries installed
+#### and you don't want to spend your valuable time waiting.
+#### In that case, copy this file to Makefile.inc and
+#### point each variable to the corresponding path 
+#### for each library. Then run build-test.sh. 
+
 ### Please write in here the absolute path to HiFST:
 export TOPDIR=</path/to/this/release>
 
@@ -34,3 +42,7 @@ export KENLM_DIR=${TOPDIR}/externals/kenlm/
 ### Increase at your own risk: make sure first you have 
 that number of cpus available on your machine.
 export NUMPROC=1
+
+#### Compilation type. Other options available, see build-test.sh
+export TGTBINMK=O2
+

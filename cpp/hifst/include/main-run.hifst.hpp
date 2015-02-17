@@ -32,26 +32,25 @@ typedef boost::shared_ptr<tcp::socket> socket_ptr;
 /**
  * \brief Full single-threaded Translation system
  */
-template < template <class, class> class DataT
-           , class KenLMModelT
+template < template <class> class DataT
            , class ArcT
            >
-class SingleThreadedHifstTask: public ucam::util::TaskInterface<DataT<KenLMModelT, ArcT>  > {
+class SingleThreadedHifstTask: public ucam::util::TaskInterface<DataT<ArcT>  > {
  private:
-  typedef DataT<KenLMModelT, ArcT> Data;
+  typedef DataT<ArcT> Data;
   typedef ucam::hifst::GrammarTask < Data > LoadGrammar;
   typedef ucam::fsttools::LoadWordMapTask< Data > LoadWordMap;
   typedef ucam::fsttools::LoadUnimapTask< Data , ArcT > LoadUnimap;
   typedef ucam::hifst::PreProTask < Data > PrePro;
-  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT > LoadLanguageModel;
+  typedef ucam::fsttools::LoadLanguageModelTask < Data> LoadLanguageModel;
   typedef ucam::hifst::PatternsToInstancesTask < Data > PatternsToInstances;
   typedef ucam::hifst::ReferenceFilterTask < Data , ArcT > ReferenceFilter;
   typedef ucam::hifst::SentenceSpecificGrammarTask < Data > SentenceSpecificGrammar;
   typedef ucam::hifst::CYKParserTask < Data > Parse;
-  typedef ucam::hifst::HiFSTTask < Data , KenLMModelT, ArcT > HiFST;
+  typedef ucam::hifst::HiFSTTask < Data,  ArcT > HiFST;
   typedef ucam::fsttools::OptimizeFstTask< Data , ArcT > OptimizeFst;
   typedef ucam::fsttools::WriteFstTask< Data , ArcT > WriteFst;
-  typedef ucam::fsttools::DisambigTask< Data, KenLMModelT, ArcT > Recase;
+  typedef ucam::fsttools::DisambigTask< Data, ArcT > Recase;
   typedef ucam::hifst::PostProTask < Data , ArcT > PostPro;
   typedef ucam::hifst::HifstStatsTask < Data > HifstStats;
   typedef ucam::util::iszfstream iszfstream;
@@ -139,9 +138,9 @@ class SingleThreadedHifstTask: public ucam::util::TaskInterface<DataT<KenLMModel
         ( OptimizeFst::init(rg_, kHifstLatticeOptimize, kHifstLatticeStore , kHifstStripSpecialEpsilonLabels) )
         ( WriteFst::init ( rg_, kHifstLatticeStore )  )
         ( new Recase ( rg_
-                       , kHifstLatticeStore
-                       , kPostproInput
-                       , kRecaserLmLoad ) )
+                     , kHifstLatticeStore
+                     , kPostproInput
+                     , kRecaserLmLoad ) )
         ( WriteFst::init ( rg_ , kRecaserOutput, kPostproInput ) )
         ( new PostPro ( rg_ ) )
         ( new HifstStats ( rg_ ) )
@@ -190,27 +189,26 @@ class SingleThreadedHifstTask: public ucam::util::TaskInterface<DataT<KenLMModel
  * \brief Full multi-threaded Translation system
  */
 
-template < template <class, class> class DataT
-           , class KenLMModelT
+template < template <class> class DataT
            , class ArcT
            >
-class MultiThreadedHifstTask: public ucam::util::TaskInterface<DataT<KenLMModelT, ArcT> > {
+class MultiThreadedHifstTask: public ucam::util::TaskInterface<DataT<ArcT> > {
 
  private:
-  typedef DataT<KenLMModelT, ArcT> Data;
+  typedef DataT<ArcT> Data;
   typedef ucam::hifst::GrammarTask < Data > LoadGrammar;
   typedef ucam::fsttools::LoadWordMapTask< Data > LoadWordMap;
   typedef ucam::fsttools::LoadUnimapTask< Data , ArcT > LoadUnimap;
   typedef ucam::hifst::PreProTask < Data > PrePro;
-  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT > LoadLanguageModel;
+  typedef ucam::fsttools::LoadLanguageModelTask < Data > LoadLanguageModel;
   typedef ucam::hifst::PatternsToInstancesTask < Data > PatternsToInstances;
   typedef ucam::hifst::ReferenceFilterTask < Data , ArcT > ReferenceFilter;
   typedef ucam::hifst::SentenceSpecificGrammarTask < Data > SentenceSpecificGrammar;
   typedef ucam::hifst::CYKParserTask < Data > Parse;
-  typedef ucam::hifst::HiFSTTask < Data , KenLMModelT, ArcT > HiFST;
+  typedef ucam::hifst::HiFSTTask < Data, ArcT > HiFST;
   typedef ucam::fsttools::OptimizeFstTask< Data , ArcT > OptimizeFst;
   typedef ucam::fsttools::WriteFstTask< Data , ArcT > WriteFst;
-  typedef ucam::fsttools::DisambigTask< Data, KenLMModelT, ArcT > Recase;
+  typedef ucam::fsttools::DisambigTask< Data, ArcT > Recase;
   typedef ucam::hifst::PostProTask < Data , ArcT > PostPro;
   typedef ucam::hifst::HifstStatsTask < Data > HifstStats;
   typedef ucam::util::iszfstream iszfstream;
@@ -361,25 +359,24 @@ class MultiThreadedHifstTask: public ucam::util::TaskInterface<DataT<KenLMModelT
  * \brief Translation Server
  */
 
-template < template <class, class> class DataT
-           , class KenLMModelT
+template < template <class> class DataT
            , class ArcT
            >
-class HifstServerTask: public ucam::util::TaskInterface<DataT<KenLMModelT, ArcT>  > {
+class HifstServerTask: public ucam::util::TaskInterface<DataT<ArcT>  > {
  private:
-  typedef DataT<KenLMModelT, ArcT> Data;
+  typedef DataT<ArcT> Data;
   typedef ucam::hifst::GrammarTask < Data > LoadGrammar;
   typedef ucam::fsttools::LoadWordMapTask< Data > LoadWordMap;
   typedef ucam::fsttools::LoadUnimapTask< Data , ArcT > LoadUnimap;
   typedef ucam::hifst::PreProTask < Data > PrePro;
-  typedef ucam::fsttools::LoadLanguageModelTask < Data, KenLMModelT > LoadLanguageModel;
+  typedef ucam::fsttools::LoadLanguageModelTask < Data > LoadLanguageModel;
   typedef ucam::hifst::PatternsToInstancesTask < Data > PatternsToInstances;
   typedef ucam::hifst::ReferenceFilterTask < Data , ArcT > ReferenceFilter;
   typedef ucam::hifst::SentenceSpecificGrammarTask < Data > SentenceSpecificGrammar;
   typedef ucam::hifst::CYKParserTask < Data > Parse;
-  typedef ucam::hifst::HiFSTTask < Data , KenLMModelT, ArcT > HiFST;
+  typedef ucam::hifst::HiFSTTask < Data, ArcT > HiFST;
   typedef ucam::fsttools::WriteFstTask< Data , ArcT > WriteFst;
-  typedef ucam::fsttools::DisambigTask< Data, KenLMModelT, ArcT > Recase;
+  typedef ucam::fsttools::DisambigTask< Data, ArcT > Recase;
   typedef ucam::hifst::PostProTask < Data , ArcT > PostPro;
   typedef ucam::hifst::HifstStatsTask < Data > HifstStats;
 

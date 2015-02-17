@@ -29,8 +29,7 @@
 /**
  * @brief Concrete RunTaskT implementation for applylm tool.
  */
-template < template <class, class> class DataT
-           , class KenLMModelT
+template < template <class> class DataT
            , class ArcT
            >
 struct RunApplyLm {
@@ -41,7 +40,6 @@ struct RunApplyLm {
   (RunTask2<SingleThreadedApplyLanguageModelTask
           , MultiThreadedApplyLanguageModelTask
           , DataT
-          , KenLMModelT
           , ArcT >
    (rg) );
   }
@@ -52,17 +50,15 @@ void ucam::util::MainClass::run() {
   using ::ucam::fsttools::SingleThreadedApplyLanguageModelTask;
   using ::ucam::fsttools::MultiThreadedApplyLanguageModelTask;
   using ::ucam::fsttools::ApplyLMData;
-  using ::ucam::fsttools::runTaskWithKenLMTemplate;
   std::string const arctype =rg_->get<std::string>(kHifstSemiring);
 
   if (arctype == kHifstSemiringLexStdArc ) {
-    runTaskWithKenLMTemplate<RunApplyLm, ApplyLMData, fst::LexStdArc>(*rg_);
+    (RunApplyLm<ApplyLMData, fst::LexStdArc>(*rg_));
   } else if (arctype == kHifstSemiringTupleArc) {
     LWARN("Untested, but might work:" << kHifstSemiringTupleArc );
-    runTaskWithKenLMTemplate<RunApplyLm, ApplyLMData, TupleArc32>(*rg_);
+    (RunApplyLm<ApplyLMData, TupleArc32>(*rg_));
   } else if (arctype == kHifstSemiringStdArc) {
-    LWARN("Untested, but might work:" << kHifstSemiringStdArc );
-    runTaskWithKenLMTemplate<RunApplyLm, ApplyLMData, fst::StdArc >(*rg_);
+    (RunApplyLm<ApplyLMData, fst::StdArc>(*rg_));
   } else {
     LERROR("Unsupported semiring option");
     exit(EXIT_FAILURE);

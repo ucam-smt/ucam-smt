@@ -84,30 +84,32 @@ class HifstTest : public testing::Test {
   // Otherwise, this can be skipped.
   virtual void SetUp() {
     ///Initialize all variables required to use these task classes.
-    v_[HifstConstants::kGrammarLoad] = std::string ( "" );
-    v_[HifstConstants::kGrammarStorepatterns] = std::string ( "" );
-    v_[HifstConstants::kGrammarStorentorder] = std::string ( "" );
-    v_[HifstConstants::kGrammarFeatureweights] = std::string ( "1" );
-    v_[HifstConstants::kSsgrammarStore] = std::string ( "" );
-    v_[HifstConstants::kSsgrammarAddoovsEnable] = std::string ("no");
-    v_[HifstConstants::kSsgrammarAddoovsSourcedeletions] = std::string ("no");
-    v_[HifstConstants::kCykparserHrmaxheight] = unsigned ( 10 );
-    v_[HifstConstants::kCykparserHmax] = std::string ( "X,10" );
-    v_[HifstConstants::kCykparserHmin] = std::string ( "X,0" );
-    v_[HifstConstants::kCykparserNtexceptionsmaxspan] = std::string ( "S" );
-    v_[HifstConstants::kHifstLatticeStore] = std::string ( "" );
-    v_[HifstConstants::kHifstLocalpruneEnable] = std::string ("no");
-    v_[HifstConstants::kHifstLocalpruneConditions] = std::string ( "" );
-    v_[HifstConstants::kHifstLocalpruneLmLoad] = std::string ("");
-    v_[HifstConstants::kHifstLocalpruneLmFeatureweights] = unsigned (1);
-    v_[HifstConstants::kHifstLocalpruneLmWordpenalty] = unsigned (0);
-    v_[HifstConstants::kHifstLocalpruneNumstates] = unsigned ( 1000 );
-    v_[HifstConstants::kHifstPrune] = float ( 1.0 );
-    v_[HifstConstants::kHifstUsepdt] = std::string ("no");
-    v_[HifstConstants::kHifstRtnopt] = std::string ("yes");
-    v_[HifstConstants::kHifstWritertn] = std::string ( "" );
-    v_[HifstConstants::kHifstAlilatsmode] = std::string ("no");
-    v_[HifstConstants::kHifstOptimizecells] = std::string ("yes");
+    using namespace HifstConstants;
+    v_[kGrammarLoad] = std::string ( "" );
+    v_[kGrammarStorepatterns] = std::string ( "" );
+    v_[kGrammarStorentorder] = std::string ( "" );
+    v_[kGrammarFeatureweights] = std::string ( "1" );
+    v_[kSsgrammarStore] = std::string ( "" );
+    v_[kSsgrammarAddoovsEnable] = std::string ("no");
+    v_[kSsgrammarAddoovsSourcedeletions] = std::string ("no");
+    v_[kCykparserHrmaxheight] = unsigned ( 10 );
+    v_[kCykparserHmax] = std::string ( "X,10" );
+    v_[kCykparserHmin] = std::string ( "X,0" );
+    v_[kCykparserNtexceptionsmaxspan] = std::string ( "S" );
+    v_[kHifstLatticeStore] = std::string ( "" );
+    v_[kHifstLocalpruneEnable] = std::string ("no");
+    v_[kHifstLocalpruneConditions] = std::string ( "" );
+    v_[kHifstLocalpruneLmLoad] = std::string ("");
+    v_[kHifstLocalpruneLmFeatureweights] = unsigned (1);
+    v_[kHifstLocalpruneLmWordpenalty] = unsigned (0);
+    v_[kHifstLocalpruneNumstates] = unsigned ( 1000 );
+    v_[kHifstPrune] = float ( 1.0 );
+    v_[kHifstUsepdt] = std::string ("no");
+    v_[kHifstRtnopt] = std::string ("yes");
+    v_[kHifstWritertn] = std::string ( "" );
+    v_[kHifstAlilatsmode] = std::string ("no");
+    v_[kHifstOptimizecells] = std::string ("yes");
+    v_[kReferencefilterLoad] = std::string ("");
     const uu::RegistryPO rg ( v_ );
     //We need to generate some rules. It is easy to do so with GrammarTask, so we do it. We need to keep these tasks during all the lifespan of the tests, though.
     gt_ = new uh::GrammarTask<uh::HifstTaskData<> > ( rg );
@@ -168,10 +170,11 @@ class HifstTest : public testing::Test {
  */
 
 TEST_F ( HifstTest, basic_translation ) {
-  v_[HifstConstants::kHifstReplacefstbyarcNonterminals] = std::string ( "" );
-  v_[HifstConstants::kHifstReplacefstbyarcNumstates] = unsigned (
+  using namespace HifstConstants;
+  v_[kHifstReplacefstbyarcNonterminals] = std::string ( "" );
+  v_[kHifstReplacefstbyarcNumstates] = unsigned (
         std::numeric_limits<unsigned>::max() );
-  v_[HifstConstants::kHifstReplacefstbyarcExceptions] = std::string ( "" );
+  v_[kHifstReplacefstbyarcExceptions] = std::string ( "" );
   const uu::RegistryPO rg ( v_ );
   LINFO ( "Number of inst:" << d_.hpinstances.size() );
   EXPECT_TRUE ( d_.cykdata != NULL );
@@ -179,10 +182,10 @@ TEST_F ( HifstTest, basic_translation ) {
   uh::HiFSTTask<uh::HifstTaskData<> > hifst ( rg );
   hifst.run ( d_ );
   //Test output.
-  EXPECT_TRUE ( d_.fsts[HifstConstants::kHifstLatticeStore] != NULL );
+  EXPECT_TRUE ( d_.fsts[kHifstLatticeStore] != NULL );
   std::stringstream ss;
   fst::printstrings ( *static_cast<fst::VectorFst<fst::LexStdArc> *>
-                      (d_.fsts[HifstConstants::kHifstLatticeStore]), &ss );
+                      (d_.fsts[kHifstLatticeStore]), &ss );
   EXPECT_EQ ( ss.str(),
               "1 3 4 5 2 || 1 3 4 5 2 || 0,0\n" );
 };
@@ -192,10 +195,11 @@ TEST_F ( HifstTest, basic_translation ) {
  */
 
 TEST_F ( HifstTest, basic_translation2 ) {
-  v_[HifstConstants::kHifstReplacefstbyarcNumstates] = unsigned (
+  using namespace HifstConstants;
+  v_[kHifstReplacefstbyarcNumstates] = unsigned (
         std::numeric_limits<unsigned>::max() );
-  v_[HifstConstants::kHifstReplacefstbyarcNonterminals] = std::string ( "X" );
-  v_[HifstConstants::kHifstReplacefstbyarcExceptions] = std::string ( "S" );
+  v_[kHifstReplacefstbyarcNonterminals] = std::string ( "X" );
+  v_[kHifstReplacefstbyarcExceptions] = std::string ( "S" );
   const uu::RegistryPO rg ( v_ );
   LINFO ( "Number of inst:" << d_.hpinstances.size() );
   EXPECT_TRUE ( d_.cykdata != NULL );
@@ -203,10 +207,10 @@ TEST_F ( HifstTest, basic_translation2 ) {
   uh::HiFSTTask<uh::HifstTaskData<> > hifst ( rg );
   hifst.run ( d_ );
   //Test output.
-  EXPECT_TRUE ( d_.fsts[HifstConstants::kHifstLatticeStore] != NULL );
+  EXPECT_TRUE ( d_.fsts[kHifstLatticeStore] != NULL );
   std::stringstream ss;
   fst::printstrings ( * static_cast<fst::VectorFst<fst::LexStdArc> *>
-                      (d_.fsts[HifstConstants::kHifstLatticeStore]), &ss );
+                      (d_.fsts[kHifstLatticeStore]), &ss );
   EXPECT_EQ ( ss.str(),
               "1 3 4 5 2 || 1 3 4 5 2 || 0,0\n1 3 4 5 2 || 1 3 4 5 2 || 0,0\n1 3 4 5 2 || 1 3 4 5 2 || 0,0\n" );
 };
@@ -216,6 +220,7 @@ TEST_F ( HifstTest, basic_translation2 ) {
  */
 
 TEST_F ( HifstTest, basic_translation3 ) {
+  using namespace HifstConstants;
   {
     uu::oszfstream o ( "mylm" );
     o << endl;
@@ -241,13 +246,13 @@ TEST_F ( HifstTest, basic_translation3 ) {
     o << "\\end\\" << endl;
     o.close();
   }
-  v_[HifstConstants::kLmFeatureweights] = std::string ( "1.0" );
-  v_[HifstConstants::kLmLoad] = std::string ( "mylm" );
-  v_[HifstConstants::kLmWordmap] = std::string ("");
-  v_[HifstConstants::kHifstReplacefstbyarcNumstates] = unsigned (
+  v_[kLmFeatureweights] = std::string ( "1.0" );
+  v_[kLmLoad] = std::string ( "mylm" );
+  v_[kLmWordmap] = std::string ("");
+  v_[kHifstReplacefstbyarcNumstates] = unsigned (
         std::numeric_limits<unsigned>::max() );
-  v_[HifstConstants::kHifstReplacefstbyarcNonterminals] = std::string ( "X" );
-  v_[HifstConstants::kHifstReplacefstbyarcExceptions] = std::string ( "S" );
+  v_[kHifstReplacefstbyarcNonterminals] = std::string ( "X" );
+  v_[kHifstReplacefstbyarcExceptions] = std::string ( "S" );
   const uu::RegistryPO rg ( v_ );
   LINFO ( "Number of inst:" << d_.hpinstances.size() );
   EXPECT_TRUE ( d_.cykdata != NULL );
@@ -257,10 +262,10 @@ TEST_F ( HifstTest, basic_translation3 ) {
   loadlm.run ( d_ );
   hifst.run ( d_ );
   //Test output.
-  EXPECT_TRUE ( d_.fsts[HifstConstants::kHifstLatticeStore] != NULL );
+  EXPECT_TRUE ( d_.fsts[kHifstLatticeStore] != NULL );
   std::stringstream ss;
   fst::printstrings ( * static_cast<fst::VectorFst<fst::LexStdArc> *>
-                      (d_.fsts[HifstConstants::kHifstLatticeStore]), &ss );
+                      (d_.fsts[kHifstLatticeStore]), &ss );
   //Hypothesis <s> 3 4 5 </s> yields -11101
   //log2ln -11101=25560.99711732690113819501, apparently rounded somewhere to 25561.
   EXPECT_EQ ( ss.str(),
@@ -274,12 +279,13 @@ TEST_F ( HifstTest, basic_translation3 ) {
  */
 
 TEST_F ( HifstTest, alignment ) {
+  using namespace HifstConstants;
   unordered_map<std::string, boost::any> v = v_;
-  v[HifstConstants::kHifstReplacefstbyarcNonterminals] = std::string ( "" );
-  v[HifstConstants::kHifstReplacefstbyarcNumstates] = unsigned (
+  v[kHifstReplacefstbyarcNonterminals] = std::string ( "" );
+  v[kHifstReplacefstbyarcNumstates] = unsigned (
         std::numeric_limits<unsigned>::max() );
-  v[HifstConstants::kHifstReplacefstbyarcExceptions] = std::string ( "S" );
-  v[HifstConstants::kHifstAlilatsmode] = std::string ("yes");
+  v[kHifstReplacefstbyarcExceptions] = std::string ( "S" );
+  v[kHifstAlilatsmode] = std::string ("yes");
   const uu::RegistryPO rg ( v );
   LINFO ( "Number of inst:" << d_.hpinstances.size() );
   EXPECT_TRUE ( d_.cykdata != NULL );
@@ -287,10 +293,10 @@ TEST_F ( HifstTest, alignment ) {
   uh::HiFSTTask<uh::HifstTaskData<> > hifst ( rg );
   hifst.run ( d_ );
   //Test output.
-  EXPECT_TRUE ( d_.fsts[HifstConstants::kHifstLatticeStore] != NULL );
+  EXPECT_TRUE ( d_.fsts[kHifstLatticeStore] != NULL );
   /*
   std::stringstream ss;
-  printstrings ( * static_cast<fst::VectorFst<fst::LexStdArc> *>(d_.fsts[HifstConstants::kHifstLatticeStore]), &ss );
+  printstrings ( * static_cast<fst::VectorFst<fst::LexStdArc> *>(d_.fsts[kHifstLatticeStore]), &ss );
 
   EXPECT_EQ ( ss.str(),
                 "5 9 1 2 3 2 4 2 6 2 || 1 3 4 5 2 || 0,0\n5 9 7 2 4 2 6 2 || 1 3 4 5 2 || 0,0\n5 9 3 8 2 6 2 || 1 3 4 5 2 || 0,0\n");
@@ -312,22 +318,23 @@ TEST_F ( HifstTest, alignment ) {
   fst::Minimize (j);
   fst::RmEpsilon (j);
   fst::Project (static_cast<fst::VectorFst<fst::LexStdArc> *>
-                (d_.fsts[HifstConstants::kHifstLatticeStore]), fst::PROJECT_INPUT);
+                (d_.fsts[kHifstLatticeStore]), fst::PROJECT_INPUT);
   fst::Determinize (fst::RmEpsilonFst<fst::LexStdArc>
                     (*static_cast<fst::VectorFst<fst::LexStdArc> *>
-                     (d_.fsts[HifstConstants::kHifstLatticeStore]) ),
+                     (d_.fsts[kHifstLatticeStore]) ),
                     static_cast<fst::VectorFst<fst::LexStdArc> *>
-                    (d_.fsts[HifstConstants::kHifstLatticeStore]) );
+                    (d_.fsts[kHifstLatticeStore]) );
   fst::Minimize (static_cast<fst::VectorFst<fst::LexStdArc> *>
-                 (d_.fsts[HifstConstants::kHifstLatticeStore]) );
+                 (d_.fsts[kHifstLatticeStore]) );
   fst::RmEpsilon (static_cast<fst::VectorFst<fst::LexStdArc> *>
-                  (d_.fsts[HifstConstants::kHifstLatticeStore]) );
+                  (d_.fsts[kHifstLatticeStore]) );
   EXPECT_EQ (Equivalent (*static_cast<fst::VectorFst<fst::LexStdArc> *>
-                         (d_.fsts[HifstConstants::kHifstLatticeStore]), *j), true);
+                         (d_.fsts[kHifstLatticeStore]), *j), true);
   delete j;
 };
 
 TEST ( HifstTest2, localconditions ) {
+
   using uh::conditions;
   uh::LocalPruningConditions lpc;
   ///e.g. Consider categories S=1,X=2,V=3,M=4

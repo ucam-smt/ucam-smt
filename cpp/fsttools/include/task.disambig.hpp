@@ -22,6 +22,7 @@
  * \author Gonzalo Iglesias
  */
 
+#include "task.applylm.kenlmtype.hpp"
 #include "task.disambig.flowerfst.hpp"
 
 namespace ucam {
@@ -31,18 +32,16 @@ namespace fsttools {
  * \brief Disambig Task tool.
  * Given a search space, applies a unigram transduction model (generating alternatives) and an ngram model over alternatives
  */
-template<class Data, class KenLMModelT = lm::ngram::Model, class Arc = fst::StdArc >
+template<class Data, class Arc>
 class DisambigTask : public ucam::util::TaskInterface<Data> {
-
+private:
   typedef typename Arc::Weight Weight;
   typedef typename Arc::Label Label;
-
- private:
 
   ///Fst that maps e.g. lower case unigrams (unimap from now on) to upper case versions as seen in training data
   fst::VectorFst<Arc> *unimap_;
   ///Shortest path value
-  uint shp_;
+  unsigned shp_;
 
   ///Pruning weight
   float prune_;
@@ -90,11 +89,11 @@ class DisambigTask : public ucam::util::TaskInterface<Data> {
                  "prune parameter must be byshortestpath/byweight,number" );
     if ( pstrat[0] == "byshortestpath" ) {
       LINFO ( "Shortest Path n=" << pstrat[1] );
-      shp_ = toNumber<uint> ( pstrat[1] );
+      shp_ = toNumber<unsigned> ( pstrat[1] );
       prune_ = std::numeric_limits<float>::max();
     } else if ( pstrat[0] == "byweight" ) {
       LINFO ( "Prune by weight b=" << pstrat[1] );
-      shp_ = std::numeric_limits<uint>::max();;
+      shp_ = std::numeric_limits<unsigned>::max();
       prune_ = toNumber<float> ( pstrat[1] );
     } else {
       USER_CHECK ( false,
@@ -122,12 +121,34 @@ class DisambigTask : public ucam::util::TaskInterface<Data> {
     return false;
   };
 
-  ///virtual destructor
   virtual ~DisambigTask() { }
 
  private:
+  typedef fst::ApplyLanguageModelOnTheFlyInterface<Arc> ApplyLanguageModelOnTheFlyInterfaceType;
+  typedef boost::shared_ptr<ApplyLanguageModelOnTheFlyInterfaceType> ApplyLanguageModelOnTheFlyInterfacePtrType;
+  ApplyLanguageModelOnTheFlyInterfacePtrType almotf_;
 
-  ///Actual disambiguation done here: first apply unimap model, then apply language model.
+
+  // Initializes appropriate templated kenlm handler for composition
+  // TODO: this code can be merged with task.applylm and task.hifst
+  void initializeLanguageModelHandler() {
+    if (almotf_.get() )  return; // already initialized
+    USER_CHECK ( d_->klm.find ( lmkey_ ) != d_->klm.end() 
+		 && d_->klm[lmkey_].size() == 1
+                 , "You need to load ONE recasing Language Model!" );
+    fst::MakeWeight<Arc> mw;
+    unordered_set<Label> epsilons;
+    ///We want the language model to ignore these guys:
+    epsilons.insert ( DR );
+    epsilons.insert ( OOV );
+    epsilons.insert ( EPSILON );
+    epsilons.insert ( SEP );
+    bool a = true;
+    almotf_.reset(assignKenLmHandler<Arc>
+		  ( rg_, lmkey_, epsilons, *(d_->klm[lmkey_][0]), mw, a));
+  }
+
+  /// Actual disambiguation done here: first apply unimap model, then apply language model.
   void run ( fst::VectorFst<Arc> *fst ) {
     if ( d_->fsts.find ( unimapkey_ ) == d_->fsts.end() ) {
       LINFO ( "No recasing step (key=" << unimapkey_ << " not found)" );
@@ -136,54 +157,31 @@ class DisambigTask : public ucam::util::TaskInterface<Data> {
       LINFO ( "No recasing step (NULL) " );
       return;
     }
+    initializeLanguageModelHandler();
     unimap_ = static_cast<fst::VectorFst<Arc> *> ( d_->fsts[unimapkey_] );
     LINFO ( "Apply Unigram Model to 1-best" );
     fst::VectorFst<Arc> mappedinput ( fst::RRhoCompose<Arc> ( *fst, *unimap_ ) );
     LINFO ( "Tag OOVs" );
     tagOOVs<Arc> ( &mappedinput, *d_->recasingvcblm );
     LDBG_EXECUTE ( mappedinput.Write ( "mappedinput.fst" ) );
-    USER_CHECK ( d_->klm.find ( lmkey_ ) != d_->klm.end(),
-                 "Language Model not loaded!" );
-    USER_CHECK ( d_->klm[lmkey_].size(), "Language Model not loaded!" );
-    KenLMModelT& model = * ( d_->klm[lmkey_][0]->model );
-#ifndef USE_GOOGLE_SPARSE_HASH
-    unordered_set<Label> epsilons;
-#else
-    google::dense_hash_set<Label> epsilons;
-    epsilons.set_empty_key ( std::numeric_limits<Label>::max() );
-#endif
-    ///We want the language model to ignore these guys:
-    epsilons.insert ( DR );
-    epsilons.insert ( OOV );
-    epsilons.insert ( EPSILON );
-    epsilons.insert ( SEP );
-    fst::ApplyLanguageModelOnTheFly<Arc, fst::MakeWeight<Arc>, KenLMModelT> *f =
-      new fst::ApplyLanguageModelOnTheFly<Arc, fst::MakeWeight<Arc>, KenLMModelT>
-    ( mappedinput
-      , model
-      , epsilons
-      , true
-      , d_->klm[lmkey_][0]->lmscale
-      , d_->klm[lmkey_][0]->lmwp
-      , d_->klm[lmkey_][0]->idb );
-    fst::VectorFst<Arc> output = * ( ( *f ) () );
-    delete f;
+    fst::VectorFst<Arc> *output = almotf_->run(mappedinput);
     LINFO ( "Recover OOVs" );
-    recoverOOVs<Arc> ( &output );
-    if ( shp_ < std::numeric_limits<uint>::max() ) {
-      fst::VectorFst<Arc> aux;
+    recoverOOVs<Arc> ( output );
+    if ( shp_ < std::numeric_limits<unsigned>::max() ) {
+      fst::VectorFst<Arc> *aux = new fst::VectorFst<Arc>;
       LINFO ( "Shortest Path n=" << shp_ );
-      fst::ShortestPath<Arc> ( output, &aux, shp_ );
-      output = aux;
-      fst::TopSort<Arc> ( &output );
+      fst::ShortestPath<Arc> ( *output, aux, shp_ );
+      delete output; output = aux;
+      fst::TopSort<Arc> ( output );
     } else if ( prune_ < std::numeric_limits<float>::max() ) {
       LINFO ( "Prune by weight=" << prune_ );
-      fst::Prune<Arc> ( &output, mw_ ( prune_ ) );
+      fst::Prune<Arc> ( output, mw_ ( prune_ ) );
     } else {
       USER_CHECK ( false,
                    "prune parameter incorrectly set: first parameter is byshortestpath or byweight" );
+      exit(EXIT_FAILURE);
     }
-    *fst = output;
+    *fst = *output; delete output;
     fst::Project ( fst, fst::PROJECT_OUTPUT ); //Recased symbols on output language.
   }
 

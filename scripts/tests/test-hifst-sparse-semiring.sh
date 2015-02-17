@@ -6,6 +6,7 @@ rules2weights=$CAM_SMT_DIR/bin/rules2weights.${TGTBINMK}.bin
 grammar=data/rules/trivial.grammar 
 tstidx=data/source.text
 languagemodel=data/lm/trivial.lm.gz
+languagemodeltrie=data/lm/trivial.lm.trie.mmap
 weaklanguagemodel=data/lm/trivial.lm.gz
 wlanguagemodel=data/lm/trivial.lm.words.gz
 wweaklanguagemodel=data/lm/trivial.lm.words.gz
@@ -70,7 +71,6 @@ test_0009_md5sum_found(){
 
 test_0010_translate_sparse() {
 
-( # set -x
     $hifst \
         --grammar.load=$grammar \
         --source.load=$tstidx  \
@@ -79,7 +79,7 @@ test_0010_translate_sparse() {
         --lm.featureweights=0.5 \
         --hifst.prune=9  \
         --semiring=tuplearc &>/dev/null
-)
+
      seqrange=`echo $range | sed -e 's:\:: :g'`
      for k in `seq $seqrange`; do
          if [ "`zcat $BASEDIR/lats/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
@@ -95,7 +95,6 @@ test_0010_translate_sparse() {
 #### Rule indices are passed simultaneously as input and features
 test_0011_align_sparse() {
 
-    (  # set -x
         $hifst \
             --grammar.load=$grammar \
             --source.load=$tstidx  \
@@ -106,7 +105,7 @@ test_0011_align_sparse() {
             --hifst.prune=9  \
 	    --hifst.alilatsmode=yes \
             --semiring=tuplearc   &>/dev/null
-    )
+
 
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do
@@ -172,7 +171,7 @@ test_0013_translate_pdt2_sparse() {
 
 test_0014_convert_lats_to_veclats() {
 
-(# set -x
+( #set -x
     $rules2weights \
 	--range=$range \
 	--rulestoweights.loadgrammar=$grammar \
@@ -205,12 +204,11 @@ test_0015_align_convert_lats_to_veclats() {
         --lm.featureweights=0.5 \
         --hifst.prune=9  \
         --semiring=tuplearc --rulestoweights.store=$BASEDIR/vwlats2/?.fst.gz --rulestoweights.enable=yes
-)
-# &>/dev/null
+) &>/dev/null
 
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
-	if [ "`zcat $BASEDIR/vwlats/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
+	if [ "`zcat $BASEDIR/vwlats2/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	mkdir -p tmp; zcat $BASEDIR/vwlats2/$k.fst.gz > tmp/$k.test.fst; zcat $REFDIR/vwlats/$k.fst.gz > tmp/$k.ref.fst;
 	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ; 
     done
@@ -219,10 +217,36 @@ test_0015_align_convert_lats_to_veclats() {
     echo 1 
 }
 
+
+test_0016_align_convert_lats_to_veclats_2lm() {
+
+(# set -x
+    $hifst \
+        --grammar.load=$grammar \
+        --source.load=$tstidx  \
+        --hifst.lattice.store=$BASEDIR/lats/?.fst.gz  \
+        --lm.load=$languagemodel,$languagemodeltrie  \
+        --lm.featureweights=0.25,0.25 --lm.wps=0,0 \
+        --hifst.prune=9  \
+        --semiring=tuplearc --rulestoweights.store=$BASEDIR/vwlats.0016/?.fst.gz --rulestoweights.enable=yes
+) &>/dev/null
+
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    for k in `seq $seqrange`; do 
+	if [ "`zcat $BASEDIR/vwlats.0016/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
+	mkdir -p tmp; zcat $BASEDIR/vwlats.0016/$k.fst.gz > tmp/$k.test.fst; zcat $REFDIR/vwlats.0016/$k.fst.gz > tmp/$k.ref.fst;
+	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ; 
+    done
+
+###Success
+    echo 1 
+}
+
+
+
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
 
 runtests
-
 
 
