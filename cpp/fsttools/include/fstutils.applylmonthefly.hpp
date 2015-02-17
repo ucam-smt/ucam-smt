@@ -38,65 +38,48 @@ struct StateHandler<lm::np::State> {
   inline unsigned getLength(lm::np::State const &state) const { return length_; }
 };
 
+template<class ArcT>
+struct ApplyLanguageModelOnTheFlyInterface {
+  virtual VectorFst<ArcT> *run(VectorFst<ArcT> const& fst) = 0;
+  virtual VectorFst<ArcT> *run(VectorFst<ArcT> const& fst, unordered_set<typename ArcT::Label> const &epsilons) = 0;
+  virtual ~ApplyLanguageModelOnTheFlyInterface(){}
+};
+
 /**
  * \brief Class that applies language model on the fly using kenlm.
  * \remarks This implementation could be optimized a little further, i.e.
  * all visited states must be tracked down so that non-topsorted or cyclic fsts work correctly.
  * But we could keep track of these states in a memory efficient way (i.e. only highest state n for consecutive 0-to-n seen).
  */
-
 template <class Arc
           , class MakeWeightT = MakeWeight<Arc>
           , class KenLMModelT = lm::ngram::Model
           , class IdBridgeT = ucam::fsttools::IdBridge >
-class ApplyLanguageModelOnTheFly {
-
+class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Arc> {
+ private:
   typedef typename Arc::StateId StateId;
   typedef typename Arc::Label Label;
   typedef typename Arc::Weight Weight;
   typedef unsigned long long ull;
 
-  ///Private data
- private:
-
-#ifndef USE_GOOGLE_SPARSE_HASH
   unordered_map< ull, StateId > stateexistence_;
-#else
-  google::dense_hash_map<ull, StateId> stateexistence_;
-#endif
 
   static const ull sid = 1000000000;
-
-///m12state=<m1state,m2state>
-#ifndef USE_GOOGLE_SPARSE_HASH
+  /// m12state=<m1state,m2state>
   unordered_map<uint64_t, pair<StateId, typename KenLMModelT::State > > statemap_;
-#else
-  google::dense_hash_map<uint64_t, pair<StateId, typename KenLMModelT::State > >
-  statemap_;
-#endif
-  ///history, lmstate
-#ifndef USE_GOOGLE_SPARSE_HASH
-  unordered_map<basic_string<unsigned>
-  , StateId
-  , ucam::util::hashfvecuint
-  , ucam::util::hasheqvecuint> seenlmstates_;
-#else
-  google::dense_hash_map<basic_string<unsigned>, StateId, hashfvecuint, hasheqvecuint>
-  seenlmstates_;
-#endif
-  ///Actual fst
-  //  const VectorFst<Arc> fst_;
-  VectorFst<Arc> *composed_;
+  /// history, lmstate
 
-/// Queue of states of the new machine to process.
+  unordered_map<basic_string<unsigned>
+		, StateId
+		, ucam::util::hashfvecuint
+		, ucam::util::hasheqvecuint> seenlmstates_;
+
+  /// Queue of states of the new machine to process.
   queue<StateId> qc_;
 
   ///Arc labels to be treated as epsilons, i.e. transparent to the language model.
-#ifndef USE_GOOGLE_SPARSE_HASH
   unordered_set<Label> epsilons_;
-#else
-  google::dense_hash_set<Label> epsilons_;
-#endif
+
   KenLMModelT& lmmodel_;
   const typename KenLMModelT::Vocabulary& vocab_;
 
@@ -132,56 +115,75 @@ class ApplyLanguageModelOnTheFly {
    * \param natlog      Use or not natural logs
    * \param lmscale      Language model scale
    */
-  ApplyLanguageModelOnTheFly ( KenLMModelT& model,
-#ifndef USE_GOOGLE_SPARSE_HASH
-                               unordered_set<Label>& epsilons,
-#else
-                               google::dense_hash_set<Label>& epsilons,
-#endif
-                               bool natlog,
-                               float lmscale ,
-                               float lmwp,
-                               const IdBridgeT& idbridge
-                             ) :
-    composed_ ( NULL ) ,
-    natlog10_ ( natlog ? -lmscale* ::log ( 10.0 ) : -lmscale ),
-    //    fst_ ( fst ),
-    lmmodel_ ( model ),
-    vocab_ ( model.GetVocabulary() ),
-    wp_ ( lmwp ) ,
-    epsilons_ ( epsilons ) ,
-    history ( model.Order(), 0),
-    idbridge_ (idbridge)
+  ApplyLanguageModelOnTheFly ( KenLMModelT& model
+                               , unordered_set<Label>& epsilons
+                               , bool natlog
+                               , float lmscale 
+                               , float lmwp
+                               , const IdBridgeT& idbridge
+			       , MakeWeightT &mw
+			       )
+    : natlog10_ ( natlog ? -lmscale* ::log ( 10.0 ) : -lmscale )
+    , lmmodel_ ( model )
+    , vocab_ ( model.GetVocabulary() )
+    , wp_ ( lmwp )
+    , epsilons_ ( epsilons )
+    , history ( model.Order(), 0)
+    , idbridge_ (idbridge)
+    , mw_(mw)
   {
-    sh_.setLength(model.Order());
-#ifdef USE_GOOGLE_SPARSE_HASH
-    stateexistence_.set_empty_key ( numeric_limits<ull>::max() );
-    statemap_.set_empty_key ( numeric_limits<uint64_t>::max() );
-    basic_string<unsigned> aux (KENLM_MAX_ORDER, numeric_limits<unsigned>::max() );
-    seenlmstates_.set_empty_key ( aux );
-#endif
-    buffersize = ( model.Order() - 1 ) * sizeof ( unsigned int );
-    buffer = const_cast<unsigned *> ( history.c_str() );
+    init();
   };
+
+  ApplyLanguageModelOnTheFly ( KenLMModelT& model
+                               , bool natlog
+                               , float lmscale 
+                               , float lmwp
+                               , const IdBridgeT& idbridge
+			       , MakeWeightT &mw
+			       )
+    : natlog10_ ( natlog ? -lmscale* ::log ( 10.0 ) : -lmscale )
+    , lmmodel_ ( model )
+    , vocab_ ( model.GetVocabulary() )
+    , wp_ ( lmwp )
+    , history ( model.Order(), 0)
+    , idbridge_ (idbridge)
+    , mw_(mw)
+  {
+    init();
+  };
+
+  void init() {
+    sh_.setLength(lmmodel_.Order());
+    buffersize = (lmmodel_.Order() - 1 ) * sizeof (unsigned);
+    buffer = const_cast<unsigned *> ( history.c_str() );
+  }
 
   ///Destructor
-  ~ApplyLanguageModelOnTheFly() {
-    if (composed_ ) delete composed_;
-  };
+  ~ApplyLanguageModelOnTheFly() {};
 
-  ///functor:  Run composition itself, separate from load times (e.g. which may include an fst expansion).
-  VectorFst<Arc> * operator() (const Fst<Arc>& fst) {
-    VectorFst<Arc> fst_(fst); // todo: avoid explicit expansion here.
+  virtual VectorFst<Arc> *run(const VectorFst<Arc>& fst) {
+    return this->operator()(fst);
+  }
+  virtual VectorFst<Arc> *run(const VectorFst<Arc>& fst, unordered_set<Label> const &epsilons) {
+    epsilons_ = epsilons;    // this may be necessary e.g. for pdts
+    return this->operator()(fst);
+  }
+  ///functor:  Run composition itself
+  VectorFst<Arc> * operator() (const VectorFst<Arc>& fst) {
+    const VectorFst<Arc> &fst_ = fst;
     if (!fst_.NumStates() ) {
       LWARN ("Empty lattice. ... Skipping LM application!");
       return NULL;
     }
-    composed_ = new VectorFst<Arc>;
+
+    VectorFst<Arc> *composed;    
+    composed = new VectorFst<Arc>;
     ///Initialize and push with first state
     typename KenLMModelT::State bs = lmmodel_.NullContextState();
-    pair<StateId, bool> nextp = add ( bs, fst_.Start(), fst_.Final ( fst_.Start() ) );
+    pair<StateId, bool> nextp = add ( composed, bs, fst_.Start(), fst_.Final ( fst_.Start() ) );
     qc_.push ( nextp.first );
-    composed_->SetStart ( nextp.first );
+    composed->SetStart ( nextp.first );
     while ( qc_.size() ) {
       StateId s = qc_.front();
       qc_.pop();
@@ -205,12 +207,13 @@ class ApplyLanguageModelOnTheFly {
           nextlmstate = s2;
           wp = 0; //We don't count epsilon labels
         }
-        pair<StateId, bool> nextp = add ( nextlmstate
+	LINFO("Adding a1.nextstate=" <<  a1.nextstate);
+        pair<StateId, bool> nextp = add ( composed, nextlmstate
                                           , a1.nextstate
                                           , fst_.Final ( a1.nextstate ) );
         StateId& newstate = nextp.first;
         bool visited = nextp.second;
-        composed_->AddArc ( s
+        composed->AddArc ( s
                             , Arc ( a1.ilabel, a1.olabel
                                     , Times ( a1.weight, Times (mw_ ( w ) , mw_ (wp) ) )
                                     , newstate ) );
@@ -220,8 +223,12 @@ class ApplyLanguageModelOnTheFly {
         }
       }
     }
-    LINFO ( "Done! Number of states=" << composed_->NumStates() );
-    return composed_;
+    LINFO ( "Done! Number of states=" << composed->NumStates() );
+    stateexistence_.clear();
+    statemap_.clear();
+    seenlmstates_.clear();
+    history.resize( lmmodel_.Order(), 0);
+    return composed;
   };
 
  private:
@@ -230,7 +237,7 @@ class ApplyLanguageModelOnTheFly {
    * \brief Adds a state.
    * \return true if the state requested has already been visited, false otherwise.
    */
-  inline pair <StateId, bool> add ( typename KenLMModelT::State& m2nextstate,
+  inline pair <StateId, bool> add ( fst::VectorFst<Arc> *composed, typename KenLMModelT::State& m2nextstate,
                                     StateId m1nextstate, Weight m1stateweight ) {
     static StateId lm = 0;
     getIdx ( m2nextstate );
@@ -242,13 +249,13 @@ class ApplyLanguageModelOnTheFly {
     LDEBUG ( "compound id=" << compound );
     if ( stateexistence_.find ( compound ) == stateexistence_.end() ) {
       LDEBUG ( "New State!" );
-      statemap_[composed_->NumStates()] =
+      statemap_[composed->NumStates()] =
         pair<StateId, const typename KenLMModelT::State > ( m1nextstate, m2nextstate );
-      composed_->AddState();
-      if ( m1stateweight != mw_ ( ZPosInfinity() ) ) composed_->SetFinal (
-          composed_->NumStates() - 1, m1stateweight );
-      stateexistence_[compound] = composed_->NumStates() - 1;
-      return pair<StateId, bool> ( composed_->NumStates() - 1, false );
+      composed->AddState();
+      if ( m1stateweight != mw_ ( ZPosInfinity() ) ) composed->SetFinal (
+          composed->NumStates() - 1, m1stateweight );
+      stateexistence_[compound] = composed->NumStates() - 1;
+      return pair<StateId, bool> ( composed->NumStates() - 1, false );
     }
     return pair<StateId, bool> ( stateexistence_[compound], true );
   };
@@ -275,3 +282,4 @@ class ApplyLanguageModelOnTheFly {
 } // end namespaces
 
 #endif
+

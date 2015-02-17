@@ -23,8 +23,7 @@
 #include <main.custom_assert.hpp>
 #include <main.logger.hpp>
 
-template<class KenLMModelT
-         , class ArcT >
+template<class ArcT >
 void run (ucam::util::RegistryPO const& rg) {
   using ucam::fsttools::DisambigData;
   using ucam::fsttools::DisambigTask;
@@ -32,25 +31,25 @@ void run (ucam::util::RegistryPO const& rg) {
   using ucam::fsttools::WriteFstTask;
   using ucam::fsttools::LoadUnimapTask;
   using ucam::fsttools::LoadLanguageModelTask;
-  DisambigData<KenLMModelT> data;
+  DisambigData data;
   //Our pipeline is defined by the following tasks:
   //Load Recasing language model
-  boost::scoped_ptr< LoadLanguageModelTask<DisambigData<KenLMModelT > > > mytask (
-    new LoadLanguageModelTask<DisambigData<KenLMModelT>, KenLMModelT > ( rg ,
+  boost::scoped_ptr< LoadLanguageModelTask<DisambigData > > mytask (
+    new LoadLanguageModelTask<DisambigData> ( rg ,
         HifstConstants::kRecaserLmLoad , HifstConstants::kRecaserLmFeatureweight ) );
   mytask->appendTask
   //Load unigram transduction model
-  ( new LoadUnimapTask< DisambigData<KenLMModelT>, ArcT > ( rg  ,
+  ( new LoadUnimapTask< DisambigData, ArcT > ( rg  ,
       HifstConstants::kRecaserUnimapLoad, HifstConstants::kRecaserLmLoad ) )
   //Read input lattice
-  ( new ReadFstTask<DisambigData<KenLMModelT>, ArcT > ( rg  ,
+  ( new ReadFstTask<DisambigData, ArcT > ( rg  ,
       HifstConstants::kRecaserInput ) )
   //Apply both models and prune
-  ( new DisambigTask<DisambigData<KenLMModelT>, KenLMModelT, ArcT > ( rg  ,
+  ( new DisambigTask<DisambigData, ArcT > ( rg  ,
       HifstConstants::kRecaserInput , HifstConstants::kRecaserOutput ,
       HifstConstants::kRecaserLmLoad , HifstConstants::kRecaserUnimapLoad ) )
   //Write output lattice
-  ( new WriteFstTask<DisambigData<KenLMModelT>, ArcT > ( rg  ,
+  ( new WriteFstTask<DisambigData, ArcT > ( rg  ,
       HifstConstants::kRecaserOutput ) )
   ;
   //For a given range of lattices, proceed to run the task
@@ -64,7 +63,8 @@ void run (ucam::util::RegistryPO const& rg) {
 }
 
 /**
- * \brief Main function for disambig tool. Single-threaded implementation only.  Applies a unigram transduction model and a language model to account for the context.
+ * \brief Main function for disambig tool. Single-threaded implementation only.
+ * Applies a unigram transduction model and a language model to account for the context.
  * \param       argc: Number of command-line program options.
  * \param       argv: Actual program options.
  */
@@ -76,9 +76,9 @@ int main ( int argc, const char* argv[] ) {
   FORCELINFO ( rg.dump ( "CONFIG parameters:\n=====================",
                          "=====================" ) )  ;
   if (rg.get<std::string> (HifstConstants::kHifstSemiring) ==
-      HifstConstants::kHifstSemiringStdArc) run<lm::ngram::Model, fst::StdArc> (rg);
+      HifstConstants::kHifstSemiringStdArc) run<fst::StdArc> (rg);
   else if (rg.get<std::string> (HifstConstants::kHifstSemiring) ==
-           HifstConstants::kHifstSemiringLexStdArc) run<lm::ngram::Model, fst::LexStdArc>
+           HifstConstants::kHifstSemiringLexStdArc) run<fst::LexStdArc>
     (rg);
   else {
     LERROR ("Unknown semiring type!");

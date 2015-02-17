@@ -28,12 +28,11 @@ namespace hifst {
  *\brief Data class containing relevant variables. To be used as template for task classes using it.
  *
  */
-template <class KenLMModelT = lm::ngram::ProbingModel
-          , class ArcT = fst::LexicographicArc< fst::StdArc::Weight, fst::StdArc::Weight> >
+template <class ArcT = fst::LexicographicArc< fst::StdArc::Weight, fst::StdArc::Weight> >
 class HifstTaskData {
   typedef ucam::util::WordMapper WordMapper;
   typedef ucam::fsttools::StatsData StatsData;
-  typedef typename ucam::fsttools::KenLMData<KenLMModelT> KenLMData;
+  typedef typename ucam::fsttools::KenLMData KenLMData;
 
  public:
   HifstTaskData() :
@@ -62,8 +61,9 @@ class HifstTaskData {
   ///Pattern instances
   std::vector<std::string> pinstances;
 
-  ///Holds instanced patterns (string) over the sentence, mapped to extra information pair<1,2>: positions at which these were encountered (1), and minimum span (2).
-  ///\todo Possibly, add minimum span
+  /// Holds instanced patterns (string) over the sentence, mapped to extra information pair<1,2>:
+  /// positions at which these were encountered (1), and minimum span (2).
+  /// \todo Possibly, add minimum span
   unordered_map<std::string, std::vector< pair <unsigned, unsigned> > > hpinstances;
 
   ///Sentence-specific grammar information -- hashes to rule indices.

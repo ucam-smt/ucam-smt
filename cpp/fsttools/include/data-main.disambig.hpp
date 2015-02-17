@@ -29,7 +29,6 @@ namespace fsttools {
  *
  */
 
-template<class KenLMModelT = lm::ngram::Model >
 struct DisambigData {
   DisambigData() :
     sidx ( 0 ),
@@ -41,7 +40,7 @@ struct DisambigData {
   uint sidx;
 
   ///lists of language models indexed by a key (i.e. parameter )
-  unordered_map<std::string, std::vector <const KenLMData<KenLMModelT> *> > klm;
+  unordered_map<std::string, std::vector <const KenLMData*> > klm;
   ///Mixed case vocabulary used by the unigram model and the language model
   unordered_set<std::string> *recasingvcblm;
   ///Unigram model to be stored here

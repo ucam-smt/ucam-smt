@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 source runtests.sh
@@ -7,9 +6,11 @@ alilats2splats=$CAM_SMT_DIR/bin/alilats2splats.${TGTBINMK}.bin
 grammar=data/rules/trivial.grammar 
 tstidx=data/source.text
 languagemodel=data/lm/trivial.lm.gz
+languagemodeltrie=data/lm/trivial.lm.trie.mmap
 weaklanguagemodel=data/lm/trivial.lm.gz
 wlanguagemodel=data/lm/trivial.lm.words.gz
 wweaklanguagemodel=data/lm/trivial.lm.words.gz
+nplmmodel=data/lm/inferno.nnlm
 range=1:4
 
 BASEDIR=TESTFILES/`basename $0 | sed -e 's:.sh::g'`
@@ -168,6 +169,7 @@ test_0013_translate_pdt() {
 	--hifst.usepdt=yes --hifst.rtnopt=no  &>/dev/null    
 #         --hifst.prune=9    ### Would be a very good idea to actually do pruned expansion (and a use a weak language model)
 
+    rm -Rf tmp; mkdir -p tmp;
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do
 	if [ "`zcat $BASEDIR/pdt-lats/$k.fst.gz | fstinfo`" == "" ] ; then echo 0; return ; fi;  
@@ -186,7 +188,6 @@ test_0013_translate_pdt() {
 
 
 test_0014_translate_pdt2() {
-( #set -x
     $hifst \
         --grammar.load=$grammar \
         --source.load=$tstidx  \
@@ -196,7 +197,7 @@ test_0014_translate_pdt2() {
         --hifst.localprune.enable=yes --hifst.localprune.conditions=S,-1,1,9 --hifst.localprune.lm.featureweights=1 --hifst.localprune.lm.load=$weaklanguagemodel --hifst.localprune.lm.wps=-2.30 \
         --hifst.prune=9 \
         2>&1    &>/dev/null
-)
+
 # Notes: 
 # - PDT representation is internal. After language model rescoring it generates FSAs
 # - Cell pruning on the topmost cell = admissible pruning
@@ -305,7 +306,6 @@ test_0017_align_nthreads() {
 
 
 test_0018_extractFeatures_nthreads() {
-( set -x
     $alilats2splats --nthreads=4 \
 	--range=$range \
 	--ruleflowerlattice.load=$grammar \
@@ -316,9 +316,6 @@ test_0018_extractFeatures_nthreads() {
         --sparseweightvectorlattice.storefeaturefile=$BASEDIR/fea-nth/?.features.gz \
 	--lm.load=$languagemodel \
 	--lm.featureweights=1 &>/dev/null
-
-)
-
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
 	if [ "`zcat $BASEDIR/nbest-nth/$k.nbest.gz | md5sum`" != "`zcat $REFDIR/nbest/$k.nbest.gz | md5sum`" ] ; then echo 0; return ; fi; 
@@ -520,21 +517,16 @@ test_0025_extractFeaturesStripHifstEpsilons() {
 test_0026_translate_nnlm() {
 
     if [ -z $NPLM_LIB ]; then
-	echo 1
+	echo 2
 	return
     fi
-
-( #set -x
     $hifst \
         --grammar.load=$grammar \
         --source.load=$tstidx  \
         --hifst.lattice.store=$BASEDIR/nnlm-lats/?.fst.gz  \
         --lm.load=data/lm/inferno.nnlm \
-	--grammar.storentorder=nttable \
         --hifst.prune=9  &>/dev/null
-
-)
-rm -Rf tmp
+    rm -Rf tmp
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
 	if [ "`zcat $BASEDIR/nnlm-lats/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;  
@@ -545,6 +537,91 @@ rm -Rf tmp
 ###Success
     echo 1
 }
+
+test_0027_translate_two_languagemodels() {
+
+# Same language model used twice, 0.5 feature weight for each, should get 0010 results.
+    $hifst \
+        --grammar.load=$grammar \
+        --source.load=$tstidx  \
+        --hifst.lattice.store=$BASEDIR/lats.2lm/?.fst.gz  \
+        --lm.load=$languagemodel,$languagemodel --lm.featureweights=0.5,0.5 --lm.wps=0,0 \
+        --hifst.prune=9  &>/dev/null
+
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    for k in `seq $seqrange`; do
+	if [ "`zcat $BASEDIR/lats.2lm/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
+	mkdir -p tmp; zcat $BASEDIR/lats.2lm/$k.fst.gz > tmp/$k.test.fst; zcat $REFDIR/lats/$k.fst.gz > tmp/$k.ref.fst;
+	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ;
+    done
+
+# Repeat exercise, now using the same second language model but in trie format, still same results
+    $hifst \
+        --grammar.load=$grammar \
+        --source.load=$tstidx  \
+        --hifst.lattice.store=$BASEDIR/lats.2lmq/?.fst.gz  \
+        --lm.load=$languagemodel,$languagemodeltrie --lm.featureweights=0.5,0.5 --lm.wps=0,0 \
+        --hifst.prune=9  &>/dev/null
+
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    for k in `seq $seqrange`; do
+	if [ "`zcat $BASEDIR/lats.2lmq/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
+	mkdir -p tmp; zcat $BASEDIR/lats.2lmq/$k.fst.gz > tmp/$k.test.fst; zcat $REFDIR/lats/$k.fst.gz > tmp/$k.ref.fst;
+	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ;
+    done
+###Success
+    echo 1
+}
+
+test_0028_translate_arpa+trie+nplm_languagemodels() {
+    if [ -z $NPLM_LIB ]; then
+	echo 2
+	return
+    fi
+
+    $hifst \
+        --grammar.load=$grammar \
+        --source.load=$tstidx  \
+        --hifst.lattice.store=$BASEDIR/lats.3lm/?.fst.gz  \
+        --lm.load=$languagemodel,$languagemodeltrie,$nplmmodel --lm.featureweights=0.5,0.5,1 --lm.wps=0,0,0 \
+        --hifst.prune=9  &>/dev/null
+
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    for k in `seq $seqrange`; do 
+	if [ "`zcat $BASEDIR/lats.3lm/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
+	mkdir -p tmp; zcat $BASEDIR/lats.3lm/$k.fst.gz > tmp/$k.test.fst; zcat $REFDIR/lats.3lm/$k.fst.gz > tmp/$k.ref.fst;
+	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ;
+    done
+###Success
+    echo 1
+}
+
+#### Repeat alilats2splats with the three models
+test_0029_extractFeatures_arpa+trie+nplm() {
+
+    $alilats2splats \
+	--range=$range \
+	--ruleflowerlattice.load=$grammar \
+	--ruleflowerlattice.filterbyalilats \
+	--sparseweightvectorlattice.loadalilats=$BASEDIR/alilats/?.fst.gz \
+	--sparseweightvectorlattice.store=$BASEDIR/vwlats.0029/?.fst.gz\
+        --sparseweightvectorlattice.storenbestfile=$BASEDIR/nbest.0029/?.nbest.gz\
+        --sparseweightvectorlattice.storefeaturefile=$BASEDIR/fea.0029/?.features.gz \
+	--lm.load=$languagemodel,$languagemodeltrie,$nplmmodel \
+	--lm.featureweights=0.5,0.5,1 --lm.wps=0,0,0 &>/dev/null
+
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    for k in `seq $seqrange`; do
+	if [ "`zcat $BASEDIR/nbest.0029/$k.nbest.gz | md5sum`" != "`zcat $REFDIR/nbest.0029/$k.nbest.gz | md5sum`" ] ; then echo 0; return ; fi;
+	if [ "`zcat $BASEDIR/fea.0029/$k.features.gz | md5sum`" != "`zcat $REFDIR/fea.0029/$k.features.gz | md5sum`" ] ; then echo 0; return ; fi;
+    done
+
+###Success
+    echo 1
+}
+
+
+
 
 
 ################### STEP 2
