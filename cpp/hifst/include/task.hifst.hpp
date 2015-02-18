@@ -691,6 +691,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
 								      , mw, true,k));	       
       mw.update();
     }
+    LINFO("Initialized " << d_->klm[lmkey].size() << " language model handlers");
   }
 
   // \todo Merge/refactor this code with task.applylm.hpp.
@@ -752,14 +753,16 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
   inline fst::VectorFst<Arc> *applyLanguageModel ( const fst::Fst<Arc>& localfst
                                                    , bool local = false ) {
     if ( local ) {
-      LINFO ( "Composing with local lm for inadmissible pruning (unless on top cell)" );
       MakeWeightHifstLocalLm<Arc> mw(rg_);
       initializeLanguageModelHandlers(locallmkey_, mw, almotfLocal_);
+      if (!almotfLocal_.size()) return NULL;
+      LINFO ( "Composing with local lm for inadmissible pruning (unless on top cell)" );
       return applyLanguageModel (localfst, locallmkey_, mw, almotfLocal_);
     } else {
-      LINFO ( "Composing with full lm for admissible pruning" );
       fst::MakeWeight<Arc> mw;
       initializeLanguageModelHandlers(lmkey_, mw, almotf_);
+      if (!almotf_.size()) return NULL;
+      LINFO ( "Composing with full lm for admissible pruning" );
       return applyLanguageModel (localfst, lmkey_, mw, almotf_);
     }
   };

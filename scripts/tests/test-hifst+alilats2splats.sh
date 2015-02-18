@@ -96,7 +96,7 @@ test_0010_translate() {
 
 test_0011_align() {
 
-(  # set -x
+(  #set -x
     $hifst \
         --grammar.load=$grammar \
         --source.load=$tstidx  \
@@ -106,8 +106,6 @@ test_0011_align() {
         --hifst.localprune.enable=yes  --hifst.localprune.conditions=X,1,1,9,M,1,1,9,V,1,1,9 \
         --hifst.prune=9  \
 	--hifst.alilatsmode=yes    &>/dev/null
-
-
 )
 
  
@@ -598,7 +596,10 @@ test_0028_translate_arpa+trie+nplm_languagemodels() {
 
 #### Repeat alilats2splats with the three models
 test_0029_extractFeatures_arpa+trie+nplm() {
-
+    if [ -z $NPLM_LIB ]; then
+	echo 2
+	return
+    fi
     $alilats2splats \
 	--range=$range \
 	--ruleflowerlattice.load=$grammar \
