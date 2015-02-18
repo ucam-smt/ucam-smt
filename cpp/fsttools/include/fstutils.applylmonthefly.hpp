@@ -207,7 +207,6 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
           nextlmstate = s2;
           wp = 0; //We don't count epsilon labels
         }
-	LINFO("Adding a1.nextstate=" <<  a1.nextstate);
         pair<StateId, bool> nextp = add ( composed, nextlmstate
                                           , a1.nextstate
                                           , fst_.Final ( a1.nextstate ) );
