@@ -80,15 +80,12 @@ lm::base::Model *loadKenLm(std::string const &file
   int  kenmt = ucam::util::detectkenlm(file);
   switch (kenmt) {
   case PROBING:
-    FORCELINFO("Load PROBING");
     return KenLMModelHelper<ProbingModel>(file, kenlm_config)();
   case REST_PROBING:
     return KenLMModelHelper<RestProbingModel>(file, kenlm_config)();
   case TRIE:
-    FORCELINFO("Load TRIE");
     return KenLMModelHelper<TrieModel>(file, kenlm_config)();
  case QUANT_TRIE:
-    FORCELINFO("Load QUANT TRIE");
     return KenLMModelHelper<QuantTrieModel>(file, kenlm_config)();
  case ARRAY_TRIE:
     return KenLMModelHelper<ArrayTrieModel>(file, kenlm_config)();
@@ -98,7 +95,7 @@ lm::base::Model *loadKenLm(std::string const &file
 #ifdef WITH_NPLM
     return KenLMModelHelper<NplmModel>(file, kenlm_config)();
 #endif
-    std::cerr << "Unsuported format: KENLM_NPLM. Did you compile NPLM library?" << std::endl;
+    LERROR("Unsuported format: KENLM_NPLM. Did you compile NPLM library?");
     exit(EXIT_FAILURE);
   }
   return NULL;

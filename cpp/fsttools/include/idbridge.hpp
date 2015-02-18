@@ -42,7 +42,7 @@ class IdBridge {
   };
 
   inline void add (unsigned grammar_idx, unsigned lm_idx) {
-    LINFO ("grammar idx=" << grammar_idx << ", lm_idx=" << lm_idx);
+    LDEBUG ("grammar idx=" << grammar_idx << ", lm_idx=" << lm_idx);
     mapper[grammar_idx] = lm_idx;
   }
 };
