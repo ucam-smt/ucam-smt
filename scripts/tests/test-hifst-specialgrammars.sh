@@ -31,7 +31,7 @@ test_0001_hifst_chopgrammar(){
 )
     if diff $BASEDIR/cykgrid $REFDIR/cykgrid ; then echo ; else echo 0; return ; fi
     if fstequivalent $BASEDIR/trans.fst $REFDIR/trans.fst ; then echo ; else echo 0; return ; fi
-    
+   
 # Ok!
     echo 1
 }
@@ -39,8 +39,7 @@ test_0001_hifst_chopgrammar(){
 ### Testing a toy dependency grammar
 test_0002_hifst_multiple_nt_grammar(){
 
-
-( # set -x
+(
     $hifst \
 	--grammar.load=data/rules/trivial.grammar-mnt \
 	--source.load=data/source-mnt.text \
@@ -53,8 +52,10 @@ test_0002_hifst_multiple_nt_grammar(){
 
 )
     if diff $BASEDIR/cykgrid.0002 $REFDIR/cykgrid.0002 ; then echo ; else echo 0; return ; fi
-    if diff $BASEDIR/trans.0002.fst $REFDIR/trans.0002.fst ; then echo ; else echo 0; return ; fi
-
+    rm -Rf tmp; mkdir -p tmp;
+    cat $BASEDIR/trans.0002.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/trans.0002.test.fst;
+    cat $REFDIR/trans.0002.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/trans.0002.ref.fst;
+    if fstequivalent tmp/trans.0002.test.fst tmp/trans.0002.ref.fst; then echo ; else echo 0; return ; fi
 # Ok!
     echo 1
 }
