@@ -199,20 +199,20 @@ TEST ( fstutils, applylmonthefly ) {
   //Delete scores, apply lm on-the-fly and see if it matches!
   fst::Map<fst::StdArc> ( &c, fst::RmWeightMapper<fst::StdArc>() );
   std::tr1::unordered_set<fst::StdArc::Label> epsilons;
-  //  google::dense_hash_set<fst::StdArc::Label> epsilons;
-  //  epsilons.set_empty_key ( numeric_limits<fst::StdArc::Label>::max() );
   lm::ngram::Config kenlm_config;
   ucam::fsttools::IdBridge idb;
   lm::HifstEnumerateVocab hev (idb, NULL);
   kenlm_config.enumerate_vocab = &hev;
+  fst::MakeWeight<fst::StdArc> mw;
   lm::ngram::Model *model = new lm::ngram::Model ( "mylm" , kenlm_config);
   fst::ApplyLanguageModelOnTheFly<fst::StdArc> *f = new
-  fst::ApplyLanguageModelOnTheFly<fst::StdArc> ( c, *model, epsilons, false, 1 ,
-      0 , idb);
-  fst::VectorFst<fst::StdArc> output = * ( ( *f ) () );
-  EXPECT_TRUE ( Equivalent ( output, a ) );
+    fst::ApplyLanguageModelOnTheFly<fst::StdArc> (*model, epsilons, false, 1 ,0 , idb, mw);
+  
+  fst::VectorFst<fst::StdArc> *output = f->run(c);
+  EXPECT_TRUE ( Equivalent ( *output, a ) );
   delete model;
   delete f;
+  delete output;
   bfs::remove ( bfs::path ( "mylm" ) );
 };
 

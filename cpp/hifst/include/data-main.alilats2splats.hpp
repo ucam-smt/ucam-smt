@@ -28,7 +28,7 @@ namespace hifst {
  *\brief Data class containing relevant variables. To be used as template for task classes using it.
  *
  */
-template <class KenLMModelT , class ArcT = void >
+template <class ArcT = void >
 class AlilatsToSparseWeightLatsData {
  public:
   AlilatsToSparseWeightLatsData() :
@@ -43,7 +43,7 @@ class AlilatsToSparseWeightLatsData {
   unordered_map<std::string, void * > fsts;
 
   ///Collections of language models accessed by keys
-  unordered_map<std::string, std::vector <const ucam::fsttools::KenLMData<KenLMModelT> *> >
+  unordered_map<std::string, std::vector <const ucam::fsttools::KenLMData *> >
   klm;
 
   boost::scoped_ptr<ucam::fsttools::StatsData>  stats;

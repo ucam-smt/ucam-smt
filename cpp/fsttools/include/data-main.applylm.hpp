@@ -28,17 +28,16 @@ namespace fsttools {
  * \brief data structure for applylm tool
  *
  */
-template <class KenLMModelT, class ArcT = void  >
+template <class ArcT = void  >
 struct ApplyLMData {
   ApplyLMData() :
     sidx ( 0 ),
     stats ( new StatsData ) {
   };
-
   uint sidx;
 
   ///lists of language models indexed by a key (i.e. parameter )
-  unordered_map<std::string, std::vector <const KenLMData<KenLMModelT> *> > klm;
+  unordered_map<std::string, std::vector <const KenLMData *> > klm;
 
   StatsData  *stats;
 

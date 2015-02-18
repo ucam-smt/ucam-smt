@@ -30,11 +30,9 @@ namespace fsttools {
 
 /**
  * \brief Language Model data structure
- *
  */
-template <class KenLMModelT = lm::ngram::Model>
-struct KenLMData {
 
+struct KenLMData {
   KenLMData() :
     model ( NULL ),
     lmscale ( 1.0f ),
@@ -43,7 +41,7 @@ struct KenLMData {
   };
 
   ///KenLM
-  KenLMModelT * model;
+  lm::base::Model * model;
   // Pointer to target grammar wordmap, if provided.
   ucam::util::WordMapper *wm;
   // map from target grammar ids to kenlm ids.

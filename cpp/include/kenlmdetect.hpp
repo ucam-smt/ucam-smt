@@ -28,7 +28,10 @@ enum {KENLM_NPLM=-1};
 
 inline int detectkenlm (std::string const& kenlmfile) {
   lm::ngram::ModelType model_type;
-  if (kenlmfile == "" ) return lm::ngram::PROBING;
+  if (kenlmfile == "" ) {
+    FORCELINFO("Empty language model file name. Sets to Probing.");
+    return lm::ngram::PROBING;
+  }
   if (lm::ngram::RecognizeBinary (kenlmfile.c_str(), model_type) ) {
     switch (model_type) {
     case lm::ngram::PROBING:
@@ -42,7 +45,6 @@ inline int detectkenlm (std::string const& kenlmfile) {
       LERROR ("Unrecognized kenlm model type " << model_type );
       exit (EXIT_FAILURE);
     }
-// untested:
 #ifdef WITH_NPLM
   } else if (lm::np::Model::Recognize(kenlmfile)) {
     return KENLM_NPLM;

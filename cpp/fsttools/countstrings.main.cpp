@@ -43,12 +43,9 @@ IntegerT countstrings (fst::VectorFst<Arc>& myfst) {
   return cumcounts;
 };
 
-int main (int argc,  const char* argv[] ) {
-  ucam::util::initLogger ( argc, argv );
-  FORCELINFO ( argv[0] << " starts!" );
-  ucam::util::RegistryPO rg ( argc, argv );
-  FORCELINFO ( rg.dump ( "CONFIG parameters:\n=====================",
-                         "=====================" ) )  ;
+template<class Arc>
+void run(ucam::util::RegistryPO const &rg) {
+
   ucam::util::PatternAddress<unsigned> pi (rg.get<std::string>
       (HifstConstants::kInput) );
   ucam::util::PatternAddress<unsigned> po (rg.get<std::string>
@@ -57,12 +54,15 @@ int main (int argc,  const char* argv[] ) {
                                     HifstConstants::kRangeOne ) );
         !ir->done();
         ir->next() ) {
-    fst::VectorFst<fst::StdArc> *mfst = fst::VectorFstRead<fst::StdArc> (pi (
+    fst::VectorFst<Arc> *mfst = fst::VectorFstRead<Arc> (pi (
                                           ir->get() ) );
-    if (!mfst) return 1;
+    if (!mfst) {
+      LERROR("Could not read file:" << ir->get());
+      exit(EXIT_FAILURE);
+    }
     TopSort (mfst);
     boost::multiprecision::uint128_t j =
-      countstrings<fst::StdArc, boost::multiprecision::uint128_t> (*mfst);
+      countstrings<Arc, boost::multiprecision::uint128_t> (*mfst);
     std::stringstream ss;
     ss << j;
     ucam::util::oszfstream o (po (ir->get() ), true);
@@ -70,6 +70,26 @@ int main (int argc,  const char* argv[] ) {
     LINFO ( pi (ir->get() ) << ":" << ss.str() ) ;
     o.close();
     delete mfst;
+  }
+}
+
+
+int main (int argc,  const char* argv[] ) {
+  ucam::util::initLogger ( argc, argv );
+  FORCELINFO ( argv[0] << " starts!" );
+  ucam::util::RegistryPO rg ( argc, argv );
+  FORCELINFO ( rg.dump ( "CONFIG parameters:\n=====================",
+                         "=====================" ) )  ;
+
+  std::string semiring = rg.get<std::string> (HifstConstants::kHifstSemiring);
+  if (semiring == HifstConstants::kHifstSemiringStdArc) {
+    run<fst::StdArc> (rg);
+  } else if (semiring == HifstConstants::kHifstSemiringLexStdArc) {
+    run<fst::LexStdArc> (rg);
+  } else if (semiring == HifstConstants::kHifstSemiringTupleArc) {
+    run<TupleArc32> (rg);
+  } else {
+    LERROR ("Sorry, semiring option not correctly defined");
   }
   FORCELINFO ( argv[0] << " ends!" );
 }

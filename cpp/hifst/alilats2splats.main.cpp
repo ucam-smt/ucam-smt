@@ -32,8 +32,7 @@
 /**
  * @brief Concrete RunTaskT implementation for Hifst tool.
  */
-template < template <class, class> class DataT
-           , class KenLMModelT
+template < template <class> class DataT
            , class ArcT
            >
 struct RunAlilatsToSplats {
@@ -44,7 +43,6 @@ struct RunAlilatsToSplats {
     (RunTask2<SingleThreadedAliLatsToSparseVecLatsTask
           , MultiThreadedAliLatsToSparseVecLatsTask
           , DataT
-          , KenLMModelT
           , ArcT >
    (rg) );
   }
@@ -55,7 +53,5 @@ void ucam::util::MainClass::run() {
   using namespace ucam::hifst;
   using namespace ucam::fsttools;
 
-  runTaskWithKenLMTemplate<RunAlilatsToSplats
-                           , AlilatsToSparseWeightLatsData
-                           , TupleArc32>(*rg_);
+  (RunAlilatsToSplats<AlilatsToSparseWeightLatsData, TupleArc32> (*rg_));
 }

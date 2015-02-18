@@ -22,6 +22,7 @@
  * \author Gonzalo Iglesias
  */
 
+#include <kenlmdetect.hpp>
 #include <lm/config.hh>
 #include <lm/enumerate_vocab.hh>
 #ifdef WITH_NPLM
@@ -55,7 +56,6 @@ struct KenLMModelHelper {
 
 #ifdef WITH_NPLM
 // Specialization for NPLM:
-//lm::np::Model::Model(const char*, lm::ngram::Config&)
 template<>
 struct KenLMModelHelper<lm::np::Model> {
   std::string const file_;
@@ -71,13 +71,50 @@ struct KenLMModelHelper<lm::np::Model> {
 };
 #endif
 
+lm::base::Model *loadKenLm(std::string const &file
+			   , lm::ngram::Config kenlm_config 
+			   , unsigned offset = 0) {
+  using namespace lm::ngram;				     
+  typedef lm::np::Model NplmModel;
+  // Detect here kenlm binary type
+  int  kenmt = ucam::util::detectkenlm(file);
+  switch (kenmt) {
+  case PROBING:
+    return KenLMModelHelper<ProbingModel>(file, kenlm_config)();
+  case REST_PROBING:
+    return KenLMModelHelper<RestProbingModel>(file, kenlm_config)();
+  case TRIE:
+    return KenLMModelHelper<TrieModel>(file, kenlm_config)();
+ case QUANT_TRIE:
+    return KenLMModelHelper<QuantTrieModel>(file, kenlm_config)();
+ case ARRAY_TRIE:
+    return KenLMModelHelper<ArrayTrieModel>(file, kenlm_config)();
+ case QUANT_ARRAY_TRIE:
+    return KenLMModelHelper<QuantArrayTrieModel>(file, kenlm_config)();
+ case util::KENLM_NPLM:
+#ifdef WITH_NPLM
+    return KenLMModelHelper<NplmModel>(file, kenlm_config)();
+#endif
+    LERROR("Unsuported format: KENLM_NPLM. Did you compile NPLM library?");
+    exit(EXIT_FAILURE);
+  }
+  return NULL;
+};
+
+
+
+
+
 /**
  * \brief Language model loader task, loads a language model wrapping it in a class to provide.
  *
  */
 
-template <class Data, class KenLMModelT = lm::ngram::Model >
+template <class Data>
 class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
+  
+  typedef lm::base::Model KenLMModelT;
+
  private:
 
   ///Built or not
@@ -91,7 +128,7 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
   uint lmo_;
 
   ///Data object for kenlm
-  KenLMData<KenLMModelT> kld_;
+  KenLMData kld_;
 
   ///Index of the actual language model, if several were created.
   uint index_;
@@ -109,10 +146,10 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
    * \brief Public constructor. If the user wants to load several language models  (e.g. --lm.load=lm1,lm2,lm3,lm4 and --lm.scale=0.25,0.25,0.25 ),
    * the second and following instances of LoadLanguageModelTask will be created using the private constructor (see below), which has an index to the actual language model that must be loaded.
    * For the public constructor, the index is set to 0.
-   * \param rg      :  ucam::util::RegistryPO object, containing user parameters.
-   * \param lmload  :  key word to access the registry object for language models
-   * \param lmscale :  key word to access the registry object for language model scales.
-   * \param forceone:  To force the loading of only one language model (i.e. lm1 with scale 0.25).
+   * \param rg        ucam::util::RegistryPO object, containing user parameters.
+   * \param lmload    key word to access the registry object for language models
+   * \param lmscale   key word to access the registry object for language model scales.
+   * \param forceone  To force the loading of only one language model (i.e. lm1 with scale 0.25).
    */
   LoadLanguageModelTask ( const ucam::util::RegistryPO& rg ,
                           const std::string& lmload = HifstConstants::kLmLoad ,
@@ -176,15 +213,14 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
     }
     lm::HifstEnumerateVocab hev (kld_.idb, wm);
     kenlm_config.enumerate_vocab = &hev;
-    //    kld_.model = new KenLMModelT ( lmfile_ ( d.sidx ).c_str() , kenlm_config);
-    kld_.model = KenLMModelHelper<KenLMModelT>(lmfile_ ( d.sidx ), kenlm_config)();
+    kld_.model = loadKenLm(lmfile_(d.sidx).c_str(), kenlm_config, index_);
     d.stats->setTimeEnd ("lm-load-" + index_ );
     previous_ = lmfile_ ( d.sidx );
     built_ = true;
     if ( d.klm.find ( lmkey_ ) == d.klm.end() ) d.klm[lmkey_].resize ( index_ + 1 );
     else if ( d.klm[lmkey_].size() < index_ + 1 ) d.klm[lmkey_].resize (
         index_ + 1 );
-    d.klm[lmkey_][index_] = &kld_;
+    d.klm[lmkey_][index_] = (const KenLMData*) &kld_;
     LDEBUG ( "LM " << lmfile_ ( d.sidx ) << " loaded, key=" << lmkey_ <<
              ", position=" <<  toString<uint> ( d.klm[lmkey_].size() - 1 ) <<
              ",total number of language models for this key is " << d.klm[lmkey_].size() );

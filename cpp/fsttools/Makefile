@@ -50,6 +50,11 @@ usage:
 install:
 	mkdir -p ../../bin
 	cp $(BIN_DIR)/* ../../bin/
+all:
+	make -j $(NUMPROC) `for k in \`ls *.main.cpp *.so.cpp\`; do target=\`echo $$k | sed -e 's:.main.cpp:.$(TGTBINMK):g;s:.so.cpp:.so:g'\`; echo $$target ; done 2> /dev/null `
+
+clean:
+	rm -rf bin obj
 
 %.sta.gdb:
 	mkdir -p bin	
@@ -115,9 +120,6 @@ install:
 %.pro.O2:
 	mkdir -p bin
 	$(CC) -lstdc++ $(PRO) $(OPT) $(INCLUDE) $(OINCLUDE) $(OLIBDIRS) $*.main.cpp -o $(BIN_DIR)/$*.pro.O2.bin -fPIC $(LIBS)
-
-all:
-	make -j $(NUMPROC) `for k in \`ls *.main.cpp *.so.cpp\`; do target=\`echo $$k | sed -e 's:.main.cpp:.$(TGTBINMK):g;s:.so.cpp:.so:g'\`; echo $$target ; done 2> /dev/null `
-
-clean:
-	rm -rf bin obj
+%:
+	mkdir -p bin
+	make $*.$(TGTBINMK)

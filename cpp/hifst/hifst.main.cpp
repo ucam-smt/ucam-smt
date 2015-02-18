@@ -33,8 +33,7 @@
 /**
  * @brief Concrete RunTaskT implementation for Hifst tool.
  */
-template < template <class, class> class DataT
-           , class KenLMModelT
+template < template <class> class DataT
            , class ArcT
            >
 struct RunHifst {
@@ -47,7 +46,6 @@ struct RunHifst {
           , MultiThreadedHifstTask
           , HifstServerTask
           , DataT
-          , KenLMModelT
           , ArcT >
    (rg) );
   }
@@ -59,16 +57,16 @@ void ucam::util::MainClass::run() {
   std::string const arctype =rg_->get<std::string>(kHifstSemiring);
   using namespace ucam::hifst;
   if (arctype == kHifstSemiringLexStdArc) {
-    runTaskWithKenLMTemplate<RunHifst, HifstTaskData, fst::LexStdArc>(*rg_);
+    (RunHifst<HifstTaskData, fst::LexStdArc>(*rg_));
   } else if (arctype == HifstConstants::kHifstSemiringTupleArc) {
-    runTaskWithKenLMTemplate<RunHifst, HifstTaskData, TupleArc32>(*rg_);
+    (RunHifst<HifstTaskData, TupleArc32>(*rg_));
     if (rg_->getBool(kRulesToWeightsEnable)) {
       ucam::hifst::SingleThreadededRulesToWeightsSparseLatsTask r2w(*rg_);
       r2w();
     }
   } else if (arctype == kHifstSemiringStdArc) {
-    LWARN("Untested, might work in exact decoding:" << kHifstSemiringStdArc );
-    runTaskWithKenLMTemplate<RunHifst, HifstTaskData, fst::StdArc >(*rg_);
+    LWARN("Currently untested, might work in exact decoding:" << kHifstSemiringStdArc );
+    (RunHifst<HifstTaskData, fst::StdArc>(*rg_));
   } else {
     LERROR("Unsupported semiring option");
     exit(EXIT_FAILURE);

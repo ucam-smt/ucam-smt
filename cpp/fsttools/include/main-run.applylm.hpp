@@ -28,20 +28,16 @@ namespace fsttools {
  * \brief Class for single threaded application of language model.
  * It inherits taskinterface behaviour and also provides standalone function object behaviour.
  */
-template < template <class, class> class DataT
-           , class KenLMModelT
+template < template <class> class DataT
            , class ArcT
            >
-class SingleThreadedApplyLanguageModelTask: public ucam::util::TaskInterface<DataT<KenLMModelT, ArcT>  > {
-// template <class Data = ApplyLMData<lm::ngram::Model>
-//           , class KenLMModelT = lm::ngram::Model
-//           , class Arc = fst::StdArc >
-//class SingleThreadedApplyLanguageModelTask: public ucam::util::TaskInterface<Data> {
+class SingleThreadedApplyLanguageModelTask: public ucam::util::TaskInterface<DataT<ArcT>  > {
  private:
-  typedef DataT<KenLMModelT, ArcT> Data;
+
+  typedef DataT<ArcT> Data;
   typedef LoadWordMapTask< Data > LoadWordMap;
-  typedef LoadLanguageModelTask < Data, KenLMModelT > LoadLanguageModel;
-  typedef ApplyLanguageModelTask<Data , KenLMModelT, ArcT > ApplyLanguageModel;
+  typedef LoadLanguageModelTask < Data > LoadLanguageModel;
+  typedef ApplyLanguageModelTask< Data, ArcT > ApplyLanguageModel;
   typedef ReadFstTask<Data, ArcT> ReadFst;
   typedef WriteFstTask< Data , ArcT> WriteFst;
   typedef SpeedStatsTask<Data> SpeedStats;
@@ -101,16 +97,15 @@ class SingleThreadedApplyLanguageModelTask: public ucam::util::TaskInterface<Dat
  * \brief Class for multithreaded application of language model.
  * Inherits taskinterface and provides standalone function object behaviour.
  */
-template < template <class, class> class DataT
-           , class KenLMModelT
+template < template <class> class DataT
            , class ArcT
            >
-class MultiThreadedApplyLanguageModelTask: public ucam::util::TaskInterface<DataT<KenLMModelT, ArcT>  > {
+class MultiThreadedApplyLanguageModelTask: public ucam::util::TaskInterface<DataT<ArcT>  > {
  private:
-  typedef DataT<KenLMModelT, ArcT> Data;
+  typedef DataT<ArcT> Data;
   typedef LoadWordMapTask< Data > LoadWordMap;
-  typedef LoadLanguageModelTask < Data, KenLMModelT > LoadLanguageModel;
-  typedef ApplyLanguageModelTask<Data , KenLMModelT, ArcT > ApplyLanguageModel;
+  typedef LoadLanguageModelTask < Data > LoadLanguageModel;
+  typedef ApplyLanguageModelTask<Data,  ArcT > ApplyLanguageModel;
   typedef ReadFstTask<Data, ArcT> ReadFst;
   typedef WriteFstTask< Data , ArcT> WriteFst;
   typedef SpeedStatsTask<Data> SpeedStats;

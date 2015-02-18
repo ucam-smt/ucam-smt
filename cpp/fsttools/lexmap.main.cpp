@@ -1,4 +1,3 @@
-
 /**
  * \file
  * \brief Main file for applylm tool
