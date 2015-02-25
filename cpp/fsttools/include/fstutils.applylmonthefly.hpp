@@ -38,6 +38,61 @@ struct StateHandler<lm::np::State> {
   inline unsigned getLength(lm::np::State const &state) const { return length_; }
 };
 
+template<class StateT>
+struct Scale {
+  float scale_;
+  Scale(float scale): scale_(scale) {}
+  float operator()(){
+    return scale_;
+  }
+};
+
+// nplm is providing by default
+// natural logs, so correct that
+template<>
+struct Scale<lm::np::State> {
+  float scale_;
+  Scale(float scale): scale_(scale / ::log(10)) {}  
+  float operator()(){
+    return scale_;
+  }
+};
+
+
+// This silly little hack allows to make it srilm-compatible
+// i.e. log10 scores should always match
+// assumes internal 1/2 numbers are <s> / </s>
+// if you don't care, just implement a functor that does nothing
+// and use it instead of this one
+template<class StateT>
+struct HackScore {
+  void operator()(float &w, float &wp, unsigned label, StateT&) {
+    if ( label <= 2  )  {
+      wp = 0;
+      if (label == 1 ) w = 0; //get same result as srilm
+    }
+  }
+};
+
+// But nplm does not do exactly the same thing because
+// the start state is actually different
+template<>
+struct HackScore<lm::np::State> {
+  void operator()(float &w, float &wp, unsigned label, lm::np::State &ns) {
+    if ( label <= 2  )  {
+      wp = 0;
+      if (label==1) {
+	w = 0; // set up correctly the next state :)
+	for (int k = 0; k <= NPLM_MAX_ORDER; ++k) {
+	  ns.words[k]=1;
+	}
+      }
+    }
+  }
+};
+
+
+
 template<class ArcT>
 struct ApplyLanguageModelOnTheFlyInterface {
   virtual VectorFst<ArcT> *run(VectorFst<ArcT> const& fst) = 0;
@@ -54,7 +109,8 @@ struct ApplyLanguageModelOnTheFlyInterface {
 template <class Arc
           , class MakeWeightT = MakeWeight<Arc>
           , class KenLMModelT = lm::ngram::Model
-          , class IdBridgeT = ucam::fsttools::IdBridge >
+          , class IdBridgeT = ucam::fsttools::IdBridge 
+	  , template<class> class HackScoreT = HackScore >
 class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Arc> {
  private:
   typedef typename Arc::StateId StateId;
@@ -83,7 +139,8 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
   KenLMModelT& lmmodel_;
   const typename KenLMModelT::Vocabulary& vocab_;
 
-  float  natlog10_;
+  //  float  natlog10_;
+  Scale<typename KenLMModelT::State> natlog10_;
 
   ///Templated functor that creates weights.
   MakeWeightT mw_;
@@ -95,9 +152,14 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
   //Word Penalty.
   float wp_;
 
-  const ucam::fsttools::IdBridge& idbridge_;
+  const IdBridgeT& idbridge_;
 
+  // transparent state handling (kenlm vs nplm)
   StateHandler<typename KenLMModelT::State> sh_;
+  // transparent score quirks handling for srilm/nplm compliance
+  HackScoreT<typename KenLMModelT::State> hs_;
+
+  
 
   ///Public methods
  public:
@@ -190,6 +252,7 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
       pair<StateId, const typename KenLMModelT::State> p = get ( s );
       StateId& s1 = p.first;
       const typename KenLMModelT::State s2 = p.second;
+
       for ( ArcIterator< VectorFst<Arc> > arc1 ( fst_, s1 ); !arc1.Done();
             arc1.Next() ) {
         const Arc& a1 = arc1.Value();
@@ -197,16 +260,15 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
         float wp = wp_;
         typename KenLMModelT::State nextlmstate;
         if ( epsilons_.find ( a1.olabel ) == epsilons_.end() ) {
-          w = lmmodel_.Score ( s2, idbridge_.map (a1.olabel), nextlmstate ) * natlog10_;
-          //silly hack
-          if ( a1.olabel <= 2  )  {
-            wp = 0;
-            if (a1.olabel == 1 ) w = 0; //get same result as srilm
-          }
+          w = lmmodel_.Score ( s2, idbridge_.map (a1.olabel), nextlmstate ) * natlog10_();
+	  LDEBUG("Mapped a1.olabel=" << a1.olabel  << " to "
+		<< idbridge_.map (a1.olabel)
+		<< ", score=" << w);	  
+	  hs_(w,wp,a1.olabel, nextlmstate); //hack to make it srilm/nplm compliant
         } else {
           nextlmstate = s2;
           wp = 0; //We don't count epsilon labels
-        }
+         }
         pair<StateId, bool> nextp = add ( composed, nextlmstate
                                           , a1.nextstate
                                           , fst_.Final ( a1.nextstate ) );

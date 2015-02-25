@@ -27,6 +27,7 @@
 #include <lm/enumerate_vocab.hh>
 #ifdef WITH_NPLM
 #include <lm/wrappers/nplm.hh>
+#include <neuralLM.h> // v0.1
 #endif
 #include <idbridge.hpp>
 #include <hifst_enumerate_vocab.hpp>
@@ -43,7 +44,7 @@ struct KenLMModelHelper {
   std::string const file_;
   lm::ngram::Config &kenlm_config_;
   KenLMModelHelper(std::string const &file
-		   , lm::ngram::Config kenlm_config)
+		   , lm::ngram::Config &kenlm_config)
     : file_(file)
     , kenlm_config_(kenlm_config)
   {}
@@ -60,12 +61,36 @@ template<>
 struct KenLMModelHelper<lm::np::Model> {
   std::string const file_;
   lm::ngram::Config &kenlm_config_;
+
+  class NplmVocabularyWrapper {
+    nplm::vocabulary const &v_;
+  public:
+    NplmVocabularyWrapper(nplm::vocabulary const &v):v_(v) {};
+    unsigned operator()(std::string const &s) {
+      return v_.lookup_word(s);
+    }
+  };
+
   KenLMModelHelper(std::string const &file
-		   , lm::ngram::Config kenlm_config)
+		   , lm::ngram::Config &kenlm_config)
     : file_(file)
     , kenlm_config_(kenlm_config)
   {}
   lm::np::Model *operator()(){
+    // \todo: Deal with this silly kenLM+nplm issue in a more reasonable manner
+    // As we cannot pass the kenlm_config to the current 
+    // nplm wrapper, here goes a v. absurd roundabout
+    // to effectively fix it and move on:
+    boost::scoped_ptr<nplm::neuralLM> p(new nplm::neuralLM(file_));
+    nplm::vocabulary const &v=p->get_vocabulary();
+    std::vector<std::string> const &words = v.words();
+    lm::HifstEnumerateVocab<ucam::util::WordMapper> *hev
+      = dynamic_cast<lm::HifstEnumerateVocab<ucam::util::WordMapper> *> (kenlm_config_.enumerate_vocab);
+    for (unsigned k = 0; k < words.size(); ++k) {
+      hev->Add(k,words[k]);
+    }
+    // lets draw a veil over this and
+    // return new model as usual
     return new lm::np::Model( file_);
   }
 };
@@ -211,7 +236,7 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
                   , "Language model provided over words instead of integers. A target wordmap is required! ");
       wm = d.wm[wordmapkey_];
     }
-    lm::HifstEnumerateVocab hev (kld_.idb, wm);
+    lm::HifstEnumerateVocab<ucam::util::WordMapper> hev (kld_.idb, wm);
     kenlm_config.enumerate_vocab = &hev;
     kld_.model = loadKenLm(lmfile_(d.sidx).c_str(), kenlm_config, index_);
     d.stats->setTimeEnd ("lm-load-" + index_ );
@@ -221,8 +246,8 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
     else if ( d.klm[lmkey_].size() < index_ + 1 ) d.klm[lmkey_].resize (
         index_ + 1 );
     d.klm[lmkey_][index_] = (const KenLMData*) &kld_;
-    LDEBUG ( "LM " << lmfile_ ( d.sidx ) << " loaded, key=" << lmkey_ <<
-             ", position=" <<  toString<uint> ( d.klm[lmkey_].size() - 1 ) <<
+    LINFO ( "LM " << lmfile_ ( d.sidx ) << " loaded, key=" << lmkey_ <<
+	    ", position=" <<  ucam::util::toString<uint> ( d.klm[lmkey_].size() - 1 ) <<
              ",total number of language models for this key is " << d.klm[lmkey_].size() );
     return false;
   };

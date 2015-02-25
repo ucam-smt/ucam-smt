@@ -128,7 +128,8 @@ test_0006_applylm_nplm_execute(){
     for k in `seq $seqrange`; do 
 	if [ "`cat $BASEDIR/nplm/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;  
 	fstproject --project_output $BASEDIR/nplm/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.fst
-	if fstequivalent tmp/$k.fst $REFDIR/nplm/$k.fst; then echo -e ""; else echo 0;  return; fi ; 	
+	fstproject --project_output $REFDIR/nplm/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.ref.fst
+	if fstequivalent tmp/$k.fst tmp/$k.ref.fst; then echo -e ""; else echo 0;  return; fi ; 	
     done
     echo 1
 }
@@ -184,6 +185,7 @@ test_0008_applylm_arpa+trie+nplm_languagemodels_execute() {
     fi
     ### This test shows that the tool can handle three language models in different formats,
     ### one of them is an nplm model.
+
     $applylm \
 	--range=$range \
 	--lm.load=data/lm/trivial.lm.gz,data/lm/trivial.lm.trie.mmap,data/lm/inferno.nnlm \
@@ -198,7 +200,8 @@ test_0008_applylm_arpa+trie+nplm_languagemodels_execute() {
 	if [ ! -e $BASEDIR/0008/$k.fst ]; then echo 0; return; fi;
 	if [ "`cat $BASEDIR/0008/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	fstproject --project_output $BASEDIR/0008/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.fst
-	if fstequivalent tmp/$k.fst $REFDIR/0008/$k.fst; then echo -e ""; else echo 0;  return; fi ;
+	fstproject --project_output $REFDIR/0008/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.ref.fst
+	if fstequivalent tmp/$k.fst tmp/$k.ref.fst; then echo -e ""; else echo 0;  return; fi ;
     done
 
     echo 1

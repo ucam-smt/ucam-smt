@@ -62,7 +62,7 @@ assignKenLmHandler(util::RegistryPO const &rg
   case util::KENLM_NPLM:
  #ifdef WITH_NPLM
     return new fst::ApplyLanguageModelOnTheFly<Arc, MakeWeightT<Arc>, NplmModel > 
-      (dynamic_cast<NplmModel &>(*klm.model), epsilons,useNaturalLog, klm.lmscale, klm.lmwp, klm.idb, mw);
+      (dynamic_cast<NplmModel &>(*klm.model), epsilons,useNaturalLog, klm.lmscale, klm.lmwp, klm.idb, mw);    
 #endif
     LERROR("Unsuported format: KENLM_NPLM. Did you compile NPLM library?");
      exit(EXIT_FAILURE);
