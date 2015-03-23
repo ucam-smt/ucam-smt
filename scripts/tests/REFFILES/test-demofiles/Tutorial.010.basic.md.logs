@@ -1,0 +1,772 @@
+/home/blue7/gi212/W2010/mt-sw/demo-files /home/blue7/gi212/W2010/mt-sw/ucam-smt/scripts/tests
+INF:Reading config fileconfigs/CF.baseline
+INF:Configuration loaded
+INF:hifst.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.baseline
+		+cykparser.hmax
+		+cykparser.hmin
+		+cykparser.hrmaxheight=10
+		+cykparser.ntexceptionsmaxspan=S
+		+featureweights
+		+grammar.featureweights=1
+		+grammar.load=G/rules.shallow.gz
+		+grammar.storentorder
+		+grammar.storepatterns
+		+hifst.alilatsmode=no
+		+hifst.disablerulefeatures=no
+		+hifst.lattice.optimize=no
+		+hifst.lattice.optimize.stripspecialepsilonlabels=no
+		+hifst.lattice.store=output/exp.baseline/LATS/?.fst.gz
+		+hifst.localprune.conditions
+		+hifst.localprune.enable=no
+		+hifst.localprune.lm.featureweights=1.0
+		+hifst.localprune.lm.load
+		+hifst.localprune.lm.wps=0.0
+		+hifst.localprune.numstates=10000
+		+hifst.optimizecells=yes
+		+hifst.prune=9
+		+hifst.replacefstbyarc.exceptions=S
+		+hifst.replacefstbyarc.nonterminals=X,V
+		+hifst.replacefstbyarc.numstates=4
+		+hifst.rtnopt=yes
+		+hifst.usepdt=no
+		+hifst.writertn
+		+lm.featureweights=1.0
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+patternstoinstances.gapmaxspan=9
+		+patternstoinstances.maxspan=10
+		+patternstoinstances.store
+		+postpro.capitalizefirstword.enable=no
+		+postpro.detokenize.enable=no
+		+postpro.detokenize.language
+		+postpro.wordmap.load
+		+prepro.tokenize.enable=no
+		+prepro.tokenize.language
+		+prepro.wordmap.load
+		+range=1:2
+		+recaser.lm.load
+		+recaser.lm.scale=1.0
+		+recaser.output
+		+recaser.prune=byshortestpath,1
+		+recaser.unimap.load
+		+recaser.unimap.scale=1
+		+referencefilter.load
+		+referencefilter.load.semiring
+		+referencefilter.prunereferenceshortestpath=4294967295
+		+referencefilter.prunereferenceweight=3.40282e+38
+		+referencefilter.substring=yes
+		+referencefilter.write
+		+rulestoweights.enable=no
+		+rulestoweights.store
+		+semiring=lexstdarc
+		+server.enable=no
+		+server.port=1209
+		+source.load=RU/RU.set1.idx
+		+ssgrammar.addoovs.enable=no
+		+ssgrammar.addoovs.sourcedeletions=yes
+		+ssgrammar.store
+		+stats.hifst.cykgrid.cellwidth=30
+		+stats.hifst.cykgrid.enable=no
+		+stats.hifst.write
+		+stats.write
+		+target.store=output/exp.baseline/hyps
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0 defaulting to 0.0f
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:=====Translate sentence 1:1 20870 2447 5443 50916 78159 3621 2
+INF:Loading hierarchical grammar: G/rules.shallow.gz
+INF:loading LM=M/lm.4g.mmap
+INF:Stats for Sentence 1: local pruning, number of times=0
+INF:End Sentence ******************************************************
+INF:Writing lattice 1 to ... output/exp.baseline/LATS/1.fst.gz
+INF:Translation 1best is: 1 9121 384 6 2756 7 3 4144 6 1458528 1341 2 
+INF:=====Translate sentence 2:1 1716 20196 95123 154 1049 6778 996 9 239837 7 1799 4 2
+INF:Stats for Sentence 2: local pruning, number of times=0
+INF:End Sentence ******************************************************
+INF:Writing lattice 2 to ... output/exp.baseline/LATS/2.fst.gz
+INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
+INF:hifst.O2.bin ends!
+INF:printstrings.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config
+		+input=output/exp.baseline/LATS/?.fst.gz
+		+label-map=wmaps/wmt13.en.wmap
+		+nbest=1
+		+output=-
+		+range=1:2
+		+semiring=lexstdarc
+=====================
+
+INF:Loading symbol map file...
+INF:Loaded 4037 symbols
+INF:Processing file output/exp.baseline/LATS/1.fst.gz
+INF:Processing file output/exp.baseline/LATS/2.fst.gz
+<s> republican strategy of resistance to the renewal of obamas election </s> 
+<s> the leaders of the republican justified their policies need to deal with the spin on the elections . </s> 
+INF:printstrings.O2.bin finished!
+INF:printstrings.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config
+		+input=output/exp.baseline/LATS/1.fst.gz
+		+label-map
+		+nbest=10
+		+output=-
+		+semiring=lexstdarc
+		+unique
+=====================
+
+INF:Processing file output/exp.baseline/LATS/1.fst.gz
+1 9121 384 6 2756 7 3 4144 6 1458528 1341 2 
+1 3 9121 384 6 2756 7 3 4144 6 1458528 1341 2 
+1 9121 384 6 2756 7 3 4144 6 159312 42 1341 2 
+1 3 9121 384 6 2756 7 3 4144 6 159312 42 1341 2 
+1 9121 384 2756 7 3 4144 6 1458528 1341 2 
+1 3 9121 384 2756 7 3 4144 6 1458528 1341 2 
+1 9121 384 2756 7 3 4144 6 159312 42 1341 2 
+1 3 9121 1132 384 4144 6 1458528 1341 2 
+1 3 9121 384 2756 7 3 4144 6 159312 42 1341 2 
+1 3 9121 1132 384 3 4144 6 1458528 1341 2 
+INF:printstrings.O2.bin finished!
+INF:Reading config fileconfigs/CF.nogrammar
+WRN:Program option featureweights OVERRIDES grammar.featureweights and lm.featureweights!!
+INF:Configuration loaded
+INF:hifst.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.nogrammar
+		+cykparser.hmax
+		+cykparser.hmin
+		+cykparser.hrmaxheight=10
+		+cykparser.ntexceptionsmaxspan=S
+		+featureweights=1.0,0.697263,0.396540,2.270819,-0.145200,0.038503,29.518480,-3.411896,-3.732196,0.217455,0.041551,0.060136
+		+grammar.featureweights=1
+		+grammar.load=G/rules.shallow.vecfea.all.gz
+		+grammar.storentorder
+		+grammar.storepatterns
+		+hifst.alilatsmode=no
+		+hifst.disablerulefeatures=no
+		+hifst.lattice.optimize=no
+		+hifst.lattice.optimize.stripspecialepsilonlabels=no
+		+hifst.lattice.store=output/exp.mert/LATS/?.fst.gz
+		+hifst.localprune.conditions
+		+hifst.localprune.enable=no
+		+hifst.localprune.lm.featureweights=1.0
+		+hifst.localprune.lm.load
+		+hifst.localprune.lm.wps=0.0
+		+hifst.localprune.numstates=10000
+		+hifst.optimizecells=yes
+		+hifst.prune=9
+		+hifst.replacefstbyarc.exceptions=S
+		+hifst.replacefstbyarc.nonterminals=X,V
+		+hifst.replacefstbyarc.numstates=4
+		+hifst.rtnopt=yes
+		+hifst.usepdt=no
+		+hifst.writertn
+		+lm.featureweights=1.0
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+patternstoinstances.gapmaxspan=9
+		+patternstoinstances.maxspan=10
+		+patternstoinstances.store
+		+postpro.capitalizefirstword.enable=no
+		+postpro.detokenize.enable=no
+		+postpro.detokenize.language
+		+postpro.wordmap.load
+		+prepro.tokenize.enable=no
+		+prepro.tokenize.language
+		+prepro.wordmap.load
+		+range=1:2
+		+recaser.lm.load
+		+recaser.lm.scale=1.0
+		+recaser.output
+		+recaser.prune=byshortestpath,1
+		+recaser.unimap.load
+		+recaser.unimap.scale=1
+		+referencefilter.load
+		+referencefilter.load.semiring
+		+referencefilter.prunereferenceshortestpath=4294967295
+		+referencefilter.prunereferenceweight=3.40282e+38
+		+referencefilter.substring=yes
+		+referencefilter.write
+		+rulestoweights.enable=no
+		+rulestoweights.store
+		+semiring=lexstdarc
+		+server.enable=no
+		+server.port=1209
+		+source.load=RU/RU.tune.idx
+		+ssgrammar.addoovs.enable=no
+		+ssgrammar.addoovs.sourcedeletions=yes
+		+ssgrammar.store
+		+stats.hifst.cykgrid.cellwidth=30
+		+stats.hifst.cykgrid.enable=no
+		+stats.hifst.write
+		+stats.write
+		+target.store=tmp/hyps.3
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0 defaulting to 0.0f
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:=====Translate sentence 1:1 3526 10 1278 28847 3 64570 1857 7786 2
+INF:Loading hierarchical grammar: G/rules.shallow.vecfea.all.gz
+INF:loading LM=M/lm.4g.mmap
+INF:Stats for Sentence 1: local pruning, number of times=0
+INF:End Sentence ******************************************************
+INF:Writing lattice 1 to ... output/exp.mert/LATS/1.fst.gz
+INF:Translation 1best is: 1 50 1463 245 803 425 23899 2 
+INF:=====Translate sentence 2:1 16055 3 102 5182 66 18 23602 12611 5 6522 2377 3431 3 98 52858 61 46 2140 4422 15871 25 67408 17658 26 1731 19663 4 2
+INF:Stats for Sentence 2: local pruning, number of times=0
+INF:End Sentence ******************************************************
+INF:Writing lattice 2 to ... output/exp.mert/LATS/2.fst.gz
+INF:Translation 1best is: 1 245 4 25 1028 7 11 5696 4375 5073 972 1052 564 51 1284 317 312 734 3423 12315 4448 14 119 3570 5 2 
+INF:hifst.O2.bin ends!
+INF:Reading config fileconfigs/CF.baseline.outputnoprune
+INF:Configuration loaded
+INF:hifst.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.baseline.outputnoprune
+		+cykparser.hmax
+		+cykparser.hmin
+		+cykparser.hrmaxheight=10
+		+cykparser.ntexceptionsmaxspan=S
+		+featureweights
+		+grammar.featureweights=1
+		+grammar.load=G/rules.shallow.gz
+		+grammar.storentorder
+		+grammar.storepatterns
+		+hifst.alilatsmode=no
+		+hifst.disablerulefeatures=no
+		+hifst.lattice.optimize=no
+		+hifst.lattice.optimize.stripspecialepsilonlabels=no
+		+hifst.lattice.store=output/exp.baseline.outputnoprune/LATS/?.fst.gz
+		+hifst.localprune.conditions
+		+hifst.localprune.enable=no
+		+hifst.localprune.lm.featureweights=1.0
+		+hifst.localprune.lm.load
+		+hifst.localprune.lm.wps=0.0
+		+hifst.localprune.numstates=10000
+		+hifst.optimizecells=yes
+		+hifst.prune=3.40282e+38
+		+hifst.replacefstbyarc.exceptions=S
+		+hifst.replacefstbyarc.nonterminals=X,V
+		+hifst.replacefstbyarc.numstates=4
+		+hifst.rtnopt=yes
+		+hifst.usepdt=no
+		+hifst.writertn
+		+lm.featureweights=1.0
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+patternstoinstances.gapmaxspan=9
+		+patternstoinstances.maxspan=10
+		+patternstoinstances.store
+		+postpro.capitalizefirstword.enable=no
+		+postpro.detokenize.enable=no
+		+postpro.detokenize.language
+		+postpro.wordmap.load
+		+prepro.tokenize.enable=no
+		+prepro.tokenize.language
+		+prepro.wordmap.load
+		+range=1:2
+		+recaser.lm.load
+		+recaser.lm.scale=1.0
+		+recaser.output
+		+recaser.prune=byshortestpath,1
+		+recaser.unimap.load
+		+recaser.unimap.scale=1
+		+referencefilter.load
+		+referencefilter.load.semiring
+		+referencefilter.prunereferenceshortestpath=4294967295
+		+referencefilter.prunereferenceweight=3.40282e+38
+		+referencefilter.substring=yes
+		+referencefilter.write
+		+rulestoweights.enable=no
+		+rulestoweights.store
+		+semiring=lexstdarc
+		+server.enable=no
+		+server.port=1209
+		+source.load=RU/RU.set1.idx
+		+ssgrammar.addoovs.enable=no
+		+ssgrammar.addoovs.sourcedeletions=yes
+		+ssgrammar.store
+		+stats.hifst.cykgrid.cellwidth=30
+		+stats.hifst.cykgrid.enable=no
+		+stats.hifst.write
+		+stats.write
+		+target.store=output/exp.baseline.outputnoprune/hyps
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0 defaulting to 0.0f
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:=====Translate sentence 1:1 20870 2447 5443 50916 78159 3621 2
+INF:Loading hierarchical grammar: G/rules.shallow.gz
+INF:loading LM=M/lm.4g.mmap
+INF:Stats for Sentence 1: local pruning, number of times=0
+INF:End Sentence ******************************************************
+INF:Writing lattice 1 to ... output/exp.baseline.outputnoprune/LATS/1.fst.gz
+INF:Translation 1best is: 1 9121 384 6 2756 7 3 4144 6 1458528 1341 2 
+INF:=====Translate sentence 2:1 1716 20196 95123 154 1049 6778 996 9 239837 7 1799 4 2
+INF:Stats for Sentence 2: local pruning, number of times=0
+INF:End Sentence ******************************************************
+INF:Writing lattice 2 to ... output/exp.baseline.outputnoprune/LATS/2.fst.gz
+INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
+INF:hifst.O2.bin ends!
+INF:Reading config fileconfigs/CF.hiero.localprune
+INF:Configuration loaded
+INF:hifst.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.hiero.localprune
+		+cykparser.hmax
+		+cykparser.hmin
+		+cykparser.hrmaxheight=10
+		+cykparser.ntexceptionsmaxspan=S
+		+featureweights
+		+grammar.featureweights=1
+		+grammar.load=G/rules.hiero.gz
+		+grammar.storentorder
+		+grammar.storepatterns
+		+hifst.alilatsmode=no
+		+hifst.disablerulefeatures=no
+		+hifst.lattice.optimize=no
+		+hifst.lattice.optimize.stripspecialepsilonlabels=no
+		+hifst.lattice.store=output/exp.hiero.localprune/LATS/?.fst.gz
+		+hifst.localprune.conditions=X,5,10000,9,V,3,20000,9
+		+hifst.localprune.enable=yes
+		+hifst.localprune.lm.featureweights=1.0
+		+hifst.localprune.lm.load=M/lm.3g.mmap
+		+hifst.localprune.lm.wps=0.0
+		+hifst.localprune.numstates=10000
+		+hifst.optimizecells=yes
+		+hifst.prune=9
+		+hifst.replacefstbyarc.exceptions=S
+		+hifst.replacefstbyarc.nonterminals=X,V
+		+hifst.replacefstbyarc.numstates=4
+		+hifst.rtnopt=yes
+		+hifst.usepdt=no
+		+hifst.writertn
+		+lm.featureweights=1
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+patternstoinstances.gapmaxspan=9
+		+patternstoinstances.maxspan=10
+		+patternstoinstances.store
+		+postpro.capitalizefirstword.enable=no
+		+postpro.detokenize.enable=no
+		+postpro.detokenize.language
+		+postpro.wordmap.load
+		+prepro.tokenize.enable=no
+		+prepro.tokenize.language
+		+prepro.wordmap.load
+		+range=1:2
+		+recaser.lm.load
+		+recaser.lm.scale=1.0
+		+recaser.output
+		+recaser.prune=byshortestpath,1
+		+recaser.unimap.load
+		+recaser.unimap.scale=1
+		+referencefilter.load
+		+referencefilter.load.semiring
+		+referencefilter.prunereferenceshortestpath=4294967295
+		+referencefilter.prunereferenceweight=3.40282e+38
+		+referencefilter.substring=yes
+		+referencefilter.write
+		+rulestoweights.enable=no
+		+rulestoweights.store
+		+semiring=lexstdarc
+		+server.enable=no
+		+server.port=1209
+		+source.load=RU/RU.set1.idx
+		+ssgrammar.addoovs.enable=no
+		+ssgrammar.addoovs.sourcedeletions=yes
+		+ssgrammar.store
+		+stats.hifst.cykgrid.cellwidth=30
+		+stats.hifst.cykgrid.enable=no
+		+stats.hifst.write
+		+stats.write
+		+target.store=output/exp.hiero.localprune/hyps
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0 defaulting to 0.0f
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:Language model scale 0=1
+INF:Language model word penalty 0=0.0
+INF:=====Translate sentence 1:1 20870 2447 5443 50916 78159 3621 2
+INF:Loading hierarchical grammar: G/rules.hiero.gz
+INF:loading LM=M/lm.4g.mmap
+INF:loading LM=M/lm.3g.mmap
+INF:Stats for Sentence 1: local pruning, number of times=0
+INF:End Sentence ******************************************************
+INF:Writing lattice 1 to ... output/exp.hiero.localprune/LATS/1.fst.gz
+INF:Translation 1best is: 1 3 9121 384 6 2756 7 3 4144 6 159312 42 1341 2 
+INF:=====Translate sentence 2:1 1716 20196 95123 154 1049 6778 996 9 239837 7 1799 4 2
+INF:Stats for Sentence 2: local pruning, number of times=18
+INF:End Sentence ******************************************************
+INF:Writing lattice 2 to ... output/exp.hiero.localprune/LATS/2.fst.gz
+INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
+INF:hifst.O2.bin ends!
+
+
+
+
+INF:Reading config fileconfigs/CF.baseline.outputnoprune.lmrescore
+INF:Configuration loaded
+INF:applylm.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.baseline.outputnoprune.lmrescore
+		+lattice.load=output/exp.baseline.outputnoprune/LATS/?.fst.gz
+		+lattice.load.deletelmcost=true
+		+lattice.store=output/exp.baseline.lmrescore/LATS/?.fst.gz
+		+lm.featureweights=0.9
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+range=1:2
+		+semiring=lexstdarc
+		+stats.write
+=====================
+
+INF:Language model scale 0=0.9
+INF:Language model word penalty 0=0.0
+INF:loading LM=M/lm.4g.mmap
+INF:Writing lattice 1 to ... output/exp.baseline.lmrescore/LATS/1.fst.gz
+INF:Writing lattice 2 to ... output/exp.baseline.lmrescore/LATS/2.fst.gz
+INF:applylm.O2.bin ends!
+INF:lmbr.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+T=10
+		+alpha=0.4
+		+config=configs/CF.baseline.lmbr
+		+lexstdarc=true
+		+load.evidencespace=output/exp.baseline/LATS/?.fst.gz
+		+load.hypothesesspace
+		+maxorder=4
+		+minorder=1
+		+p=0.67
+		+preprune=7
+		+r=0.65
+		+range=1:2
+		+wps=0.02
+		+writedecoder=output/exp.baseline.lmbr/LATS/?.fst.gz
+		+writeonebest=output/exp.baseline.lmbr/HYPS/%%alpha%%_%%wps%%.hyp
+=====================
+
+INF:applying Lattice MBR , sentence 1
+INF:Writing lattice 1 to ... output/exp.baseline.lmbr/LATS/1.fst.gz
+INF:applying Lattice MBR , sentence 2
+INF:Writing lattice 2 to ... output/exp.baseline.lmbr/LATS/2.fst.gz
+INF:lmbr.O2.bin ends!
+0.4 0.02 1:1 3 9121 384 6 2756 7 3 4144 6 159312 42 1341 2 
+0.4 0.02 2:1 3 1119 6 3 9121 1711 54 79 6 3 85 7 525 13907 3 628 5 2 
+INF:disambig.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.recaser
+		+range=1:2
+		+recaser.input=output/exp.baseline/LATS/?.fst.gz
+		+recaser.lm.load=M/lm.tc.gz
+		+recaser.lm.scale=1.0
+		+recaser.output=output/exp.baseline/LATS/?.fst.recase.gz
+		+recaser.prune=byshortestpath,1
+		+recaser.unimap.load=G/tc.unimap
+		+recaser.unimap.scale=1
+		+semiring=lexstdarc
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0 defaulting to 0.0f
+INF:loading LM=M/lm.tc.gz
+Loading the LM will be faster if you build a binary file.
+Reading M/lm.tc.gz
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+*The ARPA file is missing <unk>.  Substituting log10 probability -100.
+***************************************************************************************************
+WRN:Skipping 0 probability at line:7 5943397 0.00000 5943398 0.01875 7 0.98121 5943399 0.00004
+INF:Writing lattice 1 to ... output/exp.baseline/LATS/1.fst.recase.gz
+INF:Writing lattice 2 to ... output/exp.baseline/LATS/2.fst.recase.gz
+INF:disambig.O2.bin ends!
+INF:printstrings.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config
+		+input=output/exp.baseline/LATS/?.fst.recase.gz
+		+label-map=wmaps/wmt13.en.wmap
+		+nbest=1
+		+output=-
+		+range=1:2
+		+semiring=lexstdarc
+=====================
+
+INF:Loading symbol map file...
+INF:Loaded 4037 symbols
+INF:Processing file output/exp.baseline/LATS/1.fst.recase.gz
+INF:Processing file output/exp.baseline/LATS/2.fst.recase.gz
+<s> Republican strategy of resistance to the renewal of obamas election </s> 
+<s> The leaders of the Republican justified their policies need to deal with the spin on the elections . </s> 
+INF:printstrings.O2.bin finished!
+INF:Reading config fileconfigs/CF.baseline
+INF:Configuration loaded
+INF:hifst.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.baseline
+		+cykparser.hmax
+		+cykparser.hmin
+		+cykparser.hrmaxheight=10
+		+cykparser.ntexceptionsmaxspan=S
+		+featureweights
+		+grammar.featureweights=1
+		+grammar.load=G/rules.shallow.gz
+		+grammar.storentorder
+		+grammar.storepatterns
+		+hifst.alilatsmode=no
+		+hifst.disablerulefeatures=no
+		+hifst.lattice.optimize=no
+		+hifst.lattice.optimize.stripspecialepsilonlabels=no
+		+hifst.lattice.store=output/exp.baseline/LATS/?.fst.gz
+		+hifst.localprune.conditions
+		+hifst.localprune.enable=no
+		+hifst.localprune.lm.featureweights=1.0
+		+hifst.localprune.lm.load
+		+hifst.localprune.lm.wps=0.0
+		+hifst.localprune.numstates=10000
+		+hifst.optimizecells=yes
+		+hifst.prune=9
+		+hifst.replacefstbyarc.exceptions=S
+		+hifst.replacefstbyarc.nonterminals=X,V
+		+hifst.replacefstbyarc.numstates=4
+		+hifst.rtnopt=yes
+		+hifst.usepdt=no
+		+hifst.writertn
+		+lm.featureweights=1.0
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+patternstoinstances.gapmaxspan=9
+		+patternstoinstances.maxspan=10
+		+patternstoinstances.store
+		+postpro.capitalizefirstword.enable=no
+		+postpro.detokenize.enable=no
+		+postpro.detokenize.language
+		+postpro.wordmap.load
+		+prepro.tokenize.enable=no
+		+prepro.tokenize.language
+		+prepro.wordmap.load
+		+range=1:2
+		+recaser.lm.load=M/lm.tc.gz
+		+recaser.lm.scale=1.0
+		+recaser.output
+		+recaser.prune=byshortestpath,1
+		+recaser.unimap.load=G/tc.unimap
+		+recaser.unimap.scale=1
+		+referencefilter.load
+		+referencefilter.load.semiring
+		+referencefilter.prunereferenceshortestpath=4294967295
+		+referencefilter.prunereferenceweight=3.40282e+38
+		+referencefilter.substring=yes
+		+referencefilter.write
+		+rulestoweights.enable=no
+		+rulestoweights.store
+		+semiring=lexstdarc
+		+server.enable=no
+		+server.port=1209
+		+source.load=RU/RU.set1.idx
+		+ssgrammar.addoovs.enable=no
+		+ssgrammar.addoovs.sourcedeletions=yes
+		+ssgrammar.store
+		+stats.hifst.cykgrid.cellwidth=30
+		+stats.hifst.cykgrid.enable=no
+		+stats.hifst.write
+		+stats.write
+		+target.store=output/exp.baseline/hyps
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0 defaulting to 0.0f
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:=====Translate sentence 1:1 20870 2447 5443 50916 78159 3621 2
+INF:Loading hierarchical grammar: G/rules.shallow.gz
+WRN:Skipping 0 probability at line:7 5943397 0.00000 5943398 0.01875 7 0.98121 5943399 0.00004
+INF:loading LM=M/lm.4g.mmap
+INF:loading LM=M/lm.tc.gz
+Loading the LM will be faster if you build a binary file.
+Reading M/lm.tc.gz
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+*The ARPA file is missing <unk>.  Substituting log10 probability -100.
+***************************************************************************************************
+INF:Stats for Sentence 1: local pruning, number of times=0
+INF:End Sentence ******************************************************
+INF:Writing lattice 1 to ... output/exp.baseline/LATS/1.fst.gz
+INF:Translation 1best is: 1 5943008 384 6 2756 7 3 4144 6 1458528 1341 2 
+INF:=====Translate sentence 2:1 1716 20196 95123 154 1049 6778 996 9 239837 7 1799 4 2
+INF:Stats for Sentence 2: local pruning, number of times=0
+INF:End Sentence ******************************************************
+INF:Writing lattice 2 to ... output/exp.baseline/LATS/2.fst.gz
+INF:Translation 1best is: 1 5943349 1119 6 3 5943008 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
+INF:hifst.O2.bin ends!
+INF:printstrings.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config
+		+input=output/exp.baseline/LATS/1.fst.gz
+		+label-map=wmaps/wmt13.en.wmap
+		+nbest=1
+		+output=-
+		+semiring=lexstdarc
+=====================
+
+INF:Loading symbol map file...
+INF:Loaded 4037 symbols
+INF:Processing file output/exp.baseline/LATS/1.fst.gz
+<s> republican strategy of resistance to the renewal of obamas election </s> 
+INF:printstrings.O2.bin finished!
+INF:hifst-client.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.baseline.client
+		+host=localhost
+		+port=1205
+		+range=1:50,100,1300
+		+source.load=RU/RU.tune
+		+target.store=output/exp.clientserver/translation2.txt
+=====================
+
+INF:Translating sentence 1:парламент не поддерживает поправку , дающую свободу тимошенко
+INF:parliament supports amendment giving freedom tymoshenko
+INF:Translating sentence 2:поправка , которая привела бы к освобождению находящейся в тюрьме бывшего премьер-министра , была отклонена во время второго чтения законопроекта о смягчении приговоров за экономические правонарушения .
+INF:amendment , which led to a liberation located imprisoned former prime minister was rejected during second reading bill mitigating sentences for economic offences .
+INF:Translating sentence 3:приговор еще не окончательный ; суд рассмотрит апелляцию тимошенко в декабре .
+INF:sentence still ultimate ; the court will review appeal tymoshenko in december .
+INF:Translating sentence 4:предложение отменить статью 365 уголовно-процессуального кодекса , согласно которой бывший премьер-министр была осуждена , было поддержано 147 членами парламента .
+INF:proposal cancel article 365 criminal-procedural codex whereby former prime minister was convicted was supported 147 members parliament .
+INF:Translating sentence 5:победа ливии
+INF:winning libya
+INF:Translating sentence 6:муаммар каддафи погребен где-то в пустыне . без него война закончилась .
+INF:muammar el-qaddafi buried somewhere desert . without him wars ended .
+INF:Translating sentence 7:как правило , в стране побеждают исламисты ; вопрос в том , умеренные они или радикальные .
+INF:typically nation winning islamists ; question moderate or radical .
+INF:Translating sentence 8:ливия станет страной без преступности , поскольку наказание за кражу - отсечение руки .
+INF:libya becomes nation without crime as punishment forstealing - clipping hands .
+INF:Translating sentence 9:вместо диктатора общество , состоящее из соперничающих кланов , будет объединено кораном .
+INF:instead of dictator society consisting of rival clans , will be merged koran .
+INF:Translating sentence 10:как бы то ни было , наш образ жизни не является ни единственным в своем роде , ни лучшим и скорее всего не подошел бы , например , населению ливии .
+INF:in any case , our lifestyle is not the only one of its kind , best and unlikely approached 'd , for example , population libya .
+INF:Translating sentence 11:их единственное оправдание - то , что по их мнению , налетами нато руководил не американский генерал , а аллах , величие которого они прославляли после каждого удара .
+INF:their sole justification is that , in their view , strikes nato supervised not american general and allah whose greatness they glorified after each of the blow .
+INF:Translating sentence 12:мы участвовали в перестрелках , служили исламу , и наши политики избавились от диктатора , их политического союзника , без каких-либо гарантий выгоды .
+INF:we have attended served islam , and our politicians rid themselves of dictator , their political ally , without any warranty benefit .
+INF:Translating sentence 13:местному населению , таким образом , не нужно беспокоиться об изгнании " крестоносцев " .
+INF:local population thereby , do not need to wonder about exile " crusaders " .
+INF:Translating sentence 14:скорее всего , не получат . и запад тогда наконец-то сможет кичиться бескорыстной защитой гражданских прав .
+INF:most likely , will not . and west eventually can disinterested protection civil liberties .
+INF:Translating sentence 15:начинается новая волна кризиса
+INF:begins new wave crisis
+INF:Translating sentence 16:статистический шторм пронесся над европой во вторник .
+INF:statistical storm tore over europe tuesday .
+INF:Translating sentence 17:в сравнении с предыдущим кварталом чешская экономика находилась в состоянии застоя , германия и франция демонстрируют рост .
+INF:versus previous quarter czech economy was unable stagnation germany and france demonstrate growth .
+INF:Translating sentence 18:инвесторы уже смотрят не только в сторону италии ; теперь они сфокусировались на испании , франции , австрии и других странах .
+INF:investors already look not only in the direction italy ; they have focused on spain france austria and elsewhere .
+INF:Translating sentence 19:ввп германии вырос на ожидаемые 0.5 % ; франции - на 0.4 % .
+INF:gdp germany grew anticipated 0.5 % ; france 0.4 % .
+INF:Translating sentence 20:в третьем квартале этого года чешская экономика показала предварительный рост в размере 1.5 % .
+INF:in this year 's third quarter czech economy demonstrated preliminary growth amounting 1.5%.
+INF:Translating sentence 21:результаты оказались хуже , чем прогнозировали аналитики .
+INF:results found themselves worse than predicted analysts .
+INF:Translating sentence 22:в третьем квартале этого года чешская экономика показала предварительный рост в размере 1.5 % ; однако она находилась в состоянии застоя по сравнению с предыдущим кварталом .
+INF:in this year 's third quarter czech economy demonstrated preliminary growth amounting 1.5%. ; however , it was unable stagnation relative qoq .
+INF:Translating sentence 23:с июля по сентябрь экономика как еврозоны , так и европейского союза продемонстрировала рост по сравнению с предыдущим кварталом на 0.2 % , что совпадает с прогнозами аналитиков .
+INF:july september economy eurozone and european union demonstrated growth relative qoq 0.2 % that coincides forecasts analysts .
+INF:Translating sentence 24:доходность ее 10-летних облигаций составляет 28.45 % .
+INF:yields its bonds makes 28.45 % .
+INF:Translating sentence 25:даже австрия , нидерланды , франция и бельгия и т . д . начинают испытывать трудности .
+INF:even austria netherlands france and belgium and t. d. begin experiencing difficulties .
+INF:Translating sentence 26:в германии поговаривают , что ецб - последний кредитор , который может спасти ситуацию .
+INF:germany shipment ecb last lender saving situation .
+INF:Translating sentence 27:в черногории они победили со счетом 1:0 и празднуют неожиданный денежный приз в 200 миллионов .
+INF:montenegrin they defeated with a score 1:0 and celebrating unexpected cash prize 200 million .
+INF:Translating sentence 28:благодаря великолепному чеху и красивому голу петра йирачека они победили со счетом 1:0 .
+INF:thanks great and prettier peter йирачека they defeated with score 1:0 .
+INF:Translating sentence 29:ihned . cz наблюдал за ходом матча и составил подробный отчет .
+INF:ihned . cz watched swing match and amounted extensive report .
+INF:Translating sentence 30:чешская национальная сборная , отчасти из-за поражения команды в конце ; великий чех ; и героический йирачек ; выиграла 1:0 в черногории и празднует выход в чемпионат европы .
+INF:czech soccer team , in part by the defeat commands end ; great ech ; and heroic jiráek ; profited montenegrin 1:0 and celebrates outlet in uefa .
+INF:Translating sentence 31:дамьянович и вучинич стали самой неудачной парой матча после того , как упустили две великолепные возможности .
+INF:damjanovi and vuini steel best unsuccessful pair match after two magnificent missed possibilities .
+INF:Translating sentence 32:с первых минут игра была очень напряженной .
+INF:from the first minutes game was very intense .
+INF:Translating sentence 33:это также объясняет отсутствие давления со стороны команды хозяев в первом тайме . дальние удары за линию обороны аккуратно перехватывались чешскими защитниками .
+INF:it also explains absence pressure commands hosts in ground half . distant strikes for line defense neatly are intercepted czech protectors .
+INF:Translating sentence 34:они создали живой щит .
+INF:they created living shield .
+INF:Translating sentence 35:тем самым они хотят выразить свою поддержку ядерной программы своей страны перед лицом возможной атаки со стороны израиля .
+INF:thereby want express support nuclear program their countrys facing eventual attacks by israel .
+INF:Translating sentence 36:в исфахане , иран , несколько сотен студентов университетов создали живой щит вокруг исфаханского завода по обогащению урана .
+INF:the isfahan iran somewhat hundred university students created living shield surrounding исфаханского plant uranium enrichment .
+INF:Translating sentence 37:в своем последнем отчете международное агентство по ядерной энергии ( магатэ ) указало , что все свидетельствует о том , что иран не оставил попытки получить ядерное оружие .
+INF:in his latest report international nuclear energy agency ( iaea ) indicated everything indicates iran left attempts acquiring nuclear weapon .
+INF:Translating sentence 38:во вторник в полдень за молитвами студентов перед входом на исфаханский завод по обогащению урана последовал молебен о гибели как сша , так и израиля .
+INF:tuesday noon for prayers students front entrance on исфаханский plant uranium enrichment follows moleben killed as the united states , as well as israel .
+INF:Translating sentence 39:питание детей , страдающих от ожирения : никакого завтрака и колбаса на ужин
+INF:nutrition kids suffer from obesity : no breakfast sausage dinner
+INF:Translating sentence 40:согласно последнему исследованию , дети , страдающие от ожирения , обычно происходят из семей , ведущих нездоровый образ жизни .
+INF:according to the latest study kids suffering from obesity normally occur families leading unhealthy lifestyle .
+INF:Translating sentence 41:к примеру , колбаса появляется на столах детей , страдающих от ожирения , почти в два раза чаще , чем в семьях с детьми , имеющими нормальный вес .
+INF:for example , sausage appears on tables kids suffer from obesity nearly twice higher families child with normal weight .
+INF:Translating sentence 42:более того , семьи детей , страдающих от ожирения , не занимаются спортом . это , однако , касается большей части семей современных школьников - только 15 % детей сказали , что их родители находят время для занятий спортом как минимум раз в неделю .
+INF:moreover , family kids suffer from obesity not engaged sports . this , however , concerns mostly families contemporary schoolchildren only 15 child % say that their parents finding time for sport at least weekly .
+INF:Translating sentence 43:исследование проводилось в конце прошлого учебного года ; в нем участвовали почти 900 учеников начальных классов по всей богемии .
+INF:study conducted later previous school year ; therein participated almost 900 disciples primary school across bohemia .
+INF:Translating sentence 44:к настоящему времени к проекту присоединились более 12 тысяч школьников-учащихся 4 - 8 классов .
+INF:to date , the project joined 12 thousand школьников-учащихся 4 8 classes .
+INF:Translating sentence 45:" например , только половина опрошенных сказали , что они едят пять раз в день , по схеме завтрак-перекус-ланч-перекус-ужин , а ведь это одно из непременных условий правильного питания " , говорится в одном из выводов исследования .
+INF:for example , only half respondents said they eaten five-fold per day , diagram завтрак-перекус-ланч-перекус-ужин , and it is one of the pre-requisites proper nutrition " , according to one of the conclusions research .
+INF:Translating sentence 46:эксперты предупреждают , что для здорового развития важны даже такие относительные детали , как постоянное время семейного завтрака .
+INF:analysts warn for healthy develop relevant even relative details permanent family breakfast time .
+INF:Translating sentence 47:в большинстве семей все завтракают по отдельности .
+INF:in most families everything separately .
+INF:Translating sentence 48:и все же завтрак - основа правильного дневного рациона .
+INF:still breakfast basis proper daytime diet .
+INF:Translating sentence 49:почти каждый - независимо от веса - пьет сладкие прохладительные напитки каждый день ( 70 % ) .
+INF:almost everyone regardless weight - drinks sweet soft drinks everyday ( 70 % ) .
+INF:Translating sentence 50:составьте собственное меню .
+INF:compile custom menu .
+INF:Translating sentence 100:к тому же , гонки время от времени оживляет необычная деталь .
+INF:in addition , racing occasionally animates extraordinary detail .
+INF:Translating sentence 1300:согласно isis , опирающегося в значительной мере на документы магатэ , г-н даниленко родился в 1934 году , работал 30 лет , " начиная с шестидесятых годов , в советском военном ядерном центре в челябинске ( урал ) и был причастен к производству синтетических алмазов методов взрыва " .
+INF:accordance isis supported largely on instruments iaea mr born 1934 worked 30 , " start sixties , soviet military nuclear center in chelyabinsk ( ural ) and was involved production synthetic diamonds methods explosion . "
+INF:hifst-client.O2.bin ends!
+parliament supports amendment giving freedom tymoshenko
+amendment , which led to a liberation located imprisoned former prime minister was rejected during second reading bill mitigating sentences for economic offences .
+sentence still ultimate ; the court will review appeal tymoshenko in december .
+proposal cancel article 365 criminal-procedural codex whereby former prime minister was convicted was supported 147 members parliament .
+winning libya
+/home/blue7/gi212/W2010/mt-sw/ucam-smt/scripts/tests

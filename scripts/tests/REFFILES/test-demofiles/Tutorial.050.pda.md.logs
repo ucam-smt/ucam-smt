@@ -1,0 +1,1385 @@
+/home/blue7/gi212/W2010/mt-sw/demo-files /home/blue7/gi212/W2010/mt-sw/ucam-smt/scripts/tests
+INF:Reading config fileconfigs/CF.hiero.pdt
+INF:Configuration loaded
+INF:hifst.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.hiero.pdt
+		+cykparser.hmax
+		+cykparser.hmin
+		+cykparser.hrmaxheight=10
+		+cykparser.ntexceptionsmaxspan=S
+		+featureweights
+		+grammar.featureweights=1
+		+grammar.load=G/rules.hiero.gz
+		+grammar.storentorder
+		+grammar.storepatterns
+		+hifst.alilatsmode=no
+		+hifst.disablerulefeatures=no
+		+hifst.lattice.optimize=no
+		+hifst.lattice.optimize.stripspecialepsilonlabels=no
+		+hifst.lattice.store=output/exp.hiero.pdt/LATS/?.fst.gz
+		+hifst.localprune.conditions=S,-1,1,9
+		+hifst.localprune.enable=yes
+		+hifst.localprune.lm.featureweights=1.0
+		+hifst.localprune.lm.load=M/lm.4g.eprnd.mmap
+		+hifst.localprune.lm.wps=0.0
+		+hifst.localprune.numstates=1
+		+hifst.optimizecells=yes
+		+hifst.prune=9
+		+hifst.replacefstbyarc.exceptions=S
+		+hifst.replacefstbyarc.nonterminals=X,V
+		+hifst.replacefstbyarc.numstates=4
+		+hifst.rtnopt=yes
+		+hifst.usepdt=yes
+		+hifst.writertn
+		+lm.featureweights=1
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+patternstoinstances.gapmaxspan=9
+		+patternstoinstances.maxspan=10
+		+patternstoinstances.store
+		+postpro.capitalizefirstword.enable=no
+		+postpro.detokenize.enable=no
+		+postpro.detokenize.language
+		+postpro.wordmap.load
+		+prepro.tokenize.enable=no
+		+prepro.tokenize.language
+		+prepro.wordmap.load
+		+range=1:2
+		+recaser.lm.load
+		+recaser.lm.scale=1.0
+		+recaser.output
+		+recaser.prune=byshortestpath,1
+		+recaser.unimap.load
+		+recaser.unimap.scale=1
+		+referencefilter.load
+		+referencefilter.load.semiring
+		+referencefilter.prunereferenceshortestpath=4294967295
+		+referencefilter.prunereferenceweight=3.40282e+38
+		+referencefilter.substring=yes
+		+referencefilter.write
+		+rulestoweights.enable=no
+		+rulestoweights.store
+		+semiring=lexstdarc
+		+server.enable=no
+		+server.port=1209
+		+source.load=RU/RU.set1.idx
+		+ssgrammar.addoovs.enable=no
+		+ssgrammar.addoovs.sourcedeletions=yes
+		+ssgrammar.store
+		+stats.hifst.cykgrid.cellwidth=30
+		+stats.hifst.cykgrid.enable=no
+		+stats.hifst.write
+		+stats.write
+		+target.store=output/exp.hiero.pdt/hyps
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0 defaulting to 0.0f
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:Language model scale 0=1
+INF:Language model word penalty 0=0.0
+INF:=====Translate sentence 1:1 20870 2447 5443 50916 78159 3621 2
+INF:Loading hierarchical grammar: G/rules.hiero.gz
+INF:loading LM=M/lm.4g.mmap
+INF:loading LM=M/lm.4g.eprnd.mmap
+INF:Stats for Sentence 1: local pruning, number of times=1
+INF:End Sentence ******************************************************
+INF:Writing lattice 1 to ... output/exp.hiero.pdt/LATS/1.fst.gz
+INF:Translation 1best is: 1 3 9121 384 6 2756 7 3 4144 6 159312 42 1341 2 
+INF:=====Translate sentence 2:1 1716 20196 95123 154 1049 6778 996 9 239837 7 1799 4 2
+INF:Stats for Sentence 2: local pruning, number of times=1
+INF:End Sentence ******************************************************
+INF:Writing lattice 2 to ... output/exp.hiero.pdt/LATS/2.fst.gz
+INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
+INF:hifst.O2.bin ends!
+INF:Reading config fileconfigs/CF.baseline
+INF:Configuration loaded
+INF:hifst.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.baseline
+		+cykparser.hmax
+		+cykparser.hmin
+		+cykparser.hrmaxheight=10
+		+cykparser.ntexceptionsmaxspan=S
+		+featureweights
+		+grammar.featureweights=1
+		+grammar.load=G/rules.shallow.gz
+		+grammar.storentorder=output/exp.baseline/rtn/ntmap
+		+grammar.storepatterns
+		+hifst.alilatsmode=no
+		+hifst.disablerulefeatures=no
+		+hifst.lattice.optimize=no
+		+hifst.lattice.optimize.stripspecialepsilonlabels=no
+		+hifst.lattice.store=output/exp.baseline/LATS/?.fst.gz
+		+hifst.localprune.conditions
+		+hifst.localprune.enable=no
+		+hifst.localprune.lm.featureweights=1.0
+		+hifst.localprune.lm.load
+		+hifst.localprune.lm.wps=0.0
+		+hifst.localprune.numstates=10000
+		+hifst.optimizecells=yes
+		+hifst.prune=9
+		+hifst.replacefstbyarc.exceptions=S
+		+hifst.replacefstbyarc.nonterminals=X,V
+		+hifst.replacefstbyarc.numstates=4
+		+hifst.rtnopt=yes
+		+hifst.usepdt=no
+		+hifst.writertn=output/exp.baseline/rtn/?/%%rtn_label%%.fst
+		+lm.featureweights=1.0
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+patternstoinstances.gapmaxspan=9
+		+patternstoinstances.maxspan=10
+		+patternstoinstances.store
+		+postpro.capitalizefirstword.enable=no
+		+postpro.detokenize.enable=no
+		+postpro.detokenize.language
+		+postpro.wordmap.load
+		+prepro.tokenize.enable=no
+		+prepro.tokenize.language
+		+prepro.wordmap.load
+		+range=1:2
+		+recaser.lm.load
+		+recaser.lm.scale=1.0
+		+recaser.output
+		+recaser.prune=byshortestpath,1
+		+recaser.unimap.load
+		+recaser.unimap.scale=1
+		+referencefilter.load
+		+referencefilter.load.semiring
+		+referencefilter.prunereferenceshortestpath=4294967295
+		+referencefilter.prunereferenceweight=3.40282e+38
+		+referencefilter.substring=yes
+		+referencefilter.write
+		+rulestoweights.enable=no
+		+rulestoweights.store
+		+semiring=lexstdarc
+		+server.enable=no
+		+server.port=1209
+		+source.load=RU/RU.set1.idx
+		+ssgrammar.addoovs.enable=no
+		+ssgrammar.addoovs.sourcedeletions=yes
+		+ssgrammar.store
+		+stats.hifst.cykgrid.cellwidth=30
+		+stats.hifst.cykgrid.enable=no
+		+stats.hifst.write
+		+stats.write
+		+target.store=output/exp.baseline/hyps
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0 defaulting to 0.0f
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:=====Translate sentence 1:1 20870 2447 5443 50916 78159 3621 2
+INF:Loading hierarchical grammar: G/rules.shallow.gz
+INF:loading LM=M/lm.4g.mmap
+INF:Stats for Sentence 1: local pruning, number of times=0
+INF:Writing rtn files...output/exp.baseline/rtn/1/%%rtn_label%%.fst
+INF:End Sentence ******************************************************
+INF:Writing lattice 1 to ... output/exp.baseline/LATS/1.fst.gz
+INF:Translation 1best is: 1 9121 384 6 2756 7 3 4144 6 1458528 1341 2 
+INF:=====Translate sentence 2:1 1716 20196 95123 154 1049 6778 996 9 239837 7 1799 4 2
+INF:Stats for Sentence 2: local pruning, number of times=0
+INF:Writing rtn files...output/exp.baseline/rtn/2/%%rtn_label%%.fst
+INF:End Sentence ******************************************************
+INF:Writing lattice 2 to ... output/exp.baseline/LATS/2.fst.gz
+INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
+INF:hifst.O2.bin ends!
+INF:Reading config fileconfigs/CF.hiero
+INF:Configuration loaded
+INF:hifst.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config=configs/CF.hiero
+		+cykparser.hmax
+		+cykparser.hmin
+		+cykparser.hrmaxheight=10
+		+cykparser.ntexceptionsmaxspan=S
+		+featureweights
+		+grammar.featureweights=1
+		+grammar.load=G/rules.hiero.gz
+		+grammar.storentorder=output/exp.hiero/rtn/ntmap
+		+grammar.storepatterns
+		+hifst.alilatsmode=no
+		+hifst.disablerulefeatures=no
+		+hifst.lattice.optimize=no
+		+hifst.lattice.optimize.stripspecialepsilonlabels=no
+		+hifst.lattice.store=output/exp.hiero/LATS/?.fst.gz
+		+hifst.localprune.conditions
+		+hifst.localprune.enable=no
+		+hifst.localprune.lm.featureweights=1.0
+		+hifst.localprune.lm.load
+		+hifst.localprune.lm.wps=0.0
+		+hifst.localprune.numstates=10000
+		+hifst.optimizecells=yes
+		+hifst.prune=9
+		+hifst.replacefstbyarc.exceptions=S
+		+hifst.replacefstbyarc.nonterminals=X,V
+		+hifst.replacefstbyarc.numstates=4
+		+hifst.rtnopt=yes
+		+hifst.usepdt=no
+		+hifst.writertn=output/exp.hiero/rtn/?/%%rtn_label%%.fst
+		+lm.featureweights=1.0
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+patternstoinstances.gapmaxspan=9
+		+patternstoinstances.maxspan=10
+		+patternstoinstances.store
+		+postpro.capitalizefirstword.enable=no
+		+postpro.detokenize.enable=no
+		+postpro.detokenize.language
+		+postpro.wordmap.load
+		+prepro.tokenize.enable=no
+		+prepro.tokenize.language
+		+prepro.wordmap.load
+		+range=1:2
+		+recaser.lm.load
+		+recaser.lm.scale=1.0
+		+recaser.output
+		+recaser.prune=byshortestpath,1
+		+recaser.unimap.load
+		+recaser.unimap.scale=1
+		+referencefilter.load
+		+referencefilter.load.semiring
+		+referencefilter.prunereferenceshortestpath=4294967295
+		+referencefilter.prunereferenceweight=3.40282e+38
+		+referencefilter.substring=yes
+		+referencefilter.write
+		+rulestoweights.enable=no
+		+rulestoweights.store
+		+semiring=lexstdarc
+		+server.enable=no
+		+server.port=1209
+		+source.load=RU/RU.set1.idx
+		+ssgrammar.addoovs.enable=no
+		+ssgrammar.addoovs.sourcedeletions=yes
+		+ssgrammar.store
+		+stats.hifst.cykgrid.cellwidth=30
+		+stats.hifst.cykgrid.enable=no
+		+stats.hifst.write
+		+stats.write
+		+target.store=output/exp.hiero/hyps
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0 defaulting to 0.0f
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:=====Translate sentence 1:1 20870 2447 5443 50916 78159 3621 2
+INF:Loading hierarchical grammar: G/rules.hiero.gz
+INF:loading LM=M/lm.4g.mmap
+INF:Stats for Sentence 1: local pruning, number of times=0
+INF:Writing rtn files...output/exp.hiero/rtn/1/%%rtn_label%%.fst
+INF:End Sentence ******************************************************
+INF:Writing lattice 1 to ... output/exp.hiero/LATS/1.fst.gz
+INF:Translation 1best is: 1 3 9121 384 6 2756 7 3 4144 6 159312 42 1341 2 
+INF:=====Translate sentence 2:1 1716 20196 95123 154 1049 6778 996 9 239837 7 1799 4 2
+INF:Stats for Sentence 2: local pruning, number of times=0
+INF:Writing rtn files...output/exp.hiero/rtn/2/%%rtn_label%%.fst
+INF:End Sentence ******************************************************
+INF:Writing lattice 2 to ... output/exp.hiero/LATS/2.fst.gz
+INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
+INF:hifst.O2.bin ends!
+/home/blue7/gi212/W2010/mt-sw/demo-files/output/exp.hiero/rtn /home/blue7/gi212/W2010/mt-sw/demo-files
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+INF:lexmap.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+action=lex2std
+		+config
+		+input=-
+		+output=-
+=====================
+
+INF:Processing file -
+INF:lexmap.O2.bin finished!
+/home/blue7/gi212/W2010/mt-sw/demo-files
+INF:Configuration loaded
+INF:applylm.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config
+		+lattice.load=output/exp.hiero/rtn-tp/1/Tb.pdt
+		+lattice.store=output/exp.hiero/rtn-tp/1/TG.pdt
+		+lm.featureweights=1.0
+		+lm.load=M/lm.4g.eprnd.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+semiring=stdarc
+		+stats.write
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:loading LM=M/lm.4g.eprnd.mmap
+INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/1/TG.pdt
+INF:applylm.O2.bin ends!
+INF:Configuration loaded
+INF:applylm.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config
+		+lattice.load=output/exp.hiero/rtn-tp/2/Tb.pdt
+		+lattice.store=output/exp.hiero/rtn-tp/2/TG.pdt
+		+lm.featureweights=1.0
+		+lm.load=M/lm.4g.eprnd.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+semiring=stdarc
+		+stats.write
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:loading LM=M/lm.4g.eprnd.mmap
+INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/2/TG.pdt
+INF:applylm.O2.bin ends!
+INF:Configuration loaded
+INF:applylm.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config
+		+lattice.load=output/exp.hiero/rtn-tp/1/TG.fst
+		+lattice.store=output/exp.hiero/rtn-tp/1/TG-nolm.fst
+		+lm.featureweights=-1
+		+lm.load=M/lm.4g.eprnd.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+semiring=stdarc
+		+stats.write
+=====================
+
+INF:Language model scale 0=-1
+INF:Language model word penalty 0=0.0
+INF:loading LM=M/lm.4g.eprnd.mmap
+INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/1/TG-nolm.fst
+INF:applylm.O2.bin ends!
+INF:Configuration loaded
+INF:applylm.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config
+		+lattice.load=output/exp.hiero/rtn-tp/1/TG-nolm.fst
+		+lattice.store=output/exp.hiero/rtn-tp/1/TG-final.fst
+		+lm.featureweights=1.0
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+semiring=stdarc
+		+stats.write
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:loading LM=M/lm.4g.mmap
+INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/1/TG-final.fst
+INF:applylm.O2.bin ends!
+INF:Configuration loaded
+INF:applylm.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config
+		+lattice.load=output/exp.hiero/rtn-tp/2/TG.fst
+		+lattice.store=output/exp.hiero/rtn-tp/2/TG-nolm.fst
+		+lm.featureweights=-1
+		+lm.load=M/lm.4g.eprnd.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+semiring=stdarc
+		+stats.write
+=====================
+
+INF:Language model scale 0=-1
+INF:Language model word penalty 0=0.0
+INF:loading LM=M/lm.4g.eprnd.mmap
+INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/2/TG-nolm.fst
+INF:applylm.O2.bin ends!
+INF:Configuration loaded
+INF:applylm.O2.bin starts!
+INF:CONFIG parameters:
+=====================
+		+config
+		+lattice.load=output/exp.hiero/rtn-tp/2/TG-nolm.fst
+		+lattice.store=output/exp.hiero/rtn-tp/2/TG-final.fst
+		+lm.featureweights=1.0
+		+lm.load=M/lm.4g.mmap
+		+lm.wordmap
+		+lm.wps=0.0
+		+semiring=stdarc
+		+stats.write
+=====================
+
+INF:Language model scale 0=1.0
+INF:Language model word penalty 0=0.0
+INF:loading LM=M/lm.4g.mmap
+INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/2/TG-final.fst
+INF:applylm.O2.bin ends!
+/home/blue7/gi212/W2010/mt-sw/ucam-smt/scripts/tests
