@@ -29,11 +29,11 @@ test_0001_demofiles_found() {
 grep_and_run_test() {
     tf=$1;
 (
-    pushd $DEMO_FILES_DIR;
-    grep "::>" Docs.dox/$tf | sed -e 's:^  *\:\:> *::g;s:&>.*$::g;s:CF.baseline.server:CF.baseline.server \&>/dev/null \&:g' >  test.bash  
+    pushd $DEMO_FILES_DIR &> /dev/null;
+    grep "::>" Docs.dox/$tf | sed -e 's:^  *\:\:> *::g;s:&>.*$::g;s:CF.baseline.server:CF.baseline.server \&>dev.null \&:g' >  test.bash  
     bash test.bash 2>&1 | sed -e 's:^.*.INF:INF:g;s:^.*.WRN:WRN:g;s:^real.*s$::g;s:^user.*s$::g;s:^sys.*s$::g' # take out the date stamps
     rm test.bash
-    popd 
+    popd &> /dev/null
 ) > $BASEDIR/$tf.logs
 
 }
@@ -44,7 +44,7 @@ grep_and_run_test() {
 test_0002_demofiles_basic_script(){
     # skip because demo-files directory is not available
     if [ ! -d $DEMO_FILES_DIR ] ; then echo 2; return; fi 
-    (cd wmaps; for file in `ls *.gz`; do nfile=`echo $file | sed -e 's:.gz$::g'`; gunzip -c $file > $nfile; done ) &>/dev/null
+    (cd $DEMO_FILES_DIR/wmaps; for file in `ls *.gz`; do nfile=`echo $file | sed -e 's:.gz$::g'`; gunzip -c $file > $nfile; done ) &>/dev/null
     testfile=Tutorial.010.basic.md
     grep_and_run_test $testfile
     diff $BASEDIR/$testfile.logs $REFDIR/$testfile.logs
@@ -64,5 +64,5 @@ test_0003_demofiles_pda_script(){
 
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
-
+#test_0002_demofiles_basic_script
 runtests

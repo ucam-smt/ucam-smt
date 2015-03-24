@@ -1,4 +1,3 @@
-/home/blue7/gi212/W2010/mt-sw/demo-files /home/blue7/gi212/W2010/mt-sw/ucam-smt/scripts/tests
 INF:Reading config fileconfigs/CF.hiero.pdt
 INF:Configuration loaded
 INF:hifst.O2.bin starts!
@@ -292,7 +291,7 @@ INF:End Sentence ******************************************************
 INF:Writing lattice 2 to ... output/exp.hiero/LATS/2.fst.gz
 INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
 INF:hifst.O2.bin ends!
-/home/blue7/gi212/W2010/mt-sw/demo-files/output/exp.hiero/rtn /home/blue7/gi212/W2010/mt-sw/demo-files
+/home/blue7/gi212/W2010/mt-sw/sandbox3/demo-files/output/exp.hiero/rtn /home/blue7/gi212/W2010/mt-sw/sandbox3/demo-files
 INF:lexmap.O2.bin starts!
 INF:CONFIG parameters:
 =====================
@@ -1261,7 +1260,7 @@ INF:CONFIG parameters:
 
 INF:Processing file -
 INF:lexmap.O2.bin finished!
-/home/blue7/gi212/W2010/mt-sw/demo-files
+/home/blue7/gi212/W2010/mt-sw/sandbox3/demo-files
 INF:Configuration loaded
 INF:applylm.O2.bin starts!
 INF:CONFIG parameters:
@@ -1382,4 +1381,3 @@ INF:Language model word penalty 0=0.0
 INF:loading LM=M/lm.4g.mmap
 INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/2/TG-final.fst
 INF:applylm.O2.bin ends!
-/home/blue7/gi212/W2010/mt-sw/ucam-smt/scripts/tests
