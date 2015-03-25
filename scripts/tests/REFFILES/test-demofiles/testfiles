@@ -3,6 +3,7 @@
 ../..//../demo-files/Docs.dox/Doxyfile
 ../..//../demo-files/Docs.dox/Tutorial.990.appendices.md
 ../..//../demo-files/Docs.dox/Tutorial.070.rulextract.md
+../..//../demo-files/Docs.dox/Tutorial.060.ReverseSearch.md
 ../..//../demo-files/Docs.dox/Tutorial.050.pda.md
 ../..//../demo-files/Docs.dox/Tutorial.010.basic.md
 ../..//../demo-files/Docs.dox/Tutorial.002.TutBackground.md
@@ -64,6 +65,10 @@
 ../..//../demo-files/scripts
 ../..//../demo-files/scripts/HiFST_lmert
 ../..//../demo-files/scripts/weightgrammar
+../..//../demo-files/scripts/affine_project.py
+../..//../demo-files/scripts/map_vertices.py
+../..//../demo-files/scripts/reverse_search.sh
+../..//../demo-files/scripts/reverse_search_test.py
 ../..//../demo-files/train
 ../..//../demo-files/train/align.berkeley.gz
 ../..//../demo-files/train/align.berkeley.sample.gz
