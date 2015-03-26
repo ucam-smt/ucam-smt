@@ -31,7 +31,7 @@ grep_and_run_test() {
 (
     pushd $DEMO_FILES_DIR &> /dev/null;
     grep "::>" Docs.dox/$tf | sed -e 's:^  *\:\:> *::g;s:&>.*$::g;s:CF.baseline.server:CF.baseline.server \&>dev.null \&:g' >  test.bash  
-    bash test.bash 2>&1 | sed -e 's:^.*.INF:INF:g;s:^.*.WRN:WRN:g;s:^real.*s$::g;s:^user.*s$::g;s:^sys.*s$::g' # take out the date stamps
+    bash test.bash 2>&1 | sed -e 's:^.*.INF:INF:g;s:^.*.WRN:WRN:g;s:^real.*s$::g;s:^user.*s$::g;s:^sys.*s$::g;s:^INF.* starts!:START:g;s:^INF.* ends!:END:g;' # take out the date stamps
     rm test.bash
     popd &> /dev/null
 ) > $BASEDIR/$tf.logs

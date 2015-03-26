@@ -1,6 +1,6 @@
 INF:Reading config fileconfigs/CF.hiero.pdt
 INF:Configuration loaded
-INF:hifst.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.hiero.pdt
@@ -94,10 +94,10 @@ INF:Stats for Sentence 2: local pruning, number of times=1
 INF:End Sentence ******************************************************
 INF:Writing lattice 2 to ... output/exp.hiero.pdt/LATS/2.fst.gz
 INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
-INF:hifst.O2.bin ends!
+END
 INF:Reading config fileconfigs/CF.baseline
 INF:Configuration loaded
-INF:hifst.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.baseline
@@ -192,10 +192,10 @@ INF:Writing rtn files...output/exp.baseline/rtn/2/%%rtn_label%%.fst
 INF:End Sentence ******************************************************
 INF:Writing lattice 2 to ... output/exp.baseline/LATS/2.fst.gz
 INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
-INF:hifst.O2.bin ends!
+END
 INF:Reading config fileconfigs/CF.hiero
 INF:Configuration loaded
-INF:hifst.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.hiero
@@ -290,9 +290,9 @@ INF:Writing rtn files...output/exp.hiero/rtn/2/%%rtn_label%%.fst
 INF:End Sentence ******************************************************
 INF:Writing lattice 2 to ... output/exp.hiero/LATS/2.fst.gz
 INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
-INF:hifst.O2.bin ends!
-/home/blue7/gi212/W2010/mt-sw/sandbox3/demo-files/output/exp.hiero/rtn /home/blue7/gi212/W2010/mt-sw/sandbox3/demo-files
-INF:lexmap.O2.bin starts!
+END
+/home/blue7/gi212/W2010/mt-sw/demo-files/output/exp.hiero/rtn /home/blue7/gi212/W2010/mt-sw/demo-files
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -302,8 +302,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -313,8 +313,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -324,8 +324,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -335,8 +335,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -346,8 +346,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -357,8 +357,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -368,8 +368,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -379,8 +379,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -390,8 +390,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -401,8 +401,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -412,8 +412,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -423,8 +423,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -434,8 +434,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -445,8 +445,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -456,8 +456,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -467,8 +467,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -478,8 +478,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -489,8 +489,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -500,8 +500,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -511,8 +511,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -522,8 +522,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -533,8 +533,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -544,8 +544,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -555,8 +555,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -566,8 +566,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -577,8 +577,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -588,8 +588,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -599,8 +599,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -610,8 +610,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -621,8 +621,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -632,8 +632,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -643,8 +643,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -654,8 +654,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -665,8 +665,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -676,8 +676,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -687,8 +687,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -698,8 +698,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -709,8 +709,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -720,8 +720,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -731,8 +731,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -742,8 +742,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -753,8 +753,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -764,8 +764,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -775,8 +775,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -786,8 +786,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -797,8 +797,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -808,8 +808,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -819,8 +819,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -830,8 +830,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -841,8 +841,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -852,8 +852,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -863,8 +863,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -874,8 +874,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -885,8 +885,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -896,8 +896,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -907,8 +907,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -918,8 +918,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -929,8 +929,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -940,8 +940,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -951,8 +951,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -962,8 +962,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -973,8 +973,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -984,8 +984,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -995,8 +995,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1006,8 +1006,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1017,8 +1017,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1028,8 +1028,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1039,8 +1039,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1050,8 +1050,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1061,8 +1061,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1072,8 +1072,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1083,8 +1083,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1094,8 +1094,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1105,8 +1105,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1116,8 +1116,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1127,8 +1127,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1138,8 +1138,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1149,8 +1149,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1160,8 +1160,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1171,8 +1171,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1182,8 +1182,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1193,8 +1193,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1204,8 +1204,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1215,8 +1215,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1226,8 +1226,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1237,8 +1237,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1248,8 +1248,8 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-INF:lexmap.O2.bin starts!
+INF:lexmap.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+action=lex2std
@@ -1259,10 +1259,10 @@ INF:CONFIG parameters:
 =====================
 
 INF:Processing file -
-INF:lexmap.O2.bin finished!
-/home/blue7/gi212/W2010/mt-sw/sandbox3/demo-files
+INF:lexmap.sta.O2.bin finished!
+/home/blue7/gi212/W2010/mt-sw/demo-files
 INF:Configuration loaded
-INF:applylm.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config
@@ -1280,9 +1280,9 @@ INF:Language model scale 0=1.0
 INF:Language model word penalty 0=0.0
 INF:loading LM=M/lm.4g.eprnd.mmap
 INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/1/TG.pdt
-INF:applylm.O2.bin ends!
+END
 INF:Configuration loaded
-INF:applylm.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config
@@ -1300,9 +1300,9 @@ INF:Language model scale 0=1.0
 INF:Language model word penalty 0=0.0
 INF:loading LM=M/lm.4g.eprnd.mmap
 INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/2/TG.pdt
-INF:applylm.O2.bin ends!
+END
 INF:Configuration loaded
-INF:applylm.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config
@@ -1320,9 +1320,9 @@ INF:Language model scale 0=-1
 INF:Language model word penalty 0=0.0
 INF:loading LM=M/lm.4g.eprnd.mmap
 INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/1/TG-nolm.fst
-INF:applylm.O2.bin ends!
+END
 INF:Configuration loaded
-INF:applylm.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config
@@ -1340,9 +1340,9 @@ INF:Language model scale 0=1.0
 INF:Language model word penalty 0=0.0
 INF:loading LM=M/lm.4g.mmap
 INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/1/TG-final.fst
-INF:applylm.O2.bin ends!
+END
 INF:Configuration loaded
-INF:applylm.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config
@@ -1360,9 +1360,9 @@ INF:Language model scale 0=-1
 INF:Language model word penalty 0=0.0
 INF:loading LM=M/lm.4g.eprnd.mmap
 INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/2/TG-nolm.fst
-INF:applylm.O2.bin ends!
+END
 INF:Configuration loaded
-INF:applylm.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config
@@ -1380,4 +1380,4 @@ INF:Language model scale 0=1.0
 INF:Language model word penalty 0=0.0
 INF:loading LM=M/lm.4g.mmap
 INF:Writing lattice 0 to ... output/exp.hiero/rtn-tp/2/TG-final.fst
-INF:applylm.O2.bin ends!
+END

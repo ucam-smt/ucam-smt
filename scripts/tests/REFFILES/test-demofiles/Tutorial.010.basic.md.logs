@@ -1,6 +1,6 @@
 INF:Reading config fileconfigs/CF.baseline
 INF:Configuration loaded
-INF:hifst.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.baseline
@@ -93,8 +93,8 @@ INF:Stats for Sentence 2: local pruning, number of times=0
 INF:End Sentence ******************************************************
 INF:Writing lattice 2 to ... output/exp.baseline/LATS/2.fst.gz
 INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
-INF:hifst.O2.bin ends!
-INF:printstrings.O2.bin starts!
+END
+START
 INF:CONFIG parameters:
 =====================
 		+config
@@ -112,8 +112,8 @@ INF:Processing file output/exp.baseline/LATS/1.fst.gz
 INF:Processing file output/exp.baseline/LATS/2.fst.gz
 <s> republican strategy of resistance to the renewal of obamas election </s> 
 <s> the leaders of the republican justified their policies need to deal with the spin on the elections . </s> 
-INF:printstrings.O2.bin finished!
-INF:printstrings.O2.bin starts!
+INF:printstrings.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+config
@@ -136,11 +136,11 @@ INF:Processing file output/exp.baseline/LATS/1.fst.gz
 1 3 9121 1132 384 4144 6 1458528 1341 2 
 1 3 9121 384 2756 7 3 4144 6 159312 42 1341 2 
 1 3 9121 1132 384 3 4144 6 1458528 1341 2 
-INF:printstrings.O2.bin finished!
+INF:printstrings.sta.O2.bin finished!
 INF:Reading config fileconfigs/CF.nogrammar
 WRN:Program option featureweights OVERRIDES grammar.featureweights and lm.featureweights!!
 INF:Configuration loaded
-INF:hifst.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.nogrammar
@@ -233,10 +233,10 @@ INF:Stats for Sentence 2: local pruning, number of times=0
 INF:End Sentence ******************************************************
 INF:Writing lattice 2 to ... output/exp.mert/LATS/2.fst.gz
 INF:Translation 1best is: 1 245 4 25 1028 7 11 5696 4375 5073 972 1052 564 51 1284 317 312 734 3423 12315 4448 14 119 3570 5 2 
-INF:hifst.O2.bin ends!
+END
 INF:Reading config fileconfigs/CF.baseline.outputnoprune
 INF:Configuration loaded
-INF:hifst.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.baseline.outputnoprune
@@ -329,10 +329,10 @@ INF:Stats for Sentence 2: local pruning, number of times=0
 INF:End Sentence ******************************************************
 INF:Writing lattice 2 to ... output/exp.baseline.outputnoprune/LATS/2.fst.gz
 INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
-INF:hifst.O2.bin ends!
+END
 INF:Reading config fileconfigs/CF.hiero.localprune
 INF:Configuration loaded
-INF:hifst.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.hiero.localprune
@@ -426,14 +426,14 @@ INF:Stats for Sentence 2: local pruning, number of times=18
 INF:End Sentence ******************************************************
 INF:Writing lattice 2 to ... output/exp.hiero.localprune/LATS/2.fst.gz
 INF:Translation 1best is: 1 3 1119 6 3 9121 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
-INF:hifst.O2.bin ends!
+END
 
 
 
 
 INF:Reading config fileconfigs/CF.baseline.outputnoprune.lmrescore
 INF:Configuration loaded
-INF:applylm.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.baseline.outputnoprune.lmrescore
@@ -454,8 +454,8 @@ INF:Language model word penalty 0=0.0
 INF:loading LM=M/lm.4g.mmap
 INF:Writing lattice 1 to ... output/exp.baseline.lmrescore/LATS/1.fst.gz
 INF:Writing lattice 2 to ... output/exp.baseline.lmrescore/LATS/2.fst.gz
-INF:applylm.O2.bin ends!
-INF:lmbr.O2.bin starts!
+END
+START
 INF:CONFIG parameters:
 =====================
 		+T=10
@@ -479,10 +479,10 @@ INF:applying Lattice MBR , sentence 1
 INF:Writing lattice 1 to ... output/exp.baseline.lmbr/LATS/1.fst.gz
 INF:applying Lattice MBR , sentence 2
 INF:Writing lattice 2 to ... output/exp.baseline.lmbr/LATS/2.fst.gz
-INF:lmbr.O2.bin ends!
+END
 0.4 0.02 1:1 3 9121 384 6 2756 7 3 4144 6 159312 42 1341 2 
 0.4 0.02 2:1 3 1119 6 3 9121 1711 54 79 6 3 85 7 525 13907 3 628 5 2 
-INF:disambig.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.recaser
@@ -508,8 +508,8 @@ Reading M/lm.tc.gz
 WRN:Skipping 0 probability at line:7 5943397 0.00000 5943398 0.01875 7 0.98121 5943399 0.00004
 INF:Writing lattice 1 to ... output/exp.baseline/LATS/1.fst.recase.gz
 INF:Writing lattice 2 to ... output/exp.baseline/LATS/2.fst.recase.gz
-INF:disambig.O2.bin ends!
-INF:printstrings.O2.bin starts!
+END
+START
 INF:CONFIG parameters:
 =====================
 		+config
@@ -527,10 +527,10 @@ INF:Processing file output/exp.baseline/LATS/1.fst.recase.gz
 INF:Processing file output/exp.baseline/LATS/2.fst.recase.gz
 <s> Republican strategy of resistance to the renewal of obamas election </s> 
 <s> The leaders of the Republican justified their policies need to deal with the spin on the elections . </s> 
-INF:printstrings.O2.bin finished!
+INF:printstrings.sta.O2.bin finished!
 INF:Reading config fileconfigs/CF.baseline
 INF:Configuration loaded
-INF:hifst.O2.bin starts!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.baseline
@@ -630,8 +630,8 @@ INF:Stats for Sentence 2: local pruning, number of times=0
 INF:End Sentence ******************************************************
 INF:Writing lattice 2 to ... output/exp.baseline/LATS/2.fst.gz
 INF:Translation 1best is: 1 5943349 1119 6 3 5943008 1711 63 355 85 7 369 24 3 13907 17 3 628 5 2 
-INF:hifst.O2.bin ends!
-INF:printstrings.O2.bin starts!
+END
+START
 INF:CONFIG parameters:
 =====================
 		+config
@@ -646,8 +646,8 @@ INF:Loading symbol map file...
 INF:Loaded 4037 symbols
 INF:Processing file output/exp.baseline/LATS/1.fst.gz
 <s> republican strategy of resistance to the renewal of obamas election </s> 
-INF:printstrings.O2.bin finished!
-INF:hifst-client.O2.bin starts!
+INF:printstrings.sta.O2.bin finished!
+START
 INF:CONFIG parameters:
 =====================
 		+config=configs/CF.baseline.client
@@ -762,7 +762,7 @@ INF:Translating sentence 100:к тому же , гонки время от вр�
 INF:in addition , racing occasionally animates extraordinary detail .
 INF:Translating sentence 1300:согласно isis , опирающегося в значительной мере на документы магатэ , г-н даниленко родился в 1934 году , работал 30 лет , " начиная с шестидесятых годов , в советском военном ядерном центре в челябинске ( урал ) и был причастен к производству синтетических алмазов методов взрыва " .
 INF:accordance isis supported largely on instruments iaea mr born 1934 worked 30 , " start sixties , soviet military nuclear center in chelyabinsk ( ural ) and was involved production synthetic diamonds methods explosion . "
-INF:hifst-client.O2.bin ends!
+END
 parliament supports amendment giving freedom tymoshenko
 amendment , which led to a liberation located imprisoned former prime minister was rejected during second reading bill mitigating sentences for economic offences .
 sentence still ultimate ; the court will review appeal tymoshenko in december .
