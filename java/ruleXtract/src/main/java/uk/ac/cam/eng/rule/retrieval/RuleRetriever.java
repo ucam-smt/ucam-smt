@@ -113,6 +113,8 @@ public class RuleRetriever extends Configured implements Tool {
 		MAX_SOURCE_PHRASE = conf.getInt("max_source_phrase", 5);
 		filter = new RuleFilter(conf);
 		asciiConstraints = getAsciiConstraints();
+		System.out.println(asciiConstraints);
+		//System.exit(0);
 		Set<Text> fullTestVocab = getTestVocab(testFile);
 		Set<Text> asciiVocab = getAsciiVocab();
 		testVocab = new HashSet<>();
@@ -144,7 +146,9 @@ public class RuleRetriever extends Configured implements Tool {
 		readers = new HFileRuleReader[names.length];
 		for (File file : names) {
 			String name = file.getName();
+			System.out.println("Found file " + name);
 			int i = Integer.parseInt(name.substring(7, 12));
+			System.out.println("File has bucket number " +i);
 			HFile.Reader hfReader = HFile.createReader(
 					FileSystem.getLocal(conf), new Path(file.getPath()),
 					cacheConf);
@@ -400,8 +404,7 @@ public class RuleRetriever extends Configured implements Tool {
 					new OutputStreamWriter(new GZIPOutputStream(
 							new FileOutputStream(params.rules))))) {
 				FeatureCreator features = new FeatureCreator(conf);
-				ExecutorService threadPool = Executors.newFixedThreadPool(conf
-						.getInt(RETRIEVEL_THREADS, 1));
+				ExecutorService threadPool = Executors.newFixedThreadPool(Integer.parseInt(params.retrieval_threads));
 
 				for (int i = 0; i < queries.size(); ++i) {
 					HFileRuleQuery query = new HFileRuleQuery(

@@ -82,8 +82,8 @@ public class ExtractorDataLoader {
 
 			String srcLine = null, trgLine = null, alignLine = null, provLine = null;
 			Configuration conf = new Configuration();
-			FileSystem fs = FileSystem.get(conf);
 			Path path = new Path(hdfsName);
+			FileSystem fs = path.getFileSystem(conf);
 			try (SequenceFile.Writer writer = new SequenceFile.Writer(fs, conf,
 					path, MapWritable.class, TextArrayWritable.class)) {
 				Text sourceSentenceText = new Text();

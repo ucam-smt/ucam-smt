@@ -88,8 +88,8 @@ public class Source2TargetJob extends Configured implements Tool {
 	}
 
 	public static Job getJob(Configuration conf) throws IOException {
-		conf.set("mapred.map.child.java.opts", "-Xmx200m");
-		conf.set("mapred.reduce.child.java.opts", "-Xmx5128m");
+		conf.set("mapreduce.map.java.opts", "-Xmx200m");
+		conf.set("mapreduce.reduce.java.opts", "-Xmx5128m");
 		conf.setBoolean(MarginalReducer.SOURCE_TO_TARGET, true);
 		Job job = new Job(conf);
 		job.setJarByClass(Source2TargetJob.class);
