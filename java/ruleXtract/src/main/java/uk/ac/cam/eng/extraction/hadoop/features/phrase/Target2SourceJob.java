@@ -80,8 +80,8 @@ public class Target2SourceJob extends PhraseJob {
 
 	@Override
 	public Job getJob(Configuration conf) throws IOException {
-		conf.set("mapred.map.child.java.opts", "-Xmx200m");
-		conf.set("mapred.reduce.child.java.opts", "-Xmx5128m");
+		conf.set("mapreduce.map.child.java.opts", "-Xmx200m");
+		conf.set("mapreduce.reduce.child.java.opts", "-Xmx5128m");
 		conf.setBoolean(MarginalReducer.SOURCE_TO_TARGET, false);
 		Job job = new Job(conf);
 		job.setJarByClass(Target2SourceJob.class);
