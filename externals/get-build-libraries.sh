@@ -77,12 +77,14 @@ export GTEST_DIR=$GTEST_DIR;
 export GTEST_INCLUDE=${GTEST_DIR}/include
 export GTEST_LIB=${GTEST_DIR}/INSTALL_DIR/lib
 
-# Lattice mert (latmert) can compile with gperftools and Unwind. You need to install
-# these libraries and then modify Makefile.inc so that these three variables point
-# to the right places:
+# Lattice mert (latmert and lmert tools) can compile with gperftools and Unwind. You need to install
+# these libraries on your own and then modify Makefile.inc (which exists _after_ running build-test.sh)
+# so that these three variables point to the right places:
 # export GPERFTOOLS_INCLUDE=$TOPDIR/externals/gperftools-2.0/INSTALL_DIR/include
 # export GPERFTOOLS_LIB=$TOPDIR/externals/gperftools-2.0/INSTALL_DIR/lib
 # export UNWIND_LIB=$TOPDIR/externals/libunwind-1.0.1-install/lib
+# Afterwards, just do e.g. cd cpp/latmert; make latmert.O2; make install;
+# or cd cpp/latmert; make latmert.O2; make install;
 
 
 ### Please write in here the absolute path to HiFST:
@@ -91,6 +93,11 @@ export TOPDIR=$TOPDIR
 ### Default KENLM package -- bundled with HiFST package.
 export KENLM_DIR=${TOPDIR}/externals/kenlm/
 
+### To integrate NPLM, uncomment these variables set them to the appropriate values:
+# export NPLM_INCLUDE=...
+# export NPLM_LIB=...
+# export EIGEN_INCLUDE=...
+### And then re-run build-test.sh
 
 #### Number of cpus to be used for compilation. 
 export NUMPROC=1
