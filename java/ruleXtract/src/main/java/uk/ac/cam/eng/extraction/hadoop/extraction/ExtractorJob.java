@@ -67,7 +67,7 @@ public class ExtractorJob extends Configured implements Tool {
 	 * @throws IOException
 	 */
 	public static Job getJob(Configuration conf) throws IOException {
-	        conf.set("mapreduce.map.java.opts", "-Xmx5000m");
+	        conf.set("mapreduce.map.java.opts", "-Xmx800m");
 	        conf.set("mapreduce.reduce.java.opts", "-Xmx4096m");
 		Job job = new Job(conf, "Rule extraction");
 		job.setJarByClass(ExtractorJob.class);
