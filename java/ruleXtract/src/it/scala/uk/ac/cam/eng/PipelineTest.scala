@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use these files except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *******************************************************************************/
+
 package uk.ac.cam.eng
 
 import org.scalatest.FunSuite
@@ -20,11 +35,8 @@ import uk.ac.cam.eng.extraction.hadoop.merge.MergeJob
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat
 import uk.ac.cam.eng.extraction.hadoop.merge.MergeJob.MergeFeatureMapper
-import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap
 import uk.ac.cam.eng.extraction.Rule
-import uk.ac.cam.eng.extraction.hadoop.datatypes.ExtractedData
 import uk.ac.cam.eng.extraction.hadoop.merge.MergeJob.MergeRuleMapper
-import scala.collection.immutable.HashSet
 import org.apache.hadoop.hbase.io.hfile.HFile
 import org.apache.hadoop.hbase.io.hfile.CacheConfig
 import uk.ac.cam.eng.rule.retrieval.HFileRuleReader
@@ -32,13 +44,18 @@ import scala.collection.JavaConversions._
 import uk.ac.cam.eng.rule.features.Feature
 import org.apache.hadoop.io.IntWritable
 import uk.ac.cam.eng.util.CLI.FilterParams
+import uk.ac.cam.eng.extraction.RuleString
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat
+import uk.ac.cam.eng.extraction.hadoop.merge.MergeJob.MergeFeatureMapper
+import uk.ac.cam.eng.extraction.hadoop.merge.MergeJob.MergeRuleMapper
+import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap
+import uk.ac.cam.eng.extraction.hadoop.datatypes.ExtractedData
 
 class PipelineTest extends FunSuite with BeforeAndAfterAll {
 
   override def beforeAll(configMap: ConfigMap) {
     RuleExtractorTest.folder.create()
     RuleExtractorTest.setupFileSystem()
-    
   }
 
   override def afterAll(configMap: ConfigMap) {
@@ -63,7 +80,7 @@ class PipelineTest extends FunSuite with BeforeAndAfterAll {
 
   test("The rule extraction job") {
     val conf = new Configuration
-    conf.set("mapreduce.framework.name", "foobar");
+    conf.set("mapreduce.framework.name", "local");
     conf.setInt(CLI.RuleParameters.MAX_SOURCE_PHRASE, 9)
     conf.setInt(CLI.RuleParameters.MAX_SOURCE_ELEMENTS, 5)
     conf.setInt(CLI.RuleParameters.MAX_TERMINAL_LENGTH, 5)
@@ -93,11 +110,11 @@ class PipelineTest extends FunSuite with BeforeAndAfterAll {
     conf.set(FilterParams.MIN_SOURCE2TARGET_RULE, "0.01");
     conf.set(FilterParams.MIN_TARGET2SOURCE_RULE, "1e-10");
     conf.setBoolean(FilterParams.PROVENANCE_UNION, true);
-    val patternsFile = RuleExtractorTest.copyDataToTestDir("/uk/ac/cam/eng/data/CF.rulextract.patterns").toPath.toUri.toString;
+    val patternsFile = RuleExtractorTest.copyDataToTestDir("/CF.rulextract.patterns").toPath.toUri.toString;
     conf.set(FilterParams.SOURCE_PATTERNS, patternsFile)
-    val allowedFile = RuleExtractorTest.copyDataToTestDir("/uk/ac/cam/eng/data/CF.rulextract.filter.allowedonly").toPath.toUri.toString;
+    val allowedFile = RuleExtractorTest.copyDataToTestDir("/CF.rulextract.filter.allowedonly").toPath.toUri.toString;
     conf.set(FilterParams.ALLOWED_PATTERNS, allowedFile)
-    
+
     val mergeJob = MergeJob.getJob(conf);
     for (featurePath <- List(s2tOut, t2sOut)) {
       MultipleInputs.addInputPath(mergeJob, featurePath,
@@ -142,7 +159,11 @@ class PipelineTest extends FunSuite with BeforeAndAfterAll {
         case _ => notTested += 1
       }
     }
-    assertResult(1182985)(count)
+    assertResult(1182995)(count)
     assertResult(5)(count - notTested)
+    
+    val seekReader = new HFileRuleReader(hfReader)
+    assert(seekReader.seek(RuleString("69040_6_67946_52926")))
+    assert(seekReader.getRulesForSource.foldLeft(0)((count,_) => count + 1)==2)
   }
 }

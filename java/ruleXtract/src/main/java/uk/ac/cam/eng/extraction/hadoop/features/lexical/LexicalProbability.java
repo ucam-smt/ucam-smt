@@ -81,11 +81,11 @@ class LexicalProbability {
 		List<Symbol> sourceWords;
 		List<Symbol> targetWords;
 		if (source2target) {
-			sourceWords = rule.getSource();
-			targetWords = rule.getTarget();
+			sourceWords = rule.source().getTerminals();
+			targetWords = rule.target().getTerminals();
 		} else {
-			sourceWords = rule.getTarget();
-			targetWords = rule.getSource();
+			sourceWords = rule.target().getTerminals();
+			targetWords = rule.source().getTerminals();
 		}
 		if (sourceWords.size() > 1) {
 			targetWords.add(Terminal.create(0));
@@ -98,7 +98,6 @@ class LexicalProbability {
 				List<Integer> serverKey = Arrays.asList(key);
 				if (batchWordAlignments.containsKey(serverKey)) {
 					double val = batchWordAlignments.get(serverKey);
-					// System.out.println(serverKey + "\t" + val);
 					sum += val;
 				}
 			}
@@ -110,7 +109,6 @@ class LexicalProbability {
 
 		}
 		lexprob /= Math.pow(targetWords.size(), sourceWords.size());
-		// TODO could use the log in the computation
 		return Math.log(lexprob);
 	}
 

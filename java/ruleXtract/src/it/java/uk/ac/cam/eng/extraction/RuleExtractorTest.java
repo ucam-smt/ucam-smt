@@ -32,7 +32,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Writable;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -52,7 +51,7 @@ import uk.ac.cam.eng.util.Pair;
 public class RuleExtractorTest {
 
 	private static final String LOCAL_URI = "file:///";
-	private static final String TRAINING_DATA = "/uk/ac/cam/eng/data/unit_testing_training_data";
+	private static final String TRAINING_DATA = "/unit_testing_training_data";
 
 	@ClassRule
 	public static TemporaryFolder folder = new TemporaryFolder();
@@ -63,7 +62,7 @@ public class RuleExtractorTest {
 	public static File copyDataToTestDir(String resource) throws IOException{
 		File output = folder.newFile();
 		try (OutputStream writer = new FileOutputStream(output)) {
-			try (InputStream rulesFile = conf.getClass().getResourceAsStream(
+			try (InputStream rulesFile = RuleExtractorTest.class.getResourceAsStream(
 					resource)) {
 				for (int in = rulesFile.read(); in != -1; in = rulesFile.read()) {
 					writer.write(in);
@@ -88,19 +87,6 @@ public class RuleExtractorTest {
 		folder.delete();
 	}
 
-	public void testExtraction() throws IOException {
-		try (SequenceFile.Reader reader = new SequenceFile.Reader(
-				FileSystem.get(conf), new Path(trainingDataFile.getPath()),
-				conf)) {
-			MapWritable key = new MapWritable();
-			TextArrayWritable val = new TextArrayWritable();
-			reader.next(key, val);
-			key.forEach((k, v) -> System.out.println(k + ": " + v));
-			for (Writable t : val.get()) {
-				System.out.println(t);
-			}
-		}
-	}
 	
 	private boolean isContigious(List<Rule> rules, Function<Rule, List<Symbol>> getStr){
 		Set<List<Symbol>> prevs = new HashSet<>();

@@ -1,81 +1,44 @@
+/*******************************************************************************
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use these files except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *******************************************************************************/
+
 package uk.ac.cam.eng.extraction
 
-import resource._
-import scala.collection.JavaConverters._
-import scala.collection.immutable._
-import org.apache.hadoop.io.SequenceFile
-import org.apache.hadoop.fs.FileSystem
-import org.apache.hadoop.fs.Path
-import org.apache.hadoop.io.MapWritable
-import uk.ac.cam.eng.extraction.hadoop.datatypes.TextArrayWritable
-import org.apache.hadoop.io.Text
-import org.apache.hadoop.conf.Configuration
-import java.io.File
-import java.io.BufferedWriter
-import org.apache.hadoop.io.compress.GzipCodec.GzipOutputStream
-import java.io.OutputStreamWriter
-import java.util.zip.GZIPOutputStream
-import java.io.FileOutputStream
-import scala.io.Source
-import java.util.zip.GZIPInputStream
-import scala.collection.mutable.ArrayBuffer
 import org.scalatest._
 
 class ExtractSpec extends FlatSpec with Matchers {
 
-  "The extractor" should "match previous output" in {
-    diffs should be(9368)
-  }
-
-  def getSource(f: String) =
-    Source.fromInputStream(new GZIPInputStream(this.getClass.getClassLoader.getResourceAsStream(f)))
-
-  def readOldDiff(oldIter: Iterator[String]): String = {
-    val rules = new ArrayBuffer[String]
-    for (line <- oldIter) {
-      if (line == "--") {
-        return rules.sorted.mkString("\n")
-      }
-      val fields = line.split(" ")
-      val elem = (fields(1) + " " + fields(2)).replace("X1", "V").replace("X2", "V1").replace("X", "V")
-      rules ++= (for (i <- 0 until fields(0).toInt) yield elem)
-    }
-    return rules.sorted.mkString("\n")
-  }
-
-  def diffs(): Int = {
-    RuleExtractorTest.folder.create()
-    RuleExtractorTest.setupFileSystem()
-    val opt = new ExtractOptions(9, 5, 5, 10, true, true)
+  val sourceString = "3 4 5 6"
+  val targetString = "13 14 15 16"
+  val alignString = "0-0 1-2 3-1"
+  
+  val output = List(Rule("V_4_V1 V_V1_15"), Rule("V_4_5_V1 V_V1_15"), Rule("V_4_5_6 V_14_15"), 
+      Rule("V_5 V"), Rule("V_5_V1 V1_V"), Rule("V_5_6 14_V"), Rule("V_6 14_V"), Rule("3 13"), 
+      Rule("3_V 13_V"), Rule("3_V_5_V1 13_V1_V"), Rule("3_V_5_6 13_14_V"), Rule("3_V_5_6 13_14_V"), 
+      Rule("3_V_5_6 13_14_V"), Rule("3_V_5_6 13_14_V_16"), Rule("3_V_6 13_14_V"), Rule("3_V_6 13_14_V"),
+      Rule("3_V_6 13_14_V"), Rule("3_V_6 13_14_V_16"), Rule("3_4_V 13_V_15"), Rule("3_4_5_V 13_V_15"), 
+      Rule("3_4_5_6 13_14_15"), Rule("3_4_5_6 13_14_15_16"), Rule("4 15"), Rule("4 15_16"), Rule("4_V V_15"),
+      Rule("4_5 15"), Rule("4_5 15_16"), Rule("4_5_V V_15"), Rule("4_5_6 14_15"), Rule("4_5_6 14_15_16"), 
+      Rule("5_6 14"), Rule("6 14")).sorted(S2TOrdering)
+  
+  "Source '" + sourceString + "', target '" + targetString + "', and alignments '" + 
+    alignString + "'" should " extract the rules " + output.mkString(", ") in {
+    val opt = new ExtractOptions(9, 5, 5, 10, true, false)
     val extract = Extract.extract(opt)_
-    var diffs = 0
-    for (
-      reader <- managed(new SequenceFile.Reader(
-        FileSystem.get(RuleExtractorTest.conf), new Path(RuleExtractorTest.trainingDataFile.getPath()),
-        RuleExtractorTest.conf)); oldRules <- managed(getSource("uk/ac/cam/eng/data/oldExtractOut.gz"))
-    ) {
-      val key = new MapWritable()
-      val value = new TextArrayWritable()
-      val offset = 0
-      var count = offset
-      for (i <- 0 until offset) {
-        reader.next(key, value)
-      }
-      val oldIter = oldRules.getLines
-      val start = System.currentTimeMillis()
-      while (reader.next(key, value)) {
-        count += 1
-        val strings = value.get.map { _ match { case t: Text => t.toString() } }
-        val src = strings(0)
-        val trg = strings(1)
-        val align = strings(2)
-        val newString = extract(src, trg, align).map { _ match { case (r, a) => r.toString() } }.toList.sorted.mkString("\n")
-        val oldString = readOldDiff(oldIter)
-        if (oldString != newString) diffs += 1
-      }
-    }
-    RuleExtractorTest.folder.delete()
-    diffs
-  }
-
+    val rules = extract(sourceString, targetString, alignString).map(_._1).sorted(S2TOrdering) 
+    rules.size should be(output.size)
+    for ((r, o) <- rules zip output) (r should be(o))
+  } 
+  
 }

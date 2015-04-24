@@ -22,12 +22,14 @@ import java.util.Iterator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.io.hfile.CacheConfig;
 import org.apache.hadoop.hbase.io.hfile.HFile;
 import org.apache.hadoop.hbase.io.hfile.HFileScanner;
 import org.apache.hadoop.io.DataInputBuffer;
 import org.apache.hadoop.io.DataOutputBuffer;
 
+import scala.Array;
 import uk.ac.cam.eng.extraction.Rule;
 import uk.ac.cam.eng.extraction.RuleString;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleData;
@@ -65,10 +67,14 @@ public class HFileRuleReader implements Iterable<Pair<Rule, RuleData>> {
 		}
 	}
 
-	boolean seek(RuleString source) throws IOException {
+	public boolean seek(RuleString source) throws IOException {
 		out.reset();
 		source.write(out);
-		int pos = scanner.seekTo(out.getData(), 0, out.getLength());
+		byte[] empty = Array.emptyByteArray();
+		KeyValue kv = new KeyValue(out.getData(), 0, out.getLength(), empty, 0,
+				0, empty, 0, 0, 0l, KeyValue.Type.Put, empty, 0, 0);
+		int pos = scanner.seekTo(kv.getBuffer(), kv.getKeyOffset(),
+				kv.getKeyLength());
 		if (pos == 0) {
 			key.set(source);
 			rule.setSource(key);
@@ -80,8 +86,7 @@ public class HFileRuleReader implements Iterable<Pair<Rule, RuleData>> {
 
 	public Iterable<Pair<Rule, RuleData>> getRulesForSource() {
 		readValue();
-		final Iterator<Pair<RuleString, RuleData>> instance = value
-				.iterator();
+		final Iterator<Pair<RuleString, RuleData>> instance = value.iterator();
 
 		return new Iterable<Pair<Rule, RuleData>>() {
 
@@ -96,8 +101,7 @@ public class HFileRuleReader implements Iterable<Pair<Rule, RuleData>> {
 
 					@Override
 					public Pair<Rule, RuleData> next() {
-						Pair<RuleString, RuleData> next = instance
-								.next();
+						Pair<RuleString, RuleData> next = instance.next();
 						rule.setTarget(next.getFirst());
 						return Pair.createPair(rule, next.getSecond());
 					}
@@ -113,8 +117,9 @@ public class HFileRuleReader implements Iterable<Pair<Rule, RuleData>> {
 	}
 
 	private RuleString readSource() {
-		in.reset(scanner.getKey().array(), scanner.getKey().arrayOffset(),
-				scanner.getKey().limit());
+		// Have to put the ROW_LENGTH_SIZE due to KeyValue structure
+		in.reset(scanner.getKey().array(), scanner.getKey().arrayOffset()
+				+ KeyValue.ROW_LENGTH_SIZE, scanner.getKey().limit());
 		key.readFields(in);
 		rule.setSource(key);
 		return key;
@@ -126,12 +131,11 @@ public class HFileRuleReader implements Iterable<Pair<Rule, RuleData>> {
 		try {
 			temp = scanner.seekTo();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		final boolean isNotEmpty = temp;
 		if (!isNotEmpty) {
-			return Collections.<Pair<Rule, RuleData>> emptyList()
-					.iterator();
+			return Collections.<Pair<Rule, RuleData>> emptyList().iterator();
 		}
 		readSource();
 		return new Iterator<Pair<Rule, RuleData>>() {

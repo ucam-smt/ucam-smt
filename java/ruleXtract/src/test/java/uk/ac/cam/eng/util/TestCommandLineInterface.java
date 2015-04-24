@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use these files except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *******************************************************************************/
+
 package uk.ac.cam.eng.util;
 
 import java.io.File;
@@ -13,12 +28,13 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import scala.reflect.internal.Trees.This;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
 import uk.ac.cam.eng.util.CLI;
 
 public class TestCommandLineInterface {
 
-	private static final String TEST_CONFIG="/uk/ac/cam/eng/util/TestConfigFile";
+	private static final String TEST_CONFIG="/TestConfigFile";
 	
 	public static File testConfig;
 	
@@ -29,7 +45,7 @@ public class TestCommandLineInterface {
 	public static void setup() throws IOException{
 		testConfig = folder.newFile();
 		try (OutputStream writer = new FileOutputStream(testConfig)) {
-			try (InputStream configFile = writer.getClass().getResourceAsStream(
+			try (InputStream configFile = TestCommandLineInterface.class.getResourceAsStream(
 					TEST_CONFIG)) {
 				for (int in = configFile.read(); in != -1; in = configFile.read()) {
 					writer.write(in);

@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.io.hfile.CacheConfig;
 import org.apache.hadoop.hbase.io.hfile.HFile;
 import org.apache.hadoop.hbase.regionserver.BloomType;
@@ -32,6 +33,7 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
+import scala.Array;
 import uk.ac.cam.eng.extraction.RuleString;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.TargetFeatureList;
 
@@ -76,7 +78,9 @@ public class SimpleHFileOutputFormat extends
 					throws IOException {
 				byte[] keyBytes = createBytes(key);
 				byte[] valueBytes = createBytes(value);
-				writer.append(keyBytes, valueBytes);
+				KeyValue toWrite = new KeyValue(keyBytes, Array.emptyByteArray(), 
+						Array.emptyByteArray(), 0, valueBytes);
+				writer.append(toWrite);
 				bloomFilterWriter.add(keyBytes, 0, keyBytes.length);
 			}
 
