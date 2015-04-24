@@ -67,8 +67,9 @@ public class ExtractorJob extends Configured implements Tool {
 	 * @throws IOException
 	 */
 	public static Job getJob(Configuration conf) throws IOException {
-	        conf.set("mapreduce.map.java.opts", "-Xmx800m");
-	        conf.set("mapreduce.reduce.java.opts", "-Xmx4096m");
+		conf.set("mapreduce.map.java.opts", "-Xmx800m");
+		conf.set("mapreduce.reduce.java.opts", "-Xmx4096m");
+		conf.set("mapreduce.input.fileinputformat.split.maxsize", "4194304");
 		Job job = new Job(conf, "Rule extraction");
 		job.setJarByClass(ExtractorJob.class);
 		job.setMapOutputKeyClass(Rule.class);
@@ -135,18 +136,24 @@ public class ExtractorJob extends Configured implements Tool {
 			String targetSentence = ((Text) value.get()[1]).toString();
 			String wordAlign = ((Text) value.get()[2]).toString();
 
-			int maxSourcePhrase = conf.getInt(CLI.RuleParameters.MAX_SOURCE_PHRASE,-1);
-			int maxSourceElements = conf.getInt(CLI.RuleParameters.MAX_SOURCE_ELEMENTS, -1);
-			int maxTerminalLength = conf.getInt(CLI.RuleParameters.MAX_TERMINAL_LENGTH, -1);
-			int maxNonTerminalSpan = conf.getInt(CLI.RuleParameters.MAX_NONTERMINAL_SPAN, -1);
-			boolean removeMonotonicRepeats = conf.getBoolean(CLI.ExtractorJobParameters.REMOVE_MONOTONIC_REPEATS,
-					false);
-			boolean compatabilityMode = conf.getBoolean(CLI.ExtractorJobParameters.COMPATIBILITY_MODE,
-					false);
-			ExtractOptions opts = new ExtractOptions(maxSourcePhrase, maxSourceElements, maxTerminalLength, 
-					maxNonTerminalSpan, removeMonotonicRepeats, compatabilityMode);
-			
-			for (Pair<Rule, Alignment> ra : Extract.extractJava(opts, sourceSentence, targetSentence, wordAlign)) {
+			int maxSourcePhrase = conf.getInt(
+					CLI.RuleParameters.MAX_SOURCE_PHRASE, -1);
+			int maxSourceElements = conf.getInt(
+					CLI.RuleParameters.MAX_SOURCE_ELEMENTS, -1);
+			int maxTerminalLength = conf.getInt(
+					CLI.RuleParameters.MAX_TERMINAL_LENGTH, -1);
+			int maxNonTerminalSpan = conf.getInt(
+					CLI.RuleParameters.MAX_NONTERMINAL_SPAN, -1);
+			boolean removeMonotonicRepeats = conf.getBoolean(
+					CLI.ExtractorJobParameters.REMOVE_MONOTONIC_REPEATS, false);
+			boolean compatabilityMode = conf.getBoolean(
+					CLI.ExtractorJobParameters.COMPATIBILITY_MODE, false);
+			ExtractOptions opts = new ExtractOptions(maxSourcePhrase,
+					maxSourceElements, maxTerminalLength, maxNonTerminalSpan,
+					removeMonotonicRepeats, compatabilityMode);
+
+			for (Pair<Rule, Alignment> ra : Extract.extractJava(opts,
+					sourceSentence, targetSentence, wordAlign)) {
 				ruleInfo.clear();
 				ruleInfo.putProvenanceCount(ALL, ONE);
 				for (Writable prov : key.keySet()) {
