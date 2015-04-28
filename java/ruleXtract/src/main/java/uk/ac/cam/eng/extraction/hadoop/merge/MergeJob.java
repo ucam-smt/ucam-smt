@@ -180,9 +180,10 @@ public class MergeJob extends Configured implements Tool {
 
 	public static Job getJob(Configuration conf) throws IOException {
 
-		conf.set("mapreduce.map.child.java.opts", "-Xmx200m");
-		conf.set("mapreduce.reduce.child.java.opts", "-Xmx5000m");
-
+		conf.setIfUnset("mapreduce.map.child.java.opts", "-Xmx200m");
+		conf.setIfUnset("mapreduce.reduce.child.java.opts", "-Xmx8000m");
+		conf.setIfUnset("mapreduce.map.memory.mb", "1000");
+		conf.setIfUnset("mapreduce.reduce.memory.mb", "10000");
 		Job job = new Job(conf);
 		job.setJarByClass(MergeJob.class);
 		job.setJobName("Merge");

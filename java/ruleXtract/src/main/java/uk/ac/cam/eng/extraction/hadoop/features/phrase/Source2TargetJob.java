@@ -79,8 +79,10 @@ public class Source2TargetJob extends PhraseJob{
 
 	@Override
 	public Job getJob(Configuration conf) throws IOException {
-		conf.set("mapreduce.map.child.java.opts", "-Xmx200m");
-		conf.set("mapreduce.reduce.child.java.opts", "-Xmx5128m");
+		conf.setIfUnset("mapreduce.map.child.java.opts", "-Xmx200m");
+		conf.setIfUnset("mapreduce.reduce.child.java.opts", "-Xmx5128m");
+		conf.setIfUnset("mapreduce.map.memory.mb", "1000");
+		conf.setIfUnset("mapreduce.reduce.memory.mb", "6000");
 		conf.setBoolean(MarginalReducer.SOURCE_TO_TARGET, true);
 		Job job = new Job(conf);
 		job.setJarByClass(Source2TargetJob.class);
