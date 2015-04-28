@@ -17,24 +17,23 @@ package uk.ac.cam.eng.extraction.hadoop.features.lexical;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.apache.hadoop.conf.Configuration;
-
-import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
-import uk.ac.cam.eng.rulebuilding.features.FeatureCreator;
+import uk.ac.cam.eng.extraction.Rule;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceProbMap;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleData;
+import uk.ac.cam.eng.rule.features.Feature;
+import uk.ac.cam.eng.rule.retrieval.EnumRuleType;
+import uk.ac.cam.eng.util.CLI;
 import uk.ac.cam.eng.util.Pair;
 
 /**
@@ -44,14 +43,6 @@ import uk.ac.cam.eng.util.Pair;
  */
 public class TTableClient {
 
-	private static final String S2T_FEATURE_NAME = "source2target_lexical_probability";
-
-	private static final String T2S_FEATURE_NAME = "target2source_lexical_probability";
-
-	private static final String S2T_HOST_NAME = "ttable_s2t_host";
-
-	private static final String T2S_HOST_NAME = "ttable_t2s_host";
-
 	private String hostName;
 
 	private int port;
@@ -60,26 +51,27 @@ public class TTableClient {
 
 	private Map<List<Integer>, Double> wordAlignments = new HashMap<>();
 
-	private int[] mapping;
+	private int noOfProvs;
+	
+	Feature lexicalF;
+	
+	Feature provLexicalF;
 
-	public void setup(Configuration conf, boolean source2Target)
-			throws UnknownHostException {
-		String featureName;
+	public void setup(CLI.ServerParams params,
+			int noOfProvs, boolean source2Target) {
 		if (source2Target) {
-			port = conf.getInt(TTableServer.TTABLE_S2T_SERVER_PORT, -1);
-			hostName = conf.get(S2T_HOST_NAME);
-			featureName = TTableClient.S2T_FEATURE_NAME;
+			port = params.ttableS2TServerPort;
+			hostName = params.ttableS2THost;
+			lexicalF = Feature.SOURCE2TARGET_LEXICAL_PROBABILITY;
+			provLexicalF = Feature.PROVENANCE_SOURCE2TARGET_LEXICAL_PROBABILITY;
 		} else {
-			port = conf.getInt(TTableServer.TTABLE_T2S_SERVER_PORT, -1);
-			hostName = conf.get(T2S_HOST_NAME);
-			featureName = TTableClient.T2S_FEATURE_NAME;
+			port = params.ttableT2SServerPort;
+			hostName = params.ttableT2SHost;
+			lexicalF = Feature.TARGET2SOURCE_LEXICAL_PROBABILITY;
+			provLexicalF = Feature.PROVENANCE_TARGET2SOURCE_LEXICAL_PROBABILITY;
 		}
-		if (port == -1) {
-			throw new UnknownHostException("TTable server port incorrect!");
-		}
-		mapping = ProvenanceCountMap.getFeatureIndex(featureName,
-				FeatureCreator.MAPRED_SUFFIX, conf);
 		prob = new LexicalProbability(source2Target);
+		this.noOfProvs = noOfProvs +1;
 	}
 
 	private double[] query(Collection<List<Integer>> query) throws IOException {
@@ -115,11 +107,12 @@ public class TTableClient {
 	}
 
 	public void queryRules(
-			List<Pair<RuleWritable, AlignmentAndFeatureMap>> rules)
+			Map<Rule, Pair<EnumRuleType, RuleData>> rules)
 			throws IOException {
-		for (Pair<RuleWritable, AlignmentAndFeatureMap> entry : rules) {
-			RuleWritable key = entry.getFirst();
-			prob.buildQuery(key, mapping.length, wordAlignments);
+		for (Entry<Rule, Pair<EnumRuleType,RuleData>> entry : rules.entrySet()) {
+			Rule key = entry.getKey();
+			// Need to add the 0th element for the global scope
+			prob.buildQuery(key, noOfProvs, wordAlignments);
 		}
 		List<List<Integer>> keys = new ArrayList<>(wordAlignments.keySet());
 		double[] results = query(keys);
@@ -129,17 +122,20 @@ public class TTableClient {
 				wordAlignments.put(keys.get(i), results[i]);
 			}
 		}
-		for (Pair<RuleWritable, AlignmentAndFeatureMap> entry : rules) {
-			RuleWritable key = entry.getFirst();
-			AlignmentAndFeatureMap features = entry.getSecond();
-			for (int j = 0; j < mapping.length; ++j) {
+		for (Entry<Rule, Pair<EnumRuleType,RuleData>> entry : rules.entrySet()) {
+			Rule key = entry.getKey();
+			RuleData features = entry.getValue().getSecond();
+			ProvenanceProbMap provLexProbs = new ProvenanceProbMap();
+			for (int j = 0; j < noOfProvs ; ++j) {
 				double lexProb = prob.value(key, (byte) j, wordAlignments);
-				if (features.getSecond().containsKey(mapping[j])) {
-					throw new RuntimeException(
-							"FeatureMap already contains entry for "
-									+ mapping[j] + " " + key + " " + features);
+				if(j==0){
+					ProvenanceProbMap globalLexProb = new ProvenanceProbMap();
+					globalLexProb.put(j, lexProb);
+					features.getFeatures().put(lexicalF, globalLexProb);
+				}else{
+					provLexProbs.put(j, lexProb);
 				}
-				features.getSecond().put(mapping[j], lexProb);
+				features.getFeatures().put(provLexicalF, provLexProbs);
 			}
 		}
 	}
