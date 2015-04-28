@@ -1,4 +1,5 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,43 +12,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *******************************************************************************/
+ * *****************************************************************************
+ */
 
 package uk.ac.cam.eng
 
-import org.scalatest.FunSuite
+import resource._
+import scala.concurrent._
+import scala.concurrent.duration._
+import ExecutionContext.Implicits.global
+
+import scala.collection.JavaConversions.iterableAsScalaIterable
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.Path
+import org.apache.hadoop.hbase.io.hfile.CacheConfig
+import org.apache.hadoop.hbase.io.hfile.HFile
+import org.apache.hadoop.io.IntWritable
+import org.apache.hadoop.io.SequenceFile
+import org.apache.hadoop.io.Writable
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+import org.apache.hadoop.util.ReflectionUtils
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.ConfigMap
+import org.scalatest.FunSuite
+import uk.ac.cam.eng.extraction.Rule
 import uk.ac.cam.eng.extraction.RuleExtractorTest
+import uk.ac.cam.eng.extraction.RuleString
 import uk.ac.cam.eng.extraction.hadoop.extraction.ExtractorJob
-import org.apache.hadoop.conf.Configuration
-import uk.ac.cam.eng.util.CLI
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
-import org.apache.hadoop.fs.Path
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-import org.apache.hadoop.io.SequenceFile
-import org.apache.hadoop.fs.FileSystem
-import org.apache.hadoop.io.Writable
-import org.apache.hadoop.util.ReflectionUtils
 import uk.ac.cam.eng.extraction.hadoop.features.phrase.Source2TargetJob
 import uk.ac.cam.eng.extraction.hadoop.features.phrase.Target2SourceJob
 import uk.ac.cam.eng.extraction.hadoop.merge.MergeJob
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat
 import uk.ac.cam.eng.extraction.hadoop.merge.MergeJob.MergeFeatureMapper
-import uk.ac.cam.eng.extraction.Rule
 import uk.ac.cam.eng.extraction.hadoop.merge.MergeJob.MergeRuleMapper
-import org.apache.hadoop.hbase.io.hfile.HFile
-import org.apache.hadoop.hbase.io.hfile.CacheConfig
-import uk.ac.cam.eng.rule.retrieval.HFileRuleReader
-import scala.collection.JavaConversions._
 import uk.ac.cam.eng.rule.features.Feature
-import org.apache.hadoop.io.IntWritable
+import uk.ac.cam.eng.rule.retrieval.HFileRuleReader
+import uk.ac.cam.eng.util.CLI
 import uk.ac.cam.eng.util.CLI.FilterParams
-import uk.ac.cam.eng.extraction.RuleString
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat
-import uk.ac.cam.eng.extraction.hadoop.merge.MergeJob.MergeFeatureMapper
-import uk.ac.cam.eng.extraction.hadoop.merge.MergeJob.MergeRuleMapper
 import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ExtractedData
 
@@ -62,14 +66,20 @@ class PipelineTest extends FunSuite with BeforeAndAfterAll {
     RuleExtractorTest.folder.delete()
   }
 
-  def printSequenceFile(f: String, conf: Configuration) = {
-    val reader = new SequenceFile.Reader(FileSystem.get(conf), new Path(f), conf);
+  def filterSequenceFile(input: Path, output: Path, conf: Configuration) = {
+    val reader = new SequenceFile.Reader(FileSystem.get(conf), input, conf);
     val key = ReflectionUtils.newInstance(
       reader.getKeyClass(), conf).asInstanceOf[Writable]
     val value = ReflectionUtils.newInstance(
       reader.getValueClass(), conf).asInstanceOf[Writable]
-    while (reader.next(key, value)) {
-      System.out.println(key + "\t" + value);
+    for (writer <- 
+        managed(new SequenceFile.Writer(FileSystem.get(conf), conf, output, key.getClass, value.getClass))) {
+      var count = 0
+      while (reader.next(key, value)) {
+        if (count % 10 == 0)
+          writer.append(key, value)
+        count += 1
+      }
     }
   }
 
@@ -89,22 +99,31 @@ class PipelineTest extends FunSuite with BeforeAndAfterAll {
     conf.setBoolean(CLI.ExtractorJobParameters.COMPATIBILITY_MODE, true)
     conf.set(CLI.Provenance.PROV, "all");
     val job = ExtractorJob.getJob(conf)
-    FileInputFormat.setInputPaths(job, new Path(RuleExtractorTest.trainingDataFile.getAbsolutePath))
+    val trainingData = new Path(RuleExtractorTest.trainingDataFile.getAbsolutePath)
+    val filteredData = new Path(RuleExtractorTest.folder.newFile().getAbsolutePath)
+    filterSequenceFile(trainingData, filteredData, conf)
+    FileInputFormat.setInputPaths(job, filteredData)
     val extractOut = new Path("extractOut")
     FileOutputFormat.setOutputPath(job, extractOut);
     job.waitForCompletion(true);
-    //printSequenceFile("extractOut/part-r-00000", conf)
-    //S2T
+
     val s2tOut = new Path("s2t")
     val s2tJob = (new Source2TargetJob).getJob(conf)
     FileInputFormat.setInputPaths(s2tJob, extractOut)
     FileOutputFormat.setOutputPath(s2tJob, s2tOut);
-    s2tJob.waitForCompletion(true)
+    val fs2t = Future {
+      s2tJob.waitForCompletion(true)
+    }
     val t2sOut = new Path("t2s")
     val t2sJob = (new Target2SourceJob).getJob(conf)
     FileInputFormat.setInputPaths(t2sJob, extractOut)
     FileOutputFormat.setOutputPath(t2sJob, t2sOut);
-    t2sJob.waitForCompletion(true)
+    val ft2s = Future {
+      t2sJob.waitForCompletion(true)
+    }
+    Await.ready(fs2t, 1 hours)
+    Await.ready(ft2s, 1 hours)
+
     conf.set(FilterParams.MIN_SOURCE2TARGET_PHRASE, "0.01");
     conf.set(FilterParams.MIN_TARGET2SOURCE_PHRASE, "1e-10");
     conf.set(FilterParams.MIN_SOURCE2TARGET_RULE, "0.01");
@@ -136,34 +155,34 @@ class PipelineTest extends FunSuite with BeforeAndAfterAll {
       count += 1
       val data = entry.getSecond
       entry.getFirst match {
-        case Rule("57228 1663") => {
-          assertWithDelta(-0.6931471805599453)(data.getFeatures.get(Feature.SOURCE2TARGET_PROBABILITY).get(new IntWritable(0)).get)
-          assertWithDelta(-1.3862943611198906)(data.getFeatures.get(Feature.TARGET2SOURCE_PROBABILITY).get(new IntWritable(0)).get)
+        case Rule("5660 1294") => {
+          assertWithDelta(-1.0986122886681098)(data.getFeatures.get(Feature.SOURCE2TARGET_PROBABILITY).get(new IntWritable(0)).get)
+          assertWithDelta(-0.6931471805599453)(data.getFeatures.get(Feature.TARGET2SOURCE_PROBABILITY).get(new IntWritable(0)).get)
         }
-        case Rule("2825_280_11431 6_668_6_3_910_974_6") => {
+        case Rule("1804_6 2967_8_3") => {
           assertWithDelta(-1.3862943611198906)(data.getFeatures.get(Feature.SOURCE2TARGET_PROBABILITY).get(new IntWritable(0)).get)
           assertWithDelta(0.0)(data.getFeatures.get(Feature.TARGET2SOURCE_PROBABILITY).get(new IntWritable(0)).get)
         }
-        case Rule("69040_6_67946_52926 2684_8_10719_201") => {
-          assertWithDelta(-0.6931471805599453)(data.getFeatures.get(Feature.SOURCE2TARGET_PROBABILITY).get(new IntWritable(0)).get)
-          assertWithDelta(-0.6931471805599453)(data.getFeatures.get(Feature.TARGET2SOURCE_PROBABILITY).get(new IntWritable(0)).get)
+        case Rule("V_437 V_3_920") => {
+          assertWithDelta(-0.916290731874155)(data.getFeatures.get(Feature.SOURCE2TARGET_PROBABILITY).get(new IntWritable(0)).get)
+          assertWithDelta(0.0)(data.getFeatures.get(Feature.TARGET2SOURCE_PROBABILITY).get(new IntWritable(0)).get)
         }
-        case Rule("117102_6_191_141_10220 87048_8_118_74_10895") => {
+        case Rule("2617_3_10619_2675 507_4015_3083") => {
           assertWithDelta(0.0)(data.getFeatures.get(Feature.SOURCE2TARGET_PROBABILITY).get(new IntWritable(0)).get)
           assertWithDelta(0.0)(data.getFeatures.get(Feature.TARGET2SOURCE_PROBABILITY).get(new IntWritable(0)).get)
         }
-        case Rule("39_38_7738_5_1937_3513 63_1896_9_904_23_3") => {
-          assertWithDelta(-0.6931471805599453)(data.getFeatures.get(Feature.SOURCE2TARGET_PROBABILITY).get(new IntWritable(0)).get)
-          assertWithDelta(-0.6931471805599453)(data.getFeatures.get(Feature.TARGET2SOURCE_PROBABILITY).get(new IntWritable(0)).get)
+        case Rule("222_1148_34716_151055_5_265808 1819_1857_3312_9_3_670870") => {
+          assertWithDelta(0.0)(data.getFeatures.get(Feature.SOURCE2TARGET_PROBABILITY).get(new IntWritable(0)).get)
+          assertWithDelta(0.0)(data.getFeatures.get(Feature.TARGET2SOURCE_PROBABILITY).get(new IntWritable(0)).get)
         }
         case _ => notTested += 1
       }
     }
-    assertResult(1182995)(count)
+    assertResult(125834)(count)
     assertResult(5)(count - notTested)
-    
+
     val seekReader = new HFileRuleReader(hfReader)
-    assert(seekReader.seek(RuleString("69040_6_67946_52926")))
-    assert(seekReader.getRulesForSource.foldLeft(0)((count,_) => count + 1)==2)
+    assert(seekReader.seek(RuleString("V_437")))
+    assert(seekReader.getRulesForSource.foldLeft(0)((count, _) => count + 1) == 2)
   }
 }
