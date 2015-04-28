@@ -70,7 +70,7 @@ echo "Running Unit Tests... bin/main.gtest.$TGTBINMKTEST" | tee -a $LOGFILE
     fi 
 ) 2>&1 | tee $LOGFILE.unit-tests
 
-(cd java/ruleXtract; sbt test) 2>&1 | tee -a $LOGFILE.java-unit-tests
+(cd java/ruleXtract; sbt it:test) 2>&1 | tee -a $LOGFILE.java-unit-tests
 
 echo "Running Regression Tests..." 2>&1 | tee -a $LOGFILE
 ( cd scripts/tests; bash tests.sh  ) 2>&1 | tee $LOGFILE.reg-tests
