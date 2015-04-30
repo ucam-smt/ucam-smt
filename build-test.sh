@@ -39,16 +39,24 @@ LOGFILE=$(basename $0 .sh).$TGTBINMK.log
 
 
 if [ ! -e Makefile.inc ]; then
-    echo "Makefile.inc does not exist. Do you want to try to download and install all necessary libraries? (yes/no)"
+    echo "Makefile.inc does not exist. Do you want to try to download and install all necessary libraries? (yes/no/download)"
     read reply
     if [ "$reply" == "yes" ]; then
 	echo -e "\n\nOk.Here goes nothing!"
 	( cd externals
 	    . get-build-libraries.sh
+	    download
 	    installExternals
 	    prepareMakefileInc
 	    cp Makefile.inc ..
 	)
+    elif [ "$reply" == "download" ]; then
+        ( cd externals
+            . get-build-libraries.sh
+            download
+            echo "Finished downloading"
+	    )
+            exit
     else
 	echo "You need to create Makefile.inc first. Copy from Makefile.inc.TEMPLATE and set variables to point to your libraries and headers."
 	exit
