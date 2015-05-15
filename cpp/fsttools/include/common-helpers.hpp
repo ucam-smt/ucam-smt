@@ -104,7 +104,7 @@ inline void runTaskWithKenLMTemplate(ucam::util::RegistryPO const &rg) {
       break;
     case KENLM_NPLM:
 #ifdef WITH_NPLM
-    (RunTaskT<DataT, np::Model, ArcT>(rg));
+      (RunTaskT<DataT, lm::np::Model, ArcT>(rg));
     break;
 #endif
     std::cerr << "Unsuported format: KENLM_NPLM. Did you compile NPLM library?" << std::endl;

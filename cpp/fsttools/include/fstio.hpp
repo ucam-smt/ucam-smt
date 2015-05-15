@@ -38,6 +38,19 @@ inline void PrintFst ( const Fst<Arc>& fst, std::ostream *os ) {
 };
 
 /**
+ * \brief Detect trivially by extension whether it is an fst or not
+ */
+inline bool DetectFstFile(std::string const &filename
+                   , std::string const &extname ="fst") {
+  using ucam::util::ends_with;
+
+  return (ends_with ( filename, "." + extname + ".gz" )
+          || ends_with ( filename, "." + extname )
+          )
+      ? true: false;
+};
+
+/**
  * \brief Templated method that reads an fst
  * \param filename: binary [file] to read from.
  * \returns A generic pointer to an fst. This pointer must be deleted.
@@ -123,16 +136,20 @@ inline void FstWrite ( const Fst<Arc>& fst
  */
 template<class Arc>
 struct Hyp {
-  std::basic_string<unsigned> hyp;
+  std::basic_string<unsigned> hyp, ohyp;
   typename Arc::Weight cost;
 
-  Hyp (std::basic_string<unsigned> const& h, typename Arc::Weight const& c)
+  Hyp (std::basic_string<unsigned> const& h
+       , std::basic_string<unsigned> const &oh
+       , typename Arc::Weight const& c)
     : hyp (h)
+    , ohyp(oh)
     , cost (c) {
   }
 
   Hyp (Hyp<Arc> const& h)
     : hyp (h.hyp)
+    , ohyp(h.ohyp)
     , cost (h.cost) {
   }
 };
@@ -147,11 +164,13 @@ struct Hyp {
  */
 template <class Arc, class HypT>
 void printStrings (const VectorFst<Arc>& fst, std::vector<HypT>* hyps) {
+
   typename Arc::StateId start = fst.Start();
   for (ArcIterator<VectorFst<Arc> > ai (fst, start); !ai.Done(); ai.Next() ) {
-    std::basic_string<unsigned> hyp;
+    std::basic_string<unsigned> hyp, ohyp;
     Arc a = ai.Value();
     hyp.push_back (a.ilabel);
+    ohyp.push_back (a.olabel);
     typename Arc::Weight w = a.weight;
     typename Arc::StateId nextState = a.nextstate;
     ArcIterator<VectorFst<Arc> >* ai2 =
@@ -159,13 +178,14 @@ void printStrings (const VectorFst<Arc>& fst, std::vector<HypT>* hyps) {
     while (!ai2->Done() ) {
       Arc a2 = ai2->Value();
       hyp.push_back (a2.ilabel);
+      ohyp.push_back (a2.olabel);
       w = Times (w, a2.weight);
       nextState = a2.nextstate;
       delete ai2;
       ai2 = new ArcIterator<VectorFst<Arc> > (fst, nextState);
     }
     delete ai2;
-    hyps->push_back (HypT (hyp, w) );
+    hyps->push_back (HypT (hyp, ohyp, w) );
   }
 }
 

@@ -63,10 +63,14 @@ std::string const kSparseDotProduct = "dotproduct";
 std::string const kTupleArcWeights = "tuplearc.weights";
 std::string const kWeight = "weight";
 std::string const kWeightExtended = kWeight + ",w";
+std::string const kWeightPrecision = "weight.precision";
 std::string const kLabelMap = "label-map";
 std::string const kLabelMapExtended = kLabelMap + ",m";
 std::string const kPrintOutputLabels = "print-output-labels";
 std::string const kPrintOutputLabelsExtended = kPrintOutputLabels + ",pol";
+std::string const kPrintInputOutputLabels = "print-input-output-labels";
+std::string const kIntersectionWithHypothesesLoad = "intersection-with-hypotheses.load";
+
 std::string const kSuppress = "suppress-hyps";
 std::string const kLibLinRankFormat = "liblinear-ranking";
 
