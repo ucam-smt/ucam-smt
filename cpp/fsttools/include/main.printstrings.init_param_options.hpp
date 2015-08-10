@@ -45,14 +45,20 @@ inline void init_param_options ( int argc, const char* argv[],
     ( HifstConstants::kUniqueExtended.c_str(), "Unique strings" )
     ( HifstConstants::kWeightExtended.c_str(), "Print weight" )
     ( HifstConstants::kSparseFormat.c_str(), "Print weight in sparse format" )
+    ( HifstConstants::kSentBleu.c_str(), "compute sentence level bleu (blue+1)" )
+    ( HifstConstants::kSuppress.c_str(), "don't print hyps" )
+    ( HifstConstants::kLibLinRankFormat.c_str(), "liblinear ranking format (apro)" )
     ( HifstConstants::kSparseDotProduct.c_str(), "Print dot product" )
+    ( HifstConstants::kIntRefs.c_str(), po::value<std::string>(), "reference strings (integers)" )
+    ( HifstConstants::kWordRefs.c_str(), po::value<std::string>(), "reference strings (words)" )
+    ( HifstConstants::kExternalTokenizer.c_str(), po::value<std::string>(), "external tokenization script" )
     ( HifstConstants::kHifstSemiring.c_str(),
       po::value<std::string>()->default_value ("stdarc"),
       "Choose between stdarc, lexstdarc, and tuplearc (for the tropical sparse tuple arc semiring)")
     ( HifstConstants::kTupleArcWeights.c_str(), po::value<std::string>(),
       "Tropic sparse tuple arc weights. "
       "Comma-separated floats. This needs to be set when the option --semiring=tuplearc is chosen.")
-        ( HifstConstants::kPrintOutputLabelsExtended.c_str(),
+    ( HifstConstants::kPrintOutputLabelsExtended.c_str(),
       "Prints output labels instead of input labels" )
     ;
     parseOptionsGeneric (desc, vm, argc, argv);
