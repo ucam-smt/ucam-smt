@@ -32,4 +32,7 @@
 #include <constants-fsttools.hpp>
 #include <main.printstrings.init_param_options.hpp>
 
+#include <bleu.hpp>
+
+
 #endif

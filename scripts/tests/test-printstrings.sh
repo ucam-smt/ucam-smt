@@ -76,6 +76,23 @@ test_0005_printstrings_tropical_multiple_files(){
 }
 
 
+test_0006_printstrings_sbleu(){
+
+    mkdir -p tmp
+    $printstrings \
+	--input=data/lmert/VECFEA/?.fst.gz \
+	--range=1,2 --semiring=tuplearc -u -n 10 \
+	--tuplearc.weights=1,0.697263,0.396540,2.270819,-0.145200,0.038503,29.518480,-3.411896,-3.732196,0.217455,0.041551,0.060136 \
+        --sbleu \
+        --int_refs=data/lmert/refs \
+	> $BASEDIR/output.0006 2> /dev/null
+
+    if diff $BASEDIR/output.0006 $REFDIR/output.0006 ; then echo ; else echo 0; return ; fi
+
+    echo 1
+}
+
+
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
 
