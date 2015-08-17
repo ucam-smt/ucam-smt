@@ -45,6 +45,8 @@ import uk.ac.cam.eng.util.CLI;
 
 /**
  * 
+ * Start a TTable as a daemon process. Shuts down after 24 hours.
+ * 
  * @author Aurelien Waite
  * @date 28 May 2014
  */

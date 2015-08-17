@@ -32,6 +32,14 @@ import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.Text
 
 
+/**
+ * A test of compatibility mode. The output of the extractor is compared with the previous
+ * C++ based extractor. 
+ * 
+ * The current code completely matches around 60% of the previous output. Any more changes to
+ * the extraction algorithm should match or increase this level of compatibility.
+ */
+
 class ExtractIntegrationSpec extends FlatSpec with Matchers {
 
   "The extractor" should "match previous output" in {

@@ -42,6 +42,7 @@ object Symbol {
 
   def deserialise(symbol: String): Symbol = 
     mapping.getOrElse(symbol, Terminal.create(symbol.toInt))
+    
 }
 
 case class Terminal private (token: Int) extends Symbol(token) {

@@ -1,7 +1,8 @@
-# source pattern constraints
-# nocc is the minimum number of occurrences of a hierarchical
+# Source pattern constraints
+# The first field is the source pattern
+# The second field is the minimum number of occurrences of a hierarchical
 # rule in the training data
-# ntrans is the maximum number of translations per source
+# The third field is the maximum number of translations per source
 W_V 2 10
 V_W 2 10
 W_V_W 5 10

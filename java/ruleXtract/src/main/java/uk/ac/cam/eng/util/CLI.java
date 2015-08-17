@@ -19,6 +19,11 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 
+/**
+ * The command line interface for RuleXtract
+ * @author Aurelien Waite
+ *
+ */
 public final class CLI {
 
 	@Parameters(separators = "=")

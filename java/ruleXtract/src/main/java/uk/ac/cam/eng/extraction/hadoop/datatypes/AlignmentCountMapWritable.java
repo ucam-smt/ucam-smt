@@ -28,14 +28,14 @@ import uk.ac.cam.eng.extraction.Alignment;
 
 /**
  * @author Juan Pino
+ * @author Aurelien Waite
  * @date 14 July 2014
  */
 public class AlignmentCountMapWritable extends
 		HashMap<Alignment, Integer> implements Writable {
 
 	private static final long serialVersionUID = 1L;
-	
-	
+
 	public static final AlignmentCountMapWritable EMPTY = new AlignmentCountMapWritable() {
 
 		private static final long serialVersionUID = 1L;

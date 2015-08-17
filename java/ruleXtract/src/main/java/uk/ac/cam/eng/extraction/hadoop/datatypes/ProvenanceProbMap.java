@@ -30,6 +30,9 @@ import org.apache.hadoop.io.WritableUtils;
 
 /**
  * 
+ * Maps a provenance (as represented by an int) to a probability. 
+ * It is a writable class to be be used with Hadoop.
+ * 
  * @author Aurelien Waite
  * @date 28 May 2014
  */

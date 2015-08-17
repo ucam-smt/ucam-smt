@@ -26,6 +26,10 @@ import org.apache.hadoop.io.Writable;
 /**
  * @author Aurelien Waite
  * @date 7 November 2014
+ * 
+ * Contains the result of MapReduce and lexical server 
+ * computations.
+ * 
  */
 public class RuleData implements Writable {
 
@@ -86,14 +90,28 @@ public class RuleData implements Writable {
 		alignments.write(out);	
 	}
 
+	
+	/**
+	 * Get the rule counts by provenance
+	 * @return
+	 */
 	public ProvenanceCountMap getProvCounts() {
 		return provCounts;
 	}
 
+	/**
+	 * Get the alignments and their counts
+	 * 
+	 * @return
+	 */
 	public AlignmentCountMapWritable getAlignments() {
 		return alignments;
 	}
 
+	/**
+	 * Get any computed features, these include the phrase probabilities
+	 * @return
+	 */
 	public FeatureMap getFeatures() {
 		return features;
 	}

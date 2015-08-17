@@ -47,6 +47,11 @@ import uk.ac.cam.eng.util.Pair;
 /**
  * @author aaw35
  *
+ * A unit test for the Rule Extractor. A small amount of training data for the RU->EN system
+ * is used to extract rules. 
+ * 
+ * The sorting tasks are also tested.
+ *
  */
 public class RuleExtractorTest {
 
@@ -88,7 +93,7 @@ public class RuleExtractorTest {
 	}
 
 	
-	private boolean isContigious(List<Rule> rules, Function<Rule, List<Symbol>> getStr){
+	private boolean isContiguous(List<Rule> rules, Function<Rule, List<Symbol>> getStr){
 		Set<List<Symbol>> prevs = new HashSet<>();
 		List<Symbol> prev = getStr.apply(rules.get(0));
 		prevs.add(prev);
@@ -124,11 +129,11 @@ public class RuleExtractorTest {
 				++count; 
 			}
 			Assert.assertEquals(472100, rules.size());
-			Assert.assertFalse(isContigious(rules, r -> r.getSource()));
+			Assert.assertFalse(isContiguous(rules, r -> r.getSource()));
 			rules.sort(new Source2TargetJob.Source2TargetComparator());
-			Assert.assertTrue(isContigious(rules, r -> r.getSource()));
+			Assert.assertTrue(isContiguous(rules, r -> r.getSource()));
 			rules.sort(new Target2SourceJob.Target2SourceComparator());
-			Assert.assertTrue(isContigious(rules, r -> r.getTarget()));
+			Assert.assertTrue(isContiguous(rules, r -> r.getTarget()));
 		}
 	}
 

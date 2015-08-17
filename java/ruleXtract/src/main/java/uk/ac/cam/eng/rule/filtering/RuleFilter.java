@@ -120,12 +120,15 @@ public class RuleFilter {
 		minTarget2SourceRuleLog = Math.log(params.minTarget2SourceRule);
 		loadConfig(params.allowedPatternsFile, conf,
 				line -> allowedPatterns.add(RulePattern.parsePattern(line)));
-		loadConfig(params.sourcePatterns, conf,
+		loadConfig(
+				params.sourcePatterns,
+				conf,
 				line -> {
 					String[] parts = line.split(" ");
 					if (parts.length != 3) {
 						throw new RuntimeException(
-								"line should have 3 fields: " + line);
+								"line should have 3 fields (source pattern, # of occurances, # of translations): "
+										+ line);
 					}
 					sourcePatternConstraints.put(
 							SidePattern.parsePattern(parts[0]),
@@ -203,7 +206,7 @@ public class RuleFilter {
 	}
 
 	/**
-	 * Indicates whether we should filter a rule. The decision is based on a
+	 * Returns true if we should filter a rule, or false otherwise. The decision is based on a
 	 * particular provenance.
 	 * 
 	 * @return

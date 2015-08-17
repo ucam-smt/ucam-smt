@@ -6,6 +6,20 @@ echo "Using ruleXtract jar: $DIR/../target/ruleXtract.jar"
 exec $SCALA -nc -J-Xms"$MEM" -J-Xmx"$MEM" -classpath "$DIR/../target/ruleXtract.jar" $0 $@
 !#
 
+/*
+ * Utility script to help remove the complexity of dealing with the lexical servers.
+ * The script starts the lexical servers, and then starts the retrieval process.
+ * 
+ * Note that the resulting JVM will connect to itself via the lexical server ports,
+ * so if you run this twice on the same machine the second process will not be able
+ * to bind to the ports.
+ * 
+ * For language pairs with large amounts of lexical data it is recommended to start
+ * the lexical servers up separately.
+ *  
+ */
+
+
 import java.io.File
 import com.beust.jcommander.{JCommander, Parameter}
 

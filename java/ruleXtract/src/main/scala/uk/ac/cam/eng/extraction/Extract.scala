@@ -24,6 +24,12 @@ import uk.ac.cam.eng.util.Pair
 case class ExtractOptions(maxSourcePhrase: Int, maxSourceElements: Int, maxTerminalLength: Int, maxNonTerminalSpan: Int,
                           removeMonotonicRepeats: Boolean, compatibilityMode: Boolean)
 
+/**
+ * The functions here are responsible for extracting the phrase pair from a parallel sentence.
+ * The logic is complicated by the fact that it captures a number of heuristics used in 
+ * old C++/PERL tool. This heuristics are activated by compatibility mode.
+ * @author Aurelien Waite                          
+ */
 object Extract {
 
   def filterNTSpan(options: ExtractOptions, srcSpan: Span) =
@@ -74,7 +80,7 @@ object Extract {
         minTargetIndex = math.min(alignment.getS2T(i).head, minTargetIndex)
         maxTargetIndex = math.max(alignment.getS2T(i).last, maxTargetIndex)
       }
-      //For heiro we consider phrases with max length of the sentence. The long phrases are filtered out at the end.
+      //For hiero we consider phrases with max length of the sentence. The long phrases are filtered out at the end.
       val sourceLength = source.length - 1
       for (j <- i to sourceLength) {
         if (alignment.isSourceAligned(j)) {
@@ -225,7 +231,7 @@ object Extract {
   }
 
   def transformSpan(source: Vector[Symbol], target: Vector[Symbol], alignment: Alignment, span: (Span, Span)): RulePair = {
-    var phraseAlignment = alignment.extractPhraseAlignment(span)
+    val phraseAlignment = alignment.extractPhraseAlignment(span)
     span match {
       case (src: PhraseSpan, trg: PhraseSpan) => {
         val r = new Rule(new RuleString ++= source.slice(src.start, src.end + 1),

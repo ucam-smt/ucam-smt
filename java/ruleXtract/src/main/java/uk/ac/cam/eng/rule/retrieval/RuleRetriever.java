@@ -56,7 +56,9 @@ import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import uk.ac.cam.eng.extraction.Rule;
 import uk.ac.cam.eng.extraction.RuleString;
 import uk.ac.cam.eng.extraction.Symbol;
+import uk.ac.cam.eng.extraction.dr$;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
+import uk.ac.cam.eng.extraction.oov$;
 import uk.ac.cam.eng.rule.features.Feature;
 import uk.ac.cam.eng.rule.features.FeatureRegistry;
 import uk.ac.cam.eng.rule.filtering.RuleFilter;
@@ -355,11 +357,11 @@ public class RuleRetriever {
 			// Add Deletion and OOV rules
 			Rule deletionRuleWritable = new Rule();
 			RuleString dr = new RuleString();
-			dr.add(Symbol.deserialise(-7));
+			dr.add((Symbol)(dr$.MODULE$));
 			deletionRuleWritable.setTarget(dr);
 			Rule oovRuleWritable = new Rule();
 			RuleString oov = new RuleString();
-			oov.add(Symbol.deserialise(-6));
+			oov.add((Symbol)(oov$.MODULE$));
 			oovRuleWritable.setTarget(oov);
 			for (RuleString source : retriever.testVocab) {
 				// If in the vocab then write deletion rule
@@ -384,7 +386,7 @@ public class RuleRetriever {
 					retriever.targetVocabFile))) {
 				for (Set<Symbol> words : retriever.targetSideVocab.subList(1,
 						retriever.targetSideVocab.size())) {
-					out.write("1 2");
+					out.write("1 2"); // Include the start and end symbols
 					for(Symbol word : words){
 						out.write(" " + word);
 					}

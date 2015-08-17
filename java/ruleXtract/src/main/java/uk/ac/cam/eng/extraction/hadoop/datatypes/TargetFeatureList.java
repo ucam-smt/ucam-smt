@@ -28,6 +28,9 @@ import uk.ac.cam.eng.util.Pair;
 
 /**
  * 
+ * Data structure used within the HFile.
+ * Should not be accessed directly.
+ * 
  * @author Aurelien Waite
  * @author Juan Pino
  * @date 28 May 2014

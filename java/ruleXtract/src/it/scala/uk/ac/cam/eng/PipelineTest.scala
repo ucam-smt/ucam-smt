@@ -55,6 +55,10 @@ import uk.ac.cam.eng.util.CLI.FilterParams
 import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ExtractedData
 
+
+/**
+ * An integration test of the full extraction pipeline.
+ */
 class PipelineTest extends FunSuite with BeforeAndAfterAll {
 
   override def beforeAll(configMap: ConfigMap) {
