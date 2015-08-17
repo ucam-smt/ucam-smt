@@ -64,5 +64,5 @@ test_0003_demofiles_pda_script(){
 
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
-#test_0002_demofiles_basic_script
-runtests
+## Temporarily disabled
+# runtests

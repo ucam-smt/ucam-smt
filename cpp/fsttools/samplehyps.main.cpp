@@ -142,6 +142,7 @@ int SampleWFSAs( ucam::util::RegistryPO const& rg) {
     refFiles = rg.getString(HifstConstants::kIntRefs);
     intRefs = true;
   } 
+  std::cerr << refFiles << "**" <<std::endl;
   ucam::fsttools::BleuScorer bleuScorer(refFiles, extTok, n, intRefs, wMap);
   ucam::fsttools::TuneSet< Arc > tuneSet(rg);
   ucam::fsttools::Bleu ibs = tuneSet.ComputeBleu(bleuScorer);

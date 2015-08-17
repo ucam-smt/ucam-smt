@@ -121,7 +121,8 @@ public:
           it != boundaries.end(); ++it ) {
       aggregateBleuStats = aggregateBleuStats + it->bleuStats_;
       ucam::fsttools::Bleu current = bs.ComputeBleu ( aggregateBleuStats );
-      if ( current > optimalBleu ) {
+      //      if ( current > optimalBleu  ) {
+      if ( current > optimalBleu && current.m_brev >= optimalBleu.m_brev  ) { // added test to favour longer hyps
         optimalBleu = current;
         unbounded = ( itNext == boundaries.end() );
         optimalGamma = ( itNext == boundaries.end() ) ? it->gamma_ + 1.0 : 

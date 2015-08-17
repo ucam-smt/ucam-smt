@@ -39,7 +39,8 @@ public:
       for ( int i = 0; i < directions_.size(); i++ ) {
         LineOptimize< Arc > lopt ( rg, ts, bs, lambda_, directions_[i] );
         bool smallGamma = ( fabs ( lopt.OptimalGamma() ) < gammaMin_ );
-        bool smallBleuGain = ( lopt.OptimalBleu().m_bleu <= optBleu_.m_bleu + minBleuGain_ );
+	//        bool smallBleuGain = ( lopt.OptimalBleu().m_bleu <= optBleu_.m_bleu + minBleuGain_);
+        bool smallBleuGain = ( lopt.OptimalBleu().m_bleu <= optBleu_.m_bleu + minBleuGain_ || lopt.OptimalBleu().m_brev < optBleu_.m_brev); // added check on short hyps
         if ( !smallBleuGain && !smallGamma ) { // TODO: add check for unbounded
           optBleu_ = lopt.OptimalBleu();
           optGamma = lopt.OptimalGamma();

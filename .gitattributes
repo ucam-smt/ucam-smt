@@ -1,0 +1,2 @@
+# Stop git editing the line endings on windows only files
+externals/kenlm/windows/* binary

@@ -52,6 +52,7 @@ const std::string kUnique = "unique";
 const std::string kUniqueExtended = kUnique + ",u";
 const std::string kNbest = "nbest";
 const std::string kNbestExtended = kNbest + ",n";
+const std::string kSentBleu = "sbleu";
 const std::string kSparseFormat = "sparseformat";
 const std::string kSparseDotProduct = "dotproduct";
 const std::string kTupleArcWeights = "tuplearc.weights";
@@ -61,6 +62,8 @@ const std::string kLabelMap = "label-map";
 const std::string kLabelMapExtended = kLabelMap + ",m";
 const std::string kPrintOutputLabels = "print-output-labels";
 const std::string kPrintOutputLabelsExtended = kPrintOutputLabels + ",pol";
+const std::string kSuppress = "suppress-hyps";
+const std::string kLibLinRankFormat = "liblinear-ranking";
 
 // samplehyps
 const std::string kWordRefs = "word_refs";

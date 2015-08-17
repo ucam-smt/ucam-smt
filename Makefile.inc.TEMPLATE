@@ -1,10 +1,14 @@
-#### You can use this template to configure yourself
-#### the ucam-smt package.
-#### For example, maybe you already have the libraries installed
-#### and you don't want to spend your valuable time waiting.
-#### In that case, copy this file to Makefile.inc and
-#### point each variable to the corresponding path 
-#### for each library. Then run build-test.sh. 
+##########################################################################
+### IMPORTANT NOTE: for automatic installation DO NOT modify this file!!!
+### Automatic installation ignores this file.
+##########################################################################
+### You can use this template to _configure yourself_
+### the ucam-smt package.
+### For example, maybe you already have the libraries installed
+### and you don't want to spend your valuable time waiting.
+### In that case, _copy this file to Makefile.inc_ and
+### point each variable to the corresponding path 
+### for each library. Then run build-test.sh. 
 
 ### Please write in here the absolute path to HiFST:
 export TOPDIR=</path/to/this/release>
@@ -19,28 +23,34 @@ export OPENFST_INCLUDE=${TOPDIR}/externals/openfst-1.3.2/INSTALL_DIR/include
 export OPENFST_LIB=${TOPDIR}/externals/openfst-1.3.2/INSTALL_DIR/lib
 export OPENFST_BIN=${TOPDIR}/externals/openfst-1.3.2/INSTALL_DIR/bin
 
-## For google tests:
+### For google tests:
 export GTEST_DIR=${TOPDIR}/externals/gtest-1.4.0;
 export GTEST_INCLUDE=${TOPDIR}/externals/gtest-1.4.0/include
 export GTEST_LIB=${TOPDIR}/externals/gtest-1.4.0/INSTALL_DIR/lib
 
-# if defined, latmert can compile with these libraries  and will run much faster:
-# export GPERFTOOLS_INCLUDE=${TOPDIR}/externals/gperftools-2.0/INSTALL_DIR/include
-# export GPERFTOOLS_LIB=${TOPDIR}/externals/gperftools-2.0/INSTALL_DIR/lib
-# export UNWIND_LIB=${TOPDIR}/externals/libunwind-1.0.1-install/lib
+### Lattice mert (latmert and lmert tools) can compile with gperftools and Unwind. You need to install
+### these libraries on your own and then modify Makefile.inc (which exists _after_ running build-test.sh
+### for the first time)
+### so that these three variables point to the right places:
+### export GPERFTOOLS_INCLUDE=$TOPDIR/externals/gperftools-2.0/INSTALL_DIR/include
+### export GPERFTOOLS_LIB=$TOPDIR/externals/gperftools-2.0/INSTALL_DIR/lib
+### export UNWIND_LIB=$TOPDIR/externals/libunwind-1.0.1-install/lib
+### Afterwards, just do e.g. cd cpp/latmert; make latmert.O2; make install;
+### or cd cpp/latmert; make latmert.O2; make install;
 
 ### Default KENLM package -- integrated with Hifst
 export KENLM_DIR=${TOPDIR}/externals/kenlm/
 
 ### To integrate NPLM, uncomment these variables set them to the appropriate values:
-#export NPLM_INCLUDE=...
-#export NPLM_LIB=...
-#export EIGEN_INCLUDE=...
+# export NPLM_INCLUDE=...
+# export NPLM_LIB=...
+# export EIGEN_INCLUDE=...
+### And then re-run build-test.sh
 
 ### Number of cpus you want to use for compiling. 
 ### Each g++ instance can take 1.5G in memory.
-### Increase at your own risk: make sure first you have 
-that number of cpus available on your machine.
+### Increase at your own risk: make sure first that 
+### you have that number of cpus available on your machine.
 export NUMPROC=1
 
 #### Compilation type. Other options available, see build-test.sh

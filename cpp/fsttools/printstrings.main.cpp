@@ -13,9 +13,12 @@
 typedef std::tr1::unordered_map<std::size_t, std::string> labelmap_t;
 typedef labelmap_t::iterator labelmap_iterator_t;
 labelmap_t vmap;
+string vmapfile;
 bool printweight = false;
 bool sparseformat = false;
 bool dotproduct = false;
+bool nohyps = false;
+bool liblinrankformat = false;
 
 using fst::Hyp;
 
@@ -61,8 +64,16 @@ void printWeight<TupleArc32> (const TupleW32& weight, std::ostream& os) {
        !it.Done(); it.Next() ) {
     costs[it.Value().first] += it.Value().second.Value();
   }
-  if (sparseformat) {
 
+  if (liblinrankformat) {
+    for (std::map<int,float>::const_iterator itx=costs.begin();
+	 itx != costs.end(); ++itx) {
+      os << " " << itx->first << ":" << itx->second;
+    }
+    return;
+  }
+
+  if (sparseformat) {
     os << "0" << separator << costs.size();
     for (std::map<int,float>::const_iterator itx=costs.begin()
              ; itx != costs.end()
@@ -134,18 +145,33 @@ void printWeight<TupleArc32> (const TupleW32& weight, std::ostream& os) {
   // }
 }
 
+ucam::fsttools::SentenceIdx
+RemoveUnprintable(const ucam::fsttools::SentenceIdx& h) {
+  ucam::fsttools::SentenceIdx x;
+  for (int k=0; k<h.size(); k++) {
+    if (h[k] == OOV) continue;
+    if (h[k] == DR) continue;
+    if (h[k] == EPSILON) continue;
+    if (h[k] == SEP) continue;
+    if (h[k] == 1) continue;
+    if (h[k] == 2) continue;
+    x.push_back(h[k]);
+  }
+  return x;
+}
+
 /**
  * \brief Operator<< overloading to print a hypothesis.
  */
 template<class Arc>
 std::ostream& operator<< (std::ostream& os, const Hyp<Arc>& obj) {
-  for (unsigned k = 0; k < obj.hyp.size(); ++k) {
-    if (obj.hyp[k] == OOV) continue;
-    if (obj.hyp[k] == DR) continue;
-    if (obj.hyp[k] == EPSILON) continue;
-    if (obj.hyp[k] == SEP) continue;
-    os << obj.hyp[k] << " ";
-  }
+    for (unsigned k = 0; k < obj.hyp.size(); ++k) {
+      if (obj.hyp[k] == OOV) continue;
+      if (obj.hyp[k] == DR) continue;
+      if (obj.hyp[k] == EPSILON) continue;
+      if (obj.hyp[k] == SEP) continue;
+      os << obj.hyp[k] << " ";
+    }
   if (printweight) {
     os << "\t";
     printWeight<Arc> (obj.cost, os);
@@ -170,7 +196,7 @@ std::ostream& operator<< (std::ostream& os, const HypW<Arc>& obj) {
     else {
       os << "[" << obj.hyp[k] << "] ";
       std::cerr << "\nWARNING: word map does not contain word " << obj.hyp[k] <<
-                std::endl;
+	std::endl;
     }
   }
   if (printweight) {
@@ -193,11 +219,69 @@ int run ( ucam::util::RegistryPO const& rg) {
   bool unique =  rg.exists (HifstConstants::kUnique.c_str() );
   bool printOutputLabels = rg.exists(HifstConstants::kPrintOutputLabels.c_str());
   std::string old;
+  std::string refFiles;
+  bool intRefs = false;
+  bool dobleu = false;
+  bool sentbleu = false;
+
+  if (rg.exists(HifstConstants::kWordRefs)) {
+    refFiles = rg.getString(HifstConstants::kWordRefs);    
+    dobleu = true;
+  }
+  if (rg.exists(HifstConstants::kIntRefs)) {
+    refFiles = rg.getString(HifstConstants::kIntRefs);
+    intRefs = true;
+    dobleu = true;
+  } 
+  if (rg.exists (HifstConstants::kSentBleu) ) {
+    if (!dobleu) {
+      LERROR("Must provide references to compute sentence level bleu");
+      exit(EXIT_FAILURE);
+    }
+    sentbleu = true;
+  }
+
+  if (rg.exists (HifstConstants::kWeight) ) {
+    printweight = true;
+  }
+  if (rg.exists (HifstConstants::kSparseFormat) ) {
+    sparseformat = true;
+  }
+  if (rg.exists (HifstConstants::kSparseDotProduct) ) {
+    if (sparseformat == true) {
+      LERROR("Sparse format and dot product are not available at the same time.");
+      exit(EXIT_FAILURE);
+    }
+    dotproduct = true;
+  }
+
+  if (rg.exists (HifstConstants::kSuppress) ) {
+    nohyps = true;
+  }
+
+  // n.b. this should be last, to override any other settings
+  if (rg.exists (HifstConstants::kLibLinRankFormat) ) {
+    liblinrankformat = true;
+    if (!dobleu) {
+      LERROR("Must provide references to compute features for liblinear rankings");
+      exit(EXIT_FAILURE);
+    }
+    sentbleu = true;
+  }
+
+  std::string extTok(rg.exists(HifstConstants::kExternalTokenizer) ? 
+		     rg.getString(HifstConstants::kExternalTokenizer) : "");
+  ucam::fsttools::BleuStats bStats;
+  ucam::fsttools::BleuScorer *bleuScorer;
+  if (dobleu)
+    bleuScorer = new ucam::fsttools::BleuScorer(refFiles, extTok, 1, intRefs, vmapfile);
+
+  int nlines=0;
   for ( ucam::util::IntRangePtr ir (ucam::util::IntRangeFactory ( rg,
                                     HifstConstants::kRangeOne ) );
         !ir->done();
         ir->next() ) {
-    FORCELINFO ("Processing file " << input ( ir->get() ) );
+    nlines++;
     boost::scoped_ptr<fst::VectorFst<Arc> > ifst (fst::VectorFstRead<Arc> (input (
           ir->get() ) ) );
     fst::VectorFst<Arc> nfst;
@@ -215,13 +299,46 @@ int run ( ucam::util::RegistryPO const& rg) {
       fst::Project(&*ifst, PROJECT_OUTPUT);
     else
       fst::Project(&*ifst, PROJECT_INPUT);
+    // find 1-best and compute bleu stats
+    if (dobleu) {
+      ShortestPath (*ifst, &nfst, 1, unique);      
+      std::vector<HypT> hyps1;
+      fst::printStrings<Arc> (nfst, &hyps1);
+      ucam::fsttools::SentenceIdx h(hyps1[0].hyp.begin(), hyps1[0].hyp.end());
+      // bleuscorer indexes references from 0; ir counts from 1
+      if (h.size() > 0)
+	bStats = bStats + bleuScorer->SentenceBleuStats(ir->get()-1, RemoveUnprintable(h));
+    }
+    // find nbest, compute stats, print
     ShortestPath (*ifst, &nfst, n, unique );
     std::vector<HypT> hyps;
     fst::printStrings<Arc> (nfst, &hyps);
     for (unsigned k = 0; k < hyps.size(); ++k) {
-      *out->getStream() << hyps[k] << std::endl;
+      ucam::fsttools::SentenceIdx h(hyps[k].hyp.begin(), hyps[k].hyp.end());	
+      ucam::fsttools::BleuStats sbStats;
+      double sbleu;
+      if (sentbleu) {
+	// bleuscorer indexes references from 0; ir counts from 1
+	sbStats = bleuScorer->SentenceBleuStats(ir->get()-1, RemoveUnprintable(h));
+	sbleu = bleuScorer->ComputeSBleu(sbStats).m_bleu;
+      }
+      // output
+      if (liblinrankformat) {
+	*out->getStream() << sbleu << " qid:" << ir->get();
+	printWeight<Arc>(hyps[k].cost, *out->getStream());
+	*out->getStream() << std::endl;
+      } 
+      if (nohyps == false) {
+	*out->getStream() << hyps[k];
+	if (sentbleu) 
+	  *out->getStream() << "\t" << sbStats << "\t" << sbleu;
+	*out->getStream() << std::endl;
+      }
     }
   }
+  if (dobleu)
+    FORCELINFO("BLEU STATS:" << bStats << "; BLEU: " << bleuScorer->ComputeBleu(bStats));
+  FORCELINFO("Processed " << nlines << " files");
 };
 
 /*
@@ -236,19 +353,6 @@ int  main ( int argc, const char* argv[] ) {
   ucam::util::RegistryPO rg ( argc, argv );
   FORCELINFO ( rg.dump ( "CONFIG parameters:\n=====================",
                          "=====================" ) );
-  if (rg.exists (HifstConstants::kWeight) ) {
-    printweight = true;
-  }
-  if (rg.exists (HifstConstants::kSparseFormat) ) {
-    sparseformat = true;
-  }
-  if (rg.exists (HifstConstants::kSparseDotProduct) ) {
-    if (sparseformat == true) {
-      LERROR("Sparse format and dot product are not available at the same time.");
-      exit(EXIT_FAILURE);
-    }
-    dotproduct = true;
-  }
   // check that tuplearc weights are set for the tuplearc semiring
   if (rg.get<std::string> (HifstConstants::kHifstSemiring.c_str() ) ==
       HifstConstants::kHifstSemiringTupleArc) {
@@ -267,6 +371,7 @@ int  main ( int argc, const char* argv[] ) {
                                 (HifstConstants::kHifstSemiring);
   if (!vmap.size() && rg.get<std::string> (HifstConstants::kLabelMap) != "" ) {
     FORCELINFO ("Loading symbol map file...");
+    vmapfile = rg.get<std::string> (HifstConstants::kLabelMap);
     ucam::util::iszfstream f (rg.get<std::string> (HifstConstants::kLabelMap) );
     unsigned id;
     std::string word;
