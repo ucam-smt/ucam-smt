@@ -22,17 +22,18 @@ import java.util.Iterator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.io.hfile.CacheConfig;
 import org.apache.hadoop.hbase.io.hfile.HFile;
 import org.apache.hadoop.hbase.io.hfile.HFileScanner;
 import org.apache.hadoop.io.DataInputBuffer;
 import org.apache.hadoop.io.DataOutputBuffer;
-import org.apache.hadoop.io.Text;
 
-import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
+import scala.Array;
+import uk.ac.cam.eng.extraction.Rule;
+import uk.ac.cam.eng.extraction.RuleString;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleData;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.TargetFeatureList;
-import uk.ac.cam.eng.rulebuilding.features.EnumRuleType;
 import uk.ac.cam.eng.util.Pair;
 
 /**
@@ -40,20 +41,18 @@ import uk.ac.cam.eng.util.Pair;
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class HFileRuleReader implements
-		Iterable<Pair<RuleWritable, AlignmentAndFeatureMap>> {
+public class HFileRuleReader implements Iterable<Pair<Rule, RuleData>> {
 
 	private HFileScanner scanner;
 
 	private final DataInputBuffer in = new DataInputBuffer();
 	private final DataOutputBuffer out = new DataOutputBuffer();
-	private final RuleWritable rule = new RuleWritable();
+	private final Rule rule = new Rule();
 	private final TargetFeatureList value = new TargetFeatureList();
-	private Text key = new Text();
+	private RuleString key = new RuleString();
 
 	public HFileRuleReader(HFile.Reader hfReader) {
 		scanner = hfReader.getScanner(false, false);
-		rule.setLeftHandSide(EnumRuleType.EXTRACTED.getLhs());
 		rule.setSource(key);
 	}
 
@@ -68,28 +67,32 @@ public class HFileRuleReader implements
 		}
 	}
 
-	boolean seek(Text source) throws IOException {
+	public boolean seek(RuleString source) throws IOException {
 		out.reset();
 		source.write(out);
-		int pos = scanner.seekTo(out.getData(), 0, out.getLength());
+		byte[] empty = Array.emptyByteArray();
+		KeyValue kv = new KeyValue(out.getData(), 0, out.getLength(), empty, 0,
+				0, empty, 0, 0, 0l, KeyValue.Type.Put, empty, 0, 0);
+		int pos = scanner.seekTo(kv.getBuffer(), kv.getKeyOffset(),
+				kv.getKeyLength());
 		if (pos == 0) {
 			key.set(source);
+			rule.setSource(key);
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public Iterable<Pair<RuleWritable, AlignmentAndFeatureMap>> getRulesForSource() {
+	public Iterable<Pair<Rule, RuleData>> getRulesForSource() {
 		readValue();
-		final Iterator<Pair<Text, AlignmentAndFeatureMap>> instance = value
-				.iterator();
+		final Iterator<Pair<RuleString, RuleData>> instance = value.iterator();
 
-		return new Iterable<Pair<RuleWritable, AlignmentAndFeatureMap>>() {
+		return new Iterable<Pair<Rule, RuleData>>() {
 
 			@Override
-			public Iterator<Pair<RuleWritable, AlignmentAndFeatureMap>> iterator() {
-				return new Iterator<Pair<RuleWritable, AlignmentAndFeatureMap>>() {
+			public Iterator<Pair<Rule, RuleData>> iterator() {
+				return new Iterator<Pair<Rule, RuleData>>() {
 
 					@Override
 					public boolean hasNext() {
@@ -97,9 +100,8 @@ public class HFileRuleReader implements
 					}
 
 					@Override
-					public Pair<RuleWritable, AlignmentAndFeatureMap> next() {
-						Pair<Text, AlignmentAndFeatureMap> next = instance
-								.next();
+					public Pair<Rule, RuleData> next() {
+						Pair<RuleString, RuleData> next = instance.next();
 						rule.setTarget(next.getFirst());
 						return Pair.createPair(rule, next.getSecond());
 					}
@@ -114,36 +116,31 @@ public class HFileRuleReader implements
 		};
 	}
 
-	private Text readSource() {
-		in.reset(scanner.getKey().array(), scanner.getKey().arrayOffset(),
-				scanner.getKey().limit());
-		try {
-			key.readFields(in);
-		} catch (IOException e) {
-			// Should not happen! We are only reading buffered bytes.
-			throw new RuntimeException(e);
-		}
+	private RuleString readSource() {
+		// Have to put the ROW_LENGTH_SIZE due to KeyValue structure
+		in.reset(scanner.getKey().array(), scanner.getKey().arrayOffset()
+				+ KeyValue.ROW_LENGTH_SIZE, scanner.getKey().limit());
+		key.readFields(in);
+		rule.setSource(key);
 		return key;
 	}
 
 	@Override
-	public Iterator<Pair<RuleWritable, AlignmentAndFeatureMap>> iterator() {
+	public Iterator<Pair<Rule, RuleData>> iterator() {
 		boolean temp = false;
 		try {
 			temp = scanner.seekTo();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		final boolean isNotEmpty = temp;
 		if (!isNotEmpty) {
-			return Collections
-					.<Pair<RuleWritable, AlignmentAndFeatureMap>> emptyList()
-					.iterator();
+			return Collections.<Pair<Rule, RuleData>> emptyList().iterator();
 		}
 		readSource();
-		return new Iterator<Pair<RuleWritable, AlignmentAndFeatureMap>>() {
+		return new Iterator<Pair<Rule, RuleData>>() {
 
-			Iterator<Pair<RuleWritable, AlignmentAndFeatureMap>> targetIter;
+			Iterator<Pair<Rule, RuleData>> targetIter;
 
 			boolean hasNext = isNotEmpty;
 
@@ -153,7 +150,7 @@ public class HFileRuleReader implements
 			}
 
 			@Override
-			public Pair<RuleWritable, AlignmentAndFeatureMap> next() {
+			public Pair<Rule, RuleData> next() {
 				if (targetIter == null) {
 					targetIter = getRulesForSource().iterator();
 					try {
@@ -198,7 +195,7 @@ public class HFileRuleReader implements
 					new Path(fileName), cacheConf);
 			HFileRuleReader ruleReader = new HFileRuleReader(hfReader);
 			for (@SuppressWarnings("unused")
-			Pair<RuleWritable, AlignmentAndFeatureMap> entry : ruleReader) {
+			Pair<Rule, RuleData> entry : ruleReader) {
 				++count;
 				++fileCount;
 			}

@@ -5,7 +5,7 @@ This package contains the Cambridge SMT system.
 
 GETTING STARTED
  + Requirements: You need to install the following libraries: OpenFST 1.3.*, boost_1_53_0+, and google tests 1.4.0+. 
-   Should compile succesfully with g++ versions 4.2.1 to 4.6.1. Also required java 1.7+ and sbt (see java/ruleXtract/README.md).
+   Should compile succesfully with g++ versions 4.2.1 to 4.6.1. Also required java 1.8+ and sbt (see java/ruleXtract/README.md).
    Bash environment assumed.
    For more details, i.e. particular extensions/packages these libraries need to be installed with,
    see externals/get-build-libraries.sh. Note that build-test.sh can try to download them for you,

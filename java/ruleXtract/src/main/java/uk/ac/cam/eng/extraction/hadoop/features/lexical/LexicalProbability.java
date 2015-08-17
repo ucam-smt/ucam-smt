@@ -24,8 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.cam.eng.extraction.datatypes.Rule;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
+import uk.ac.cam.eng.extraction.Rule;
+import uk.ac.cam.eng.extraction.Symbol;
+import uk.ac.cam.eng.extraction.Terminal;
 
 /**
  * Helper class for Source2TargetProbabilityReducer. Computes the
@@ -45,26 +46,26 @@ class LexicalProbability {
 		this.source2target = source2target;
 	}
 
-	public void buildQuery(RuleWritable ruleWritable, int noOfProvs,
+	public void buildQuery(Rule ruleWritable, int noOfProvs,
 			Map<List<Integer>, Double> batchWordAlignments) {
 		Rule rule = new Rule(ruleWritable);
-		List<Integer> sourceWords;
-		List<Integer> targetWords;
+		List<Symbol> sourceWords;
+		List<Symbol> targetWords;
 		if (source2target) {
-			sourceWords = rule.getSourceWords();
-			targetWords = rule.getTargetWords();
+			sourceWords = rule.getSource();
+			targetWords = rule.getTarget();
 		} else {
-			sourceWords = rule.getTargetWords();
-			targetWords = rule.getSourceWords();
+			sourceWords = rule.getTarget();
+			targetWords = rule.getSource();
 		}
 		if (sourceWords.size() > 1) {
-			targetWords.add(0);
+			targetWords.add(Terminal.create(0));
 		}
-		for (Integer sourceWord : sourceWords) {
-			for (Integer targetWord : targetWords) {
+		for (Symbol sourceWord : sourceWords) {
+			for (Symbol targetWord : targetWords) {
 				for (int i = 0; i < noOfProvs; ++i) {
 					Integer[] key;
-					key = new Integer[] { i, sourceWord, targetWord };
+					key = new Integer[] { i, sourceWord.serialised(), targetWord.serialised() };
 					batchWordAlignments.put(Arrays.asList(key),
 							Double.MAX_VALUE);
 				}
@@ -73,31 +74,30 @@ class LexicalProbability {
 		}
 	}
 
-	public double value(RuleWritable ruleWritable, byte prov,
+	public double value(Rule ruleWritable, byte prov,
 			Map<List<Integer>, Double> batchWordAlignments) throws IOException {
 		double lexprob = 1;
 		Rule rule = new Rule(ruleWritable);
-		List<Integer> sourceWords;
-		List<Integer> targetWords;
+		List<Symbol> sourceWords;
+		List<Symbol> targetWords;
 		if (source2target) {
-			sourceWords = rule.getSourceWords();
-			targetWords = rule.getTargetWords();
+			sourceWords = rule.source().getTerminals();
+			targetWords = rule.target().getTerminals();
 		} else {
-			sourceWords = rule.getTargetWords();
-			targetWords = rule.getSourceWords();
+			sourceWords = rule.target().getTerminals();
+			targetWords = rule.source().getTerminals();
 		}
 		if (sourceWords.size() > 1) {
-			targetWords.add(0);
+			targetWords.add(Terminal.create(0));
 		}
-		for (Integer sourceWord : sourceWords) {
+		for (Symbol sourceWord : sourceWords) {
 			double sum = 0;
-			for (Integer targetWord : targetWords) {
+			for (Symbol targetWord : targetWords) {
 				Integer[] key;
-				key = new Integer[] { (int) prov, sourceWord, targetWord };
+				key = new Integer[] { (int) prov, sourceWord.serialised(), targetWord.serialised() };
 				List<Integer> serverKey = Arrays.asList(key);
 				if (batchWordAlignments.containsKey(serverKey)) {
 					double val = batchWordAlignments.get(serverKey);
-					// System.out.println(serverKey + "\t" + val);
 					sum += val;
 				}
 			}
@@ -109,7 +109,6 @@ class LexicalProbability {
 
 		}
 		lexprob /= Math.pow(targetWords.size(), sourceWords.size());
-		// TODO could use the log in the computation
 		return Math.log(lexprob);
 	}
 

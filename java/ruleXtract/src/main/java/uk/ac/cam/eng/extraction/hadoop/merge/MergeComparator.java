@@ -21,7 +21,7 @@ import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
-import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
+import uk.ac.cam.eng.extraction.Rule;
 
 /**
  * Need a byte level comparator for rule writable. Otherwise we are unable to
@@ -36,7 +36,7 @@ public class MergeComparator extends WritableComparator {
 	private final DataOutputBuffer bufferb = new DataOutputBuffer();
 
 	public MergeComparator() {
-		super(RuleWritable.class);
+		super(Rule.class);
 	}
 
 	@Override

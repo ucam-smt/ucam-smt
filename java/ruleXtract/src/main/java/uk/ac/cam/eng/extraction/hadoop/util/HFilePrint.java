@@ -24,8 +24,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.io.hfile.CacheConfig;
 import org.apache.hadoop.hbase.io.hfile.HFile;
 
-import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentAndFeatureMap;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
+import uk.ac.cam.eng.extraction.Rule;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleData;
 import uk.ac.cam.eng.rule.retrieval.HFileRuleReader;
 import uk.ac.cam.eng.util.Pair;
 
@@ -45,7 +45,7 @@ public class HFilePrint {
 		HFile.Reader hfReader = HFile.createReader(FileSystem.get(conf),
 				new Path(args[0]), cacheConf);
 		HFileRuleReader reader = new HFileRuleReader(hfReader);
-		for (Pair<RuleWritable, AlignmentAndFeatureMap> entry : reader) {
+		for (Pair<Rule, RuleData> entry : reader) {
 			System.out.println(entry);
 		}
 	}
