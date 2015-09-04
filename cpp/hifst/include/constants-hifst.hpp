@@ -119,6 +119,11 @@ const std::string kSparseweightvectorlatticeStorenolm =
 const std::string kSparseweightvectorlatticeStripSpecialEpsilonLabels =
   "sparseweightvectorlattice.stripspecialepsilonlabels";
 
+const std::string kSparseweightvectorlatticeDeterminize =
+  "sparseweightvectorlattice.determinize";
+
+
+
 // rules2weights specific
 const std::string kRulesToWeightsEnable = "rulestoweights.enable";
 const std::string kRulesToWeightsNumberOfLanguageModels = "rulestoweights.numlms";

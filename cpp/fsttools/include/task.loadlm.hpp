@@ -222,7 +222,7 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
         index_ + 1 );
     d.klm[lmkey_][index_] = (const KenLMData*) &kld_;
     LDEBUG ( "LM " << lmfile_ ( d.sidx ) << " loaded, key=" << lmkey_ <<
-             ", position=" <<  toString<uint> ( d.klm[lmkey_].size() - 1 ) <<
+             ", position=" <<  ucam::util::toString<uint> ( d.klm[lmkey_].size() - 1 ) <<
              ",total number of language models for this key is " << d.klm[lmkey_].size() );
     return false;
   };
