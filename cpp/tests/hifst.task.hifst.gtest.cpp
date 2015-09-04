@@ -108,6 +108,7 @@ class HifstTest : public testing::Test {
     v_[kHifstRtnopt] = std::string ("yes");
     v_[kHifstWritertn] = std::string ( "" );
     v_[kHifstAlilatsmode] = std::string ("no");
+    v_[kHifstAlilatsmodeLinks] = std::string ("rules");
     v_[kHifstOptimizecells] = std::string ("yes");
     v_[kReferencefilterLoad] = std::string ("");
     const uu::RegistryPO rg ( v_ );

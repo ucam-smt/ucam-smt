@@ -57,24 +57,24 @@ extern const bool detailed;
 #include <tropical-sparse-tuple-weight-decls.h>
 #include <tropical-sparse-tuple-weight.makeweight.h>
 
-#include "fstio.hpp"
-#include "fstutils.hpp"
+#include <fstio.hpp>
+#include <fstutils.hpp>
 
 #define KENLM_MAX_ORDER 6
 #include "lm/model.hh"
 
-#include "data.stats.hpp"
-#include "fstutils.mapper.hpp"
-#include "fstutils.applylmonthefly.hpp"
+#include <data.stats.hpp>
+#include <fstutils.mapper.hpp>
+#include <fstutils.applylmonthefly.hpp>
 
-#include "data.lm.hpp"
-#include "data-main.applylm.hpp"
+#include <data.lm.hpp>
+#include <data-main.applylm.hpp>
 
-#include "task.loadlm.hpp"
-#include "task.readfst.hpp"
-#include "task.writefst.hpp"
-#include "task.applylm.hpp"
-#include "task.stats.hpp"
+#include <task.loadlm.hpp>
+#include <task.readfst.hpp>
+#include <task.writefst.hpp>
+#include <task.applylm.hpp>
+#include <task.stats.hpp>
 #include <task.loadwordmap.hpp>
-
+#include <task.tunewpwrite.hpp>
 #endif

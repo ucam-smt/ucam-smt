@@ -29,6 +29,10 @@
 #ifndef LINFO
 #define LINFO(x) std::cerr << "INFO:: " << x << std::endl;
 #endif
+#ifndef LDEBUG
+#define LDEBUG(x) std::cerr << "DEBUG:: " << x << std::endl;
+#endif
+
 #ifndef LERROR
 #define LERROR(x) std::cerr << "ERROR:: " << x << std::endl;
 #endif
@@ -70,11 +74,20 @@ inline std::vector<T> ParseParamString ( const std::string& stringparams ,
 
 ///Version 2, passing output by reference...
 template<typename T>
-inline void ParseParamString ( const std::string& stringparams ,
-                               std::vector<T>& params, size_t pos = 0 ) {
-  std::stringstream strm ( std::stringstream::in | std::stringstream::out );
-  if ( pos ) strm << stringparams.substr ( pos ) << std::noskipws;
-  else strm << stringparams << std::noskipws;
+inline void ParseParamString ( const std::string& stringparams
+                               , std::vector<T>& params
+                               , size_t pos = 0
+                               , size_t span = 0 ) {
+  using namespace std;
+  stringstream strm ( stringstream::in | stringstream::out );
+  if ( pos)
+    if (span > 0) {
+      strm << stringparams.substr ( pos , span) << noskipws;
+      LDEBUG("Passing in: [" << strm.str() << "]");
+    } else strm << stringparams.substr ( pos ) << noskipws;
+  else strm << stringparams << noskipws;
+  // not efficient.
+  span = strm.str().size();
   char separator;
   while ( strm.good() ) {
     if ( params.size() > 0 ) {
@@ -84,10 +97,10 @@ inline void ParseParamString ( const std::string& stringparams ,
     strm >> w;
     params.push_back ( w );
   }
-  if ( strm.fail() || strm.bad() || strm.fail() ) {
-    LERROR("Unable to parse params : " << stringparams.substr ( pos ) );
+  if ( strm.fail() || strm.bad() ) {
+    LERROR("Unable to parse params : " << stringparams.substr ( pos , span) );
     for ( unsigned k = 0; k < params.size(); ++k )
-      std::cerr << params[k] << std::endl;
+      cerr << params[k] << endl;
     exit ( EXIT_FAILURE );
   }
 }

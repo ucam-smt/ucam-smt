@@ -108,7 +108,7 @@ class iszfstream {
     file.reset (new std::ifstream (auxfilename.c_str(),
                                    std::ios_base::in | std::ios_base::binary) );
     if (!USER_CHECK (file->is_open(),
-                     "Error while opening file") ) exit (EXIT_FAILURE);
+                     "Error while opening file:") ) exit (EXIT_FAILURE);
     in.reset (new boost::iostreams::filtering_streambuf<boost::iostreams::input>);
     if (auxfilename.substr (0, 5) != "/dev/" ) {
       if (ends_with (auxfilename, ".gz") )

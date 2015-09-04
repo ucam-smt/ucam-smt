@@ -36,9 +36,9 @@ test_0002_applylm_execute(){
     mkdir -p tmp; 
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
-	if [ "`cat $BASEDIR/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;  
+	if [ "`cat $BASEDIR/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	fstproject --project_output $BASEDIR/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.fst
-	if fstequivalent tmp/$k.fst $REFDIR/$k.fst; then echo -e ""; else echo 0;  return; fi ; 	
+	if fstequivalent tmp/$k.fst $REFDIR/$k.fst; then echo -e ""; else echo 0;  return; fi ;
     done
 
     echo 1
@@ -57,9 +57,9 @@ test_0003_applylm_lexstd_execute(){
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
 	if [ ! -e $BASEDIR/$k.fst ]; then echo 0; return; fi;
-	if [ "`cat $BASEDIR/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;  
+	if [ "`cat $BASEDIR/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	fstproject --project_output $BASEDIR/$k.lex.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.lex.fst
-	if fstequivalent tmp/$k.lex.fst $REFDIR/$k.lex.fst; then echo -e ""; else echo 0;  return; fi ; 	
+	if fstequivalent tmp/$k.lex.fst $REFDIR/$k.lex.fst; then echo -e ""; else echo 0;  return; fi ;
     done
 
     echo 1
@@ -79,9 +79,9 @@ test_0004_applylm_lexstd_rmlmcost_execute(){
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
 	if [ ! -e $BASEDIR/$k.lex2.fst ]; then echo 0; return; fi;
-	if [ "`cat $BASEDIR/$k.lex2.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;  
+	if [ "`cat $BASEDIR/$k.lex2.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	fstproject --project_output $BASEDIR/$k.lex2.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.lex2.fst
-	if fstequivalent tmp/$k.lex2.fst $REFDIR/$k.lex2.fst; then echo -e ""; else echo 0;  return; fi ; 	
+	if fstequivalent tmp/$k.lex2.fst $REFDIR/$k.lex2.fst; then echo -e ""; else echo 0;  return; fi ;
     done
 
     echo 1
@@ -102,9 +102,9 @@ test_0005_applylm_wordslm_execute(){
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
 	if [ ! -e $BASEDIR/$k.word.fst ]; then echo 0; return; fi;
-	if [ "`cat $BASEDIR/$k.word.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;  
+	if [ "`cat $BASEDIR/$k.word.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	fstproject --project_output $BASEDIR/$k.word.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.fst
-	if fstequivalent tmp/$k.fst $REFDIR/$k.fst; then echo -e ""; else echo 0;  return; fi ; 	
+	if fstequivalent tmp/$k.fst $REFDIR/$k.fst; then echo -e ""; else echo 0;  return; fi ;
     done
 
     echo 1
@@ -126,9 +126,10 @@ test_0006_applylm_nplm_execute(){
     mkdir -p tmp; 
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
-	if [ "`cat $BASEDIR/nplm/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;  
+	if [ "`cat $BASEDIR/nplm/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	fstproject --project_output $BASEDIR/nplm/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.fst
-	if fstequivalent tmp/$k.fst $REFDIR/nplm/$k.fst; then echo -e ""; else echo 0;  return; fi ; 	
+	fstproject --project_output $REFDIR/nplm/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.ref.fst
+	if fstequivalent tmp/$k.fst tmp/$k.ref.fst; then echo -e ""; else echo 0;  return; fi ;
     done
     echo 1
 }
@@ -145,13 +146,13 @@ test_0007_applylm_arpa+trie_languagemodels_execute() {
 	--lattice.store=$BASEDIR/0007/?.fst &> /dev/null
 
     rm -Rf tmp; mkdir -p tmp
-    mkdir -p tmp; 
+    mkdir -p tmp;
     seqrange=`echo $range | sed -e 's:\:: :g'`
-    for k in `seq $seqrange`; do 
+    for k in `seq $seqrange`; do
 	if [ ! -e $BASEDIR/0007/$k.fst ]; then echo 0; return; fi;
-	if [ "`cat $BASEDIR/0007/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;  
+	if [ "`cat $BASEDIR/0007/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	fstproject --project_output $BASEDIR/0007/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.fst
- 	if fstequivalent tmp/$k.fst $REFDIR/$k.fst; then echo -e ""; else echo 0;  return; fi ; 	
+ 	if fstequivalent tmp/$k.fst $REFDIR/$k.fst; then echo -e ""; else echo 0;  return; fi ;
      done
 
     #### In this case the second language model is a quantized trie with kenlm options q4b4a255.
@@ -171,7 +172,7 @@ test_0007_applylm_arpa+trie_languagemodels_execute() {
 	if [ ! -e $BASEDIR/0007q/$k.fst ]; then echo 0; return; fi;
 	if [ "`cat $BASEDIR/0007q/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	fstproject --project_output $BASEDIR/0007q/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.fst
-	if fstequivalent tmp/$k.fst $REFDIR/0007q/$k.fst; then echo -e ""; else echo 0;  return; fi ; 	
+	if fstequivalent tmp/$k.fst $REFDIR/0007q/$k.fst; then echo -e ""; else echo 0;  return; fi ;
      done
     echo 1
 }
@@ -184,6 +185,7 @@ test_0008_applylm_arpa+trie+nplm_languagemodels_execute() {
     fi
     ### This test shows that the tool can handle three language models in different formats,
     ### one of them is an nplm model.
+
     $applylm \
 	--range=$range \
 	--lm.load=data/lm/trivial.lm.gz,data/lm/trivial.lm.trie.mmap,data/lm/inferno.nnlm \
@@ -198,17 +200,90 @@ test_0008_applylm_arpa+trie+nplm_languagemodels_execute() {
 	if [ ! -e $BASEDIR/0008/$k.fst ]; then echo 0; return; fi;
 	if [ "`cat $BASEDIR/0008/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
 	fstproject --project_output $BASEDIR/0008/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.fst
-	if fstequivalent tmp/$k.fst $REFDIR/0008/$k.fst; then echo -e ""; else echo 0;  return; fi ;
+	fstproject --project_output $REFDIR/0008/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.ref.fst
+	if fstequivalent tmp/$k.fst tmp/$k.ref.fst; then echo -e ""; else echo 0;  return; fi ;
+    done
+
+    echo 1
+}
+
+test_0009_applylm_bilm_lexstd_execute(){
+    if [ -z $NPLM_LIB ]; then
+	echo 2   ## skip test
+	return
+    fi
+    mkdir -p $BASEDIR/bilm
+    $applylm \
+        --range=$range \
+        --lm.load=data/lm/bnnlm --logger.verbose \
+        --semiring=lexstdarc \
+        --lattice.load=REFFILES/test-hifst+alilats2splats/alilats.affiliation/?.fst.gz \
+        --lattice.store=$BASEDIR/bilm/?.lex.fst \
+        --usebilm=yes \
+        --usebilm.sourcesize=3 \
+        --usebilm.sourcesentencefile=data/source.text  \
+        &> /dev/null
+
+    mkdir -p tmp;
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    for k in `seq $seqrange`; do 
+        fstproject --project_output $BASEDIR/bilm/$k.lex.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.lex.fst
+        fstproject --project_output $REFDIR/bilm/$k.lex.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.lex.ref.fst
+    done
+    for k in `seq $seqrange`; do 
+        if [ ! -e $BASEDIR/bilm/$k.lex.fst ]; then echo 0; return; fi;
+        if [ "`cat $BASEDIR/bilm/$k.lex.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
+        if fstequivalent tmp/$k.lex.fst tmp/$k.lex.ref.fst; then echo -e ""; else echo 0;  return; fi ;
+    done
+
+    echo 1
+
+}
+
+
+### Not currently using the tuning option in our pipelines
+test_0010_applylm_bilm_lexstd_execute(){
+    if [ -z $NPLM_LIB ]; then
+	echo 2   ## skip test
+	return
+    fi
+    mkdir -p $BASEDIR/bilm
+    $applylm \
+        --range=$range --nthreads=1  \
+        --lm.load=data/lm/bnnlm \
+        --semiring=lexstdarc \
+        --lattice.load=REFFILES/test-hifst+alilats2splats/alilats.affiliation/?.fst.gz \
+        --tune=yes --tune.wp=-1.0:0.1:1.0 --tune.write=$BASEDIR/bilmtune/%%wp%%/?.lex.fst \
+        --usebilm=yes \
+        --usebilm.sourcesize=3 \
+        --usebilm.sourcesentencefile=data/source.text &> /dev/null
+    echo 1
+}
+
+
+test_0011_applylm_multithreaded_execute(){
+
+    $applylm \
+	--range=$range --nthreads=4 --logger.verbose \
+	--lm.load=data/lm/trivial.lm.gz \
+	--lm.featureweights=2 \
+	--lattice.load=data/fsts/?.alilats.fst \
+	--lattice.store=$BASEDIR/?.fst &> /dev/null
+
+    mkdir -p tmp;
+    seqrange=`echo $range | sed -e 's:\:: :g'`
+    for k in `seq $seqrange`; do
+	if [ "`cat $BASEDIR/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
+	fstproject --project_output $BASEDIR/$k.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.fst
+	if fstequivalent tmp/$k.fst $REFDIR/$k.fst; then echo -e ""; else echo 0;  return; fi ;
     done
 
     echo 1
 }
 
 
-
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
-
 runtests
 
 

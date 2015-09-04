@@ -10,7 +10,7 @@ CXXFLAGS+=" -I. -O3 -DNDEBUG -DKENLM_MAX_ORDER=6 "
 
 ##If this fails for you, consider using bjam.
 if [ ${#NPLM_LIB} != 0 ]; then
-    CXXFLAGS+=" -DHAVE_NPLM -lneuralLM -L$NPLM_LIB -I$NPLM_INCLUDE -I$BOOST_INCLUDE -lboost_thread -lboost_system -fopenmp"
+    CXXFLAGS+=" -DHAVE_NPLM -lneuralLM -L$NPLM_LIB -I$EIGEN_INCLUDE -I$NPLM_INCLUDE -I$BOOST_INCLUDE -lboost_thread -lboost_system -fopenmp"
     ADDED_PATHS="lm/wrappers/*.cc"
 fi
 echo 'Compiling with '$CXX $CXXFLAGS

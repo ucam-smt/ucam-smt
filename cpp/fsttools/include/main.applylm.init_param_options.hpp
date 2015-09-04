@@ -37,33 +37,65 @@ namespace po = boost::program_options;
  * \return void
  */
 
-inline void init_param_options ( int argc, const char* argv[],
-                                 po::variables_map *vm ) {
+inline void init_param_options ( int argc, const char* argv[]
+                                 , po::variables_map *vm ) {
+  using namespace HifstConstants;
+  using namespace std;
   try {
     po::options_description desc ( "Command-line/configuration file options" );
     initCommonApplylmOptions (desc);
     desc.add_options()
-    ( HifstConstants::kRange.c_str(), po::value<std::string>(),
-      "Indices of sentences to translate" )
-    ( HifstConstants::kNThreads.c_str(), po::value<uint>(),
+    ( kRange.c_str(), po::value<string>(),
+      "Indices of lattices to rescore" )
+    ( kNThreads.c_str(), po::value<uint>(),
       "Number of threads (trimmed to number of cpus in the machine) " )
-    ( HifstConstants::kLatticeLoad.c_str(), po::value<std::string>(),
+    ( kLatticeLoad.c_str(), po::value<string>(),
       "Read original lattice from [file]" )
-    ( HifstConstants::kLatticeLoadDeleteLmCost.c_str(),
-      "If working on LexStd, then delete lm cost in the lattices first, by projecting Weight2 into Weight1." )
-    ( HifstConstants::kLatticeStore.c_str(),
-      po::value<std::string>()->default_value ( "" ),
+    ( kLatticeLoadDeleteLmCost.c_str(),
+      "If working on LexStd, then delete lm cost in the lattices first,"
+      " by projecting Weight2 into Weight1." )
+    ( kLatticeStore.c_str(),
+      po::value<string>()->default_value ( "" ),
       "Write  lattice with lm scores to [file]" )
-    ( HifstConstants::kHifstSemiring.c_str(),
-      po::value<std::string>()->default_value (
-        HifstConstants::kHifstSemiringStdArc.c_str() ),
-      "Choose between lexstdarc or stdarc" )
-    ( HifstConstants::kStatsWrite.c_str(),
-      po::value<std::string>()->default_value ( "" ), "Write speed stats to  [file]" )
+    (kUseBilingualModel.c_str()
+     , po::value<string>()->default_value("no")
+     , "Use bilingual models. Only nplm model supported"
+     )
+    (kUseBilingualModelSourceSize.c_str()
+     , po::value<unsigned>()->default_value(3)
+     , "Source size. Only 0 or positive odd values accepted. "
+     "NPLM model must be trained accordingly! If 0, it will assume NNLM. "
+     "Note that 0 is intended to use only for debugging purposes -- this should be equivalent to "
+     "(but slower than) --usebilm=no."
+     )
+    (kUseBilingualModelSourceSentenceFile.c_str()
+     , po::value<string>()->default_value("")
+     , "Single file containing source sentences. Mandatory if "
+     "bilingual models are used!"
+     )
+    (kTune.c_str()
+     , po::value<string>()->default_value("no")
+     , "Dumps 1-best hypotheses for different word penalty corrections"
+     )
+    (kTuneWrite.c_str()
+     , po::value<string>()->default_value("")
+     , "Where to write 1-best output per word penalty correction (use %%wp%%)"
+     )
+    (kTuneWordPenaltyRange.c_str()
+     , po::value<string>()->default_value("")
+     , "Range of word penalties in usual range format (float values)."
+     )
+    ( kHifstSemiring.c_str()
+      , po::value<string>()->default_value
+      ( kHifstSemiringStdArc.c_str() )
+      , "Choose between lexstdarc or stdarc" )
+    ( kStatsWrite.c_str()
+      , po::value<string>()->default_value ( "" )
+      , "Write speed stats to  [file]" )
     ;
     parseOptionsGeneric (desc, vm, argc, argv);
     checkApplyLmOptions (vm);
-  } catch ( std::exception& e ) {
+  } catch ( exception& e ) {
     cerr << "error: " << e.what() << "\n";
     exit ( EXIT_FAILURE );
   } catch ( ... ) {

@@ -45,7 +45,7 @@ class RTN {
   RTN() {};
 
   ///If exists, returns pointer FSA for a given key. Otherwise returns NULL
-  inline fst::Fst<Arc> *operator() ( const uint cc, const uint x, const uint y ) {
+  inline fst::Fst<Arc> *operator() ( const unsigned cc, const unsigned x, const unsigned y ) {
     Label hieroindex = APBASETAG + cc * APCCTAG + x * APXTAG + y * APYTAG;
     typename hifst_rtn_t::iterator itx = rtn_.find ( hieroindex );
     if ( itx != rtn_.end() )
@@ -54,9 +54,9 @@ class RTN {
   };
 
   ///Adds a new cell fsa to the rtn for coordinates cc,x,y, takes ownership of the pointer. fst is the pointer arc and fst2 contains the pointee fst.
-  inline void Add ( const uint cc,
-                    const uint x,
-                    const uint y,
+  inline void Add ( const unsigned cc,
+                    const unsigned x,
+                    const unsigned y,
                     fst::Fst<Arc> *fst ,
                     fst::Fst<Arc> *fst2 = NULL) {
     Label hieroindex = APBASETAG + cc * APCCTAG + x * APXTAG + y * APYTAG;
@@ -65,9 +65,9 @@ class RTN {
       rtn2_[hieroindex] = boost::shared_ptr<fst::Fst<Arc> > ( fst2 );
   };
   ///Adds a new cell fsa to the rtn for coordinates cc,x,y
-  inline void Add ( const uint cc,
-                    const uint x,
-                    const uint y,
+  inline void Add ( const unsigned cc,
+                    const unsigned x,
+                    const unsigned y,
                     boost::shared_ptr< fst::Fst<Arc> > fst ,
                     boost::shared_ptr< fst::Fst<Arc> > fst2 ) {
     Label hieroindex = APBASETAG + cc * APCCTAG + x * APXTAG + y * APYTAG;

@@ -103,7 +103,10 @@ export TOPDIR=$TOPDIR
 ### Default KENLM package -- bundled with HiFST package.
 export KENLM_DIR=${TOPDIR}/externals/kenlm/
 
-### To integrate NPLM, uncomment these variables set them to the appropriate values:
+### To integrate NPLM, 
+### 1.- Clone from https://github.com/ucam-smt/nplm.git and install following instructions.
+###     This includes installing eigen library
+### 2.- Uncomment these variables set them to the appropriate values:
 # export NPLM_INCLUDE=...
 # export NPLM_LIB=...
 # export EIGEN_INCLUDE=...

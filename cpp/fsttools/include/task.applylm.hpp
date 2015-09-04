@@ -49,7 +49,6 @@ class ApplyLanguageModelTask: public ucam::util::TaskInterface<Data> {
 
   fst::VectorFst<Arc> mylmfst_;
 
-
   typedef fst::ApplyLanguageModelOnTheFlyInterface<Arc> ApplyLanguageModelOnTheFlyInterfaceType;
   typedef boost::shared_ptr<ApplyLanguageModelOnTheFlyInterfaceType> ApplyLanguageModelOnTheFlyInterfacePtrType;
   std::vector<ApplyLanguageModelOnTheFlyInterfacePtrType> almotf_;
@@ -67,13 +66,14 @@ class ApplyLanguageModelTask: public ucam::util::TaskInterface<Data> {
     , latticeloadkey_ ( latticeloadkey )
     , latticestorekey_ ( latticestorekey )
     , natlog_ ( !rg.exists ( HifstConstants::kLmLogTen ) )
-    , deletelmscores_ (deletelmscores) {
-  };
+    , deletelmscores_ (deletelmscores)
+  {};
 
   /**
    * \brief Initializes appropriate templated handlers for kenlm language models
    */
  void initializeLanguageModelHandlers(Data &d) {
+
    if (almotf_.size()) return; // already done
    almotf_.resize(d.klm[lmkey_].size());
    fst::MakeWeight<Arc> mw;
@@ -89,7 +89,6 @@ class ApplyLanguageModelTask: public ucam::util::TaskInterface<Data> {
      almotf_[k].reset(assignKenLmHandler<Arc>(rg_,lmkey_, epsilons
 					      , *(d.klm[lmkey_][k])
 					      , mw, natlog_,k));
-     
      mw.update();
    }
  }
@@ -107,6 +106,7 @@ class ApplyLanguageModelTask: public ucam::util::TaskInterface<Data> {
                        "No language models available (key not initialized) " ) ) return true;
     if ( !USER_CHECK ( d.fsts.find ( latticeloadkey_ ) != d.fsts.end() ,
                        " Input fst not available!" ) ) return true;
+
     initializeLanguageModelHandlers(d);
     mylmfst_ = * (static_cast<fst::VectorFst<Arc> * > ( d.fsts[latticeloadkey_] ) );
     if (deletelmscores_) {
@@ -138,10 +138,119 @@ class ApplyLanguageModelTask: public ucam::util::TaskInterface<Data> {
 
  private:
   ZDISALLOW_COPY_AND_ASSIGN ( ApplyLanguageModelTask );
+};
+
+template <class Data ,  class Arc >
+class ApplyBiLMTask: public ucam::util::TaskInterface<Data> {
+ private:
+  typedef typename Arc::Label Label;
+  typedef typename Arc::Weight Weight;
+
+  ucam::util::RegistryPO const& rg_;
+  bool deletelmscores_;
+  bool natlog_;
+
+  const std::string lmkey_;
+  const std::string latticeloadkey_;
+  const std::string latticestorekey_;
+
+  fst::VectorFst<Arc> mylmfst_;
+
+  typedef fst::ApplyLanguageModelOnTheFlyInterface<Arc> ApplyLanguageModelOnTheFlyInterfaceType;
+  typedef boost::shared_ptr<ApplyLanguageModelOnTheFlyInterfaceType> ApplyLanguageModelOnTheFlyInterfacePtrType;
+  std::vector<ApplyLanguageModelOnTheFlyInterfacePtrType> almotf_;
+
+
+  unsigned srcWindowsSize_;
+
+ public:
+  ///Constructor with ucam::util::RegistryPO object
+  explicit ApplyBiLMTask ( const ucam::util::RegistryPO& rg
+                           , const std::string& lmkey
+                           , const std::string& latticeloadkey
+                           , const std::string& latticestorekey
+                           , bool deletelmscores
+                           )
+      : rg_(rg)
+      , lmkey_ ( lmkey )
+      , latticeloadkey_ ( latticeloadkey )
+      , latticestorekey_ ( latticestorekey )
+      , natlog_ ( !rg.exists ( HifstConstants::kLmLogTen ) )
+      , deletelmscores_ (deletelmscores) // hum...
+      , srcWindowsSize_(rg_.get<unsigned>(HifstConstants::kUseBilingualModelSourceSize))
+  {};
+
+  /**
+   * \brief Initializes appropriate templated handlers for kenlm language models
+   */
+  void initializeLanguageModelHandlers(Data &d) {
+    if (almotf_.size()) return; // already done
+    almotf_.resize(d.klm[lmkey_].size());
+    fst::MakeWeight<Arc> mw;
+    unordered_set<Label> epsilons;
+    /// We want the language model to ignore these guys:
+    epsilons.insert ( DR );
+    epsilons.insert ( OOV );
+    epsilons.insert ( EPSILON );
+    epsilons.insert ( SEP );
+    USER_CHECK(d.klm[lmkey_].size() == 1
+               , "Only ONE bilingual model supported. Sorry for my limitations!");
+    unsigned k = 0;
+    almotf_[k].reset
+        (assignKenLmHandlerBilingual<Arc>(rg_,lmkey_, epsilons
+                                          , *(d.klm[lmkey_][k])
+                                          , mw, natlog_,k
+                                          )
+         );
+  };
+
+  /**
+   * \brief Method inherited from ucam::util::TaskInterface. Loads the language model and stores in lm data structure.
+   * \param &d data structure in which the null filter is to be stored.
+   * \returns false (does not break the chain of tasks)
+   */
+  bool run ( Data& d ) {
+    mylmfst_.DeleteStates();
+    if ( !USER_CHECK ( d.klm.size() ,
+                       "No language models available" ) ) return true;
+    if ( !USER_CHECK ( d.klm.find ( lmkey_ ) != d.klm.end() ,
+                       "No language models available (key not initialized) " ) ) return true;
+    if ( !USER_CHECK ( d.fsts.find ( latticeloadkey_ ) != d.fsts.end() ,
+                       " Input fst not available!" ) ) return true;
+    initializeLanguageModelHandlers(d);
+    mylmfst_ = * (static_cast<fst::VectorFst<Arc> * > ( d.fsts[latticeloadkey_] ) );
+    // if (deletelmscores_) {
+    //   LINFO ( "Delete old LM scores first" );
+    //   //Deletes LM scores if using lexstdarc. Note -- will copy through on stdarc and ignore on tuplearc!
+    //   fst::MakeWeight2<Arc> mwcopy;
+    //   fst::Map<Arc> ( &mylmfst_,
+    //                   fst::GenericWeightAutoMapper<Arc, fst::MakeWeight2<Arc> > ( mwcopy ) );
+    // }
+    LINFO ( "Input lattice loaded with key=" << latticeloadkey_ << ", NS=" <<
+            mylmfst_.NumStates() );
+    boost::shared_ptr<fst::VectorFst<Arc> > p;
+    for ( unsigned k = 0; k < almotf_.size(); ++k ) {
+      d.stats->setTimeStart ( "on-the-fly-bilm-composition " +  ucam::util::toString ( k ) );
+      p.reset(almotf_[k]->run(mylmfst_, srcWindowsSize_, d.sourceWindows) );
+      mylmfst_ = *p;
+      p.reset();
+      d.stats->setTimeEnd ("on-the-fly-bilm-composition " + ucam::util::toString ( k ) );
+      LDEBUG ( mylmfst_.NumStates() );
+    }
+    d.fsts[latticestorekey_] = &mylmfst_;
+    LINFO ( "Done!" );
+    return false;
+  };
+
+  ~ApplyBiLMTask ( ) {
+    LINFO ("Shutdown!");
+  };
+
+ private:
+  ZDISALLOW_COPY_AND_ASSIGN ( ApplyBiLMTask );
 
 };
 
-}
-}  // end namespaces
+}}  // end namespaces
 
 #endif

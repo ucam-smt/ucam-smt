@@ -201,7 +201,7 @@ TEST ( fstutils, applylmonthefly ) {
   std::tr1::unordered_set<fst::StdArc::Label> epsilons;
   lm::ngram::Config kenlm_config;
   ucam::fsttools::IdBridge idb;
-  lm::HifstEnumerateVocab hev (idb, NULL);
+  lm::HifstEnumerateVocab<ucam::util::WordMapper> hev (idb, NULL);
   kenlm_config.enumerate_vocab = &hev;
   fst::MakeWeight<fst::StdArc> mw;
   lm::ngram::Model *model = new lm::ngram::Model ( "mylm" , kenlm_config);

@@ -621,13 +621,39 @@ test_0029_extractFeatures_arpa+trie+nplm() {
     echo 1
 }
 
+test_0030_align_with_links() {
+
+### hifst=$CAM_SMT_DIR/cpp/hifst/bin/hifst.debug.bin
+
+(  #set -x
+    $hifst \
+        --grammar.load=$grammar-2f-affiliation \
+        --source.load=$tstidx  \
+        --referencefilter.load=$REFDIR/lats/?.fst.gz \
+        --referencefilter.prunereferenceshortestpath=10 \
+        --hifst.lattice.store=$BASEDIR/alilats.affiliation/?.fst.gz  \
+        --hifst.localprune.enable=yes  --hifst.localprune.conditions=X,1,1,9,M,1,1,9,V,1,1,9 \
+	--hifst.alilatsmode=yes --hifst.alilatsmode.type=affiliation
+) &> /dev/null
+
+
+     seqrange=`echo $range | sed -e 's:\:: :g'`
+     for k in `seq $seqrange`; do
+ 	mkdir -p tmp;
+ 	zcat $BASEDIR/alilats.affiliation/$k.fst.gz | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.test.fst;
+ 	zcat $REFDIR/alilats.affiliation/$k.fst.gz | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.ref.fst;
+ 	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ;
+     done
+###Success
+    echo 1
+}
 
 
 
 
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
-
+# OK: test_0030_align_with_links
 runtests
 
 

@@ -61,11 +61,52 @@ assignKenLmHandler(util::RegistryPO const &rg
       (dynamic_cast<QuantArrayTrieModel &>(*klm.model), epsilons,useNaturalLog, klm.lmscale, klm.lmwp, klm.idb, mw);
   case util::KENLM_NPLM:
  #ifdef WITH_NPLM
-    return new fst::ApplyLanguageModelOnTheFly<Arc, MakeWeightT<Arc>, NplmModel > 
-      (dynamic_cast<NplmModel &>(*klm.model), epsilons,useNaturalLog, klm.lmscale, klm.lmwp, klm.idb, mw);
+    return new fst::ApplyLanguageModelOnTheFly<Arc, MakeWeightT<Arc>, NplmModel >
+      (dynamic_cast<NplmModel &>(*klm.model), epsilons,useNaturalLog, klm.lmscale, klm.lmwp, klm.idb, mw);    
 #endif
     LERROR("Unsuported format: KENLM_NPLM. Did you compile NPLM library?");
-     exit(EXIT_FAILURE);
+    exit(EXIT_FAILURE);
+  default:
+    // bad news if it reaches this point, as format should default to probing
+    LERROR("Programmer mistake -- (task.applylm.kenlmtype.hpp)");
+    exit(EXIT_FAILURE);
+  }
+  return NULL;
+};
+
+
+// We only support nplm:
+template<class Arc, template<class> class MakeWeightT>
+inline fst::ApplyLanguageModelOnTheFlyInterface<Arc> *
+assignKenLmHandlerBilingual(util::RegistryPO const &rg
+		   , std::string const &lmkey
+		   , std::tr1::unordered_set<typename Arc::Label> &epsilons
+		   , KenLMData const &klm
+		   , MakeWeightT<Arc> &mw
+		   , bool useNaturalLog
+		   , unsigned offset = 0) {
+  using namespace lm::ngram;
+  typedef lm::np::Model NplmModel;
+  // Detect here kenlm binary type
+  std::string file = rg.getVectorString (lmkey, offset) ;
+  int  kenmt = ucam::util::detectkenlm(file);
+
+  switch (kenmt) {
+  case util::KENLM_NPLM:
+ #ifdef WITH_NPLM
+    return new fst::ApplyLanguageModelOnTheFly<Arc, MakeWeightT<Arc>, NplmModel >
+      (dynamic_cast<NplmModel &>(*klm.model), epsilons,useNaturalLog, klm.lmscale, klm.lmwp, klm.idb, mw);    
+#endif
+    LERROR("Unsuported format: KENLM_NPLM. Did you compile NPLM library?");
+    exit(EXIT_FAILURE);
+  case PROBING:
+  case REST_PROBING:
+  case TRIE:
+  case QUANT_TRIE:
+  case ARRAY_TRIE:
+  case QUANT_ARRAY_TRIE:
+    LERROR("Unsuported format, only NPLM supported for bilingual models. ");
+    exit(EXIT_FAILURE);
   default:
     // bad news if it reaches this point, as format should default to probing
     LERROR("Programmer mistake -- (task.applylm.kenlmtype.hpp)");

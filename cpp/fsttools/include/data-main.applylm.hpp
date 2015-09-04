@@ -34,15 +34,18 @@ struct ApplyLMData {
     sidx ( 0 ),
     stats ( new StatsData ) {
   };
-  uint sidx;
+
+  // sentence/lattice identifier.
+  unsigned sidx;
+
+  // only for bilingual models:
+  std::string integerMappedSentence;
+  std::vector<std::vector<unsigned> > sourceWindows;
 
   ///lists of language models indexed by a key (i.e. parameter )
   unordered_map<std::string, std::vector <const KenLMData *> > klm;
-
-  StatsData  *stats;
-
+  boost::scoped_ptr<StatsData>  stats;
   unordered_map<std::string, void *> fsts;
-
   ///Wordmap/Integer map objects
   unordered_map<std::string, ucam::util::WordMapper *> wm;
 };

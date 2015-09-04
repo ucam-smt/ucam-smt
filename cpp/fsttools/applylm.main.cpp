@@ -55,7 +55,8 @@ void ucam::util::MainClass::run() {
   if (arctype == kHifstSemiringLexStdArc ) {
     (RunApplyLm<ApplyLMData, fst::LexStdArc>(*rg_));
   } else if (arctype == kHifstSemiringTupleArc) {
-    LWARN("Untested, but might work:" << kHifstSemiringTupleArc );
+    // working in hifst and alilats2splats
+    LWARN("Untested, but might work: :) " << kHifstSemiringTupleArc );
     (RunApplyLm<ApplyLMData, TupleArc32>(*rg_));
   } else if (arctype == kHifstSemiringStdArc) {
     (RunApplyLm<ApplyLMData, fst::StdArc>(*rg_));
