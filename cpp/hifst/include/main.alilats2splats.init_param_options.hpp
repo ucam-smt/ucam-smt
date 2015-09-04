@@ -72,6 +72,9 @@ inline void init_param_options ( int argc, const char* argv[],
     ( HifstConstants::kSparseweightvectorlatticeStripSpecialEpsilonLabels.c_str() ,
       po::value<std::string>()->default_value ( "no" ),
       "Strip any special Hifst epsilon labels (e.g. oov, deletion rule, ...)" )
+    ( HifstConstants::kSparseweightvectorlatticeDeterminize.c_str() ,
+      po::value<std::string>()->default_value ( "yes" ),
+      "Determinizes (and minimizes) the vector feature lattice. yes|no" )
     ( HifstConstants::kSparseweightvectorlatticeStorenbestfile.c_str(),
       po::value<std::string>()->default_value ( "" ),
       "Store the fst (SparseWeight) containing a vector of weights " )
@@ -82,7 +85,7 @@ inline void init_param_options ( int argc, const char* argv[],
       po::value<std::string>()->default_value ( "" ),
       "Store the fst (SparseWeight) containing a vector of weights " )
     ( HifstConstants::kSparseweightvectorlatticeFirstsparsefeatureatindex.c_str(),
-      po::value<uint>()->default_value ( 50 ),
+      po::value<unsigned>()->default_value ( 50 ),
       "Number for which the feature output will printed in sparse format (weight_1@position_1 ... weight_n@position_n" )
     ;
     initCommonApplylmOptions (desc); // Add generic language model options

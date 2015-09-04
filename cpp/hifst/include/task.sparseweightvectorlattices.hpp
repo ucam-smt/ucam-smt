@@ -50,6 +50,7 @@ class SparseWeightVectorLatticesTask: public ucam::util::TaskInterface<Data> {
 
   //Strip dr, oov, ...
   bool stripHifstEpsilons_;
+  bool determinize_;
   fst::RelabelUtil<TupleArc32> ru_;
  public:
   ///Constructor with registry object and keys to access/write lattices in data object
@@ -65,7 +66,9 @@ class SparseWeightVectorLatticesTask: public ucam::util::TaskInterface<Data> {
     , alilatskey_ ( alilatskey )
     , sparseweightvectorlatticekey_ ( sparseweightvectorlatticekey )
     , stripHifstEpsilons_ (rg.getBool (
-                             HifstConstants::kSparseweightvectorlatticeStripSpecialEpsilonLabels) ) {
+                             HifstConstants::kSparseweightvectorlatticeStripSpecialEpsilonLabels) )
+    , determinize_ (rg.getBool (
+                             HifstConstants::kSparseweightvectorlatticeDeterminize) ) {
     ru_.addIPL (DR, EPSILON)
     .addIPL (OOV, EPSILON)
     .addIPL (SEP, EPSILON)
@@ -99,11 +102,15 @@ class SparseWeightVectorLatticesTask: public ucam::util::TaskInterface<Data> {
     fst::Project ( lxr, fst::PROJECT_INPUT );
     LDBG_EXECUTE ( lxr->Write ( "fsts/aplats/aplats+flower+p.fst.gz" ) );
     fst::RmEpsilon<TupleArc32> ( lxr );
-    fst::Determinize<TupleArc32> ( *lxr, &myfst_ );
-    LDBG_EXECUTE ( myfst_.Write ( "fsts/aplats/aplats+flower+p+re+d.fst" ) );
-    delete lxr;
-    fst::Minimize<TupleArc32> ( &myfst_ );
-    LDBG_EXECUTE ( myfst_.Write ( "fsts/aplats/aplats+flower+p+re+d+m.fst" ) );
+    if ( determinize_ ) {
+      fst::Determinize<TupleArc32> ( *lxr, &myfst_ );
+      LDBG_EXECUTE ( myfst_.Write ( "fsts/aplats/aplats+flower+p+re+d.fst" ) );
+      delete lxr;
+      fst::Minimize<TupleArc32> ( &myfst_ );
+      LDBG_EXECUTE ( myfst_.Write ( "fsts/aplats/aplats+flower+p+re+d+m.fst" ) );
+    } else {
+      myfst_ = *lxr;
+    }
     d.fsts[sparseweightvectorlatticekey_] = &myfst_;
     LINFO ( "Ready! Stored with key=" << sparseweightvectorlatticekey_ << "; NS=" <<
             myfst_.NumStates() );
