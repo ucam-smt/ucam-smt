@@ -331,7 +331,7 @@ class CYKParserTask : public ucam::util::TaskInterface<Data> {
             //Keep caching at the same position for identical rules with different translations
             minicache.clear();
             rules = ssgd.rulesWithRhsSpan2OrMore[x][cat];
-            LDEBUG ( vcat[cc] << "," << x << "," << y << ":" << " Obtained " << toString (
+            LDEBUG ( vcat[cc] << "," << x << "," << y << ":" << " Obtained " << ucam::util::toString (
                        rules.size() ) << " rules." );
             for ( unsigned i = 0; i < rules.size(); i++ ) {
               unsigned idx = rules[i];

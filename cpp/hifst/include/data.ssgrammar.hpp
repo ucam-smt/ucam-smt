@@ -37,12 +37,9 @@ namespace hifst {
 
 struct SentenceSpecificGrammarData {
 
-  SentenceSpecificGrammarData() :
-    grammar ( NULL ) {
-#ifdef USE_GOOGLE_SPARSE_HASH
-    extrarules.set_empty_key ( std::numeric_limits<std::size_t>::max() );
-#endif
-  }
+  SentenceSpecificGrammarData() 
+      : grammar ( NULL )
+  {}
 
   ///Pointer to the original grammar data (no ownership)
   const GrammarData *grammar;
@@ -55,11 +52,7 @@ struct SentenceSpecificGrammarData {
 
   ///Extra rules, e.g. due to oovs, feedback, etc. Indexed by a rule id that must be bigger than the number of rules of the whole grammar
   ///Note that this hash is not expected to contain many rules. If so, access speed will degrade.
-#ifndef USE_GOOGLE_SPARSE_HASH
   unordered_map<std::size_t, std::string> extrarules;
-#else
-  google::dense_hash_map<std::size_t, std::string> extrarules;
-#endif
   ///\todo  All these methods could be class const if we used .at(idx) -> c++11. Check them carefully
 
   inline void reset() {
@@ -163,7 +156,6 @@ struct SentenceSpecificGrammarData {
   inline const float getWeight ( std::size_t idx ) {
     if ( extrarules.find ( idx ) == extrarules.end() )
       return grammar->getWeight ( idx );
-    float weight;
     std::size_t pos  = extrarules[idx].find_first_of ( " " ) + 1;
     std::size_t pos1 = extrarules[idx].find_first_of ( " ", pos );
     std::size_t pos2 = extrarules[idx].find_first_of ( " ", pos1 + 1 );
@@ -171,6 +163,29 @@ struct SentenceSpecificGrammarData {
     return ucam::util::toNumber<float> ( extrarules[idx].substr ( pos2,
                                          pos3 - pos2 ) );
   };
+
+  void getLinks(std::size_t idx
+                , std::vector<unsigned> &links) const {
+    if ( extrarules.find ( idx ) == extrarules.end() ) {
+      grammar->getLinks ( idx , links);
+      return;
+    }
+    LERROR("Untested code");
+    exit(EXIT_FAILURE);
+    // std::size_t pos  = extrarules[idx].find_first_of ( " " ) + 1;
+    // std::size_t pos1 = extrarules[idx].find_first_of ( " " , pos) + 1;
+    // std::size_t pos2 = extrarules[idx].find_first_of ( " ", pos1) + 1;
+    // std::size_t pos3 = extrarules[idx].find_first_of ( " \n\0", pos2);
+    // if (extrarules[idx][pos3] == ' ') {
+    //   std::size_t pos4 = extrarules[idx].find_first_of ( " \n\0", pos3 + 1 );
+    //   return extrarules[idx].substr ( pos3, pos4 - pos3 );
+    // }
+    // return ""; // no affiliation or links
+  }
+
+
+
+
   inline const bool isPhrase ( std::size_t idx ) {
     if ( extrarules.find ( idx ) == extrarules.end() )
       return grammar->isPhrase ( idx );

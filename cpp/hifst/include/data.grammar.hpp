@@ -112,11 +112,10 @@ struct GrammarData {
   }
 
   ///Gets a splitted version of RHS (source)
-  inline const std::vector<std::string> getRHSSplitSource (
-    std::size_t idx ) const {
+  inline const std::vector<std::string> getRHSSplitSource (std::size_t idx ) const {
     std::vector<std::string> splitsource;
-    boost::algorithm::split ( splitsource, getRHSSource ( idx ),
-                              boost::algorithm::is_any_of ( "_" ) );
+    boost::algorithm::split ( splitsource, getRHSSource ( idx )
+                              , boost::algorithm::is_any_of ( "_" ) );
     return splitsource;
   }
 
@@ -151,12 +150,39 @@ struct GrammarData {
 
   ///Returns weight of a rule accessed by index idx
   inline const float getWeight ( std::size_t idx ) const {
-    float weight;
     std::size_t pos1 = filecontents.find_first_of ( " ", vpos[idx].p );
     std::size_t pos2 = filecontents.find_first_of ( " ", pos1 + 1 );
-    std::size_t pos3 = filecontents.find_first_of ( " \n\0", pos2 + 1 );
+    std::size_t pos3 = filecontents.find_first_of ( " \t\n\0", pos2 + 1 );
     return ucam::util::toNumber<float> ( filecontents.substr ( pos2,
                                          pos3 - pos2 ) );
+  }
+
+  // Affiliation or alignments go physically after the weight, so that
+  // it is an optional field.
+  void getLinks(std::size_t idx
+                , std::vector<unsigned> &links ) const {
+    using namespace std;
+    using namespace boost::algorithm;
+    size_t pos1 = filecontents.find_first_of ( " ", vpos[idx].p );
+    size_t pos2 = filecontents.find_first_of ( " ", pos1 + 1 );
+    size_t pos3 = filecontents.find_first_of ( "\t\n\0", pos2 + 1 );
+    if (filecontents[pos3] == '\t') {
+      size_t pos4 = filecontents.find_first_of ( " \t\n\0", pos3 + 1 );
+      string y = filecontents.substr ( pos3 + 1, pos4 - pos3 - 1);
+      LDEBUG("Links=[" << y << "]");
+      vector<string> x;
+      split(x, y, is_any_of("_"));
+      if (links.size() != x.size()) {
+        LERROR("Houston! " << idx << "=>" << y << ",x.size=" << x.size() << ",links.size=" << links.size() );
+        exit(EXIT_FAILURE);
+      }
+      for (unsigned k = 0; k < x.size(); ++k) {
+        LDEBUG("x at " << k << "=" << x[k] << ";");
+        ucam::util::toNumber<unsigned>("0");
+        ucam::util::toNumber<unsigned>("1");
+        links[k] = ucam::util::toNumber<unsigned>(x[k]);
+      }
+    }
   }
 
   ///Checks whether the rule is a phrase or not (i.e. is hierarchical)

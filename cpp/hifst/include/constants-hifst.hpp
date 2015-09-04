@@ -57,6 +57,7 @@ const std::string kCykparserNtexceptionsmaxspan =
 const std::string kHifstLatticeStore = "hifst.lattice.store";
 const std::string kHifstLatticeOptimize = "hifst.lattice.optimize";
 const std::string kHifstAlilatsmode = "hifst.alilatsmode";
+const std::string kHifstAlilatsmodeLinks = "hifst.alilatsmode.type";
 const std::string kHifstUsepdt = "hifst.usepdt";
 const std::string kHifstRtnopt = "hifst.rtnopt";
 const std::string kHifstOptimizecells = "hifst.optimizecells";

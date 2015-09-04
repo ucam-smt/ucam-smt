@@ -143,6 +143,8 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
   bool optimize_;
   const ucam::util::RegistryPO& rg_;
   //  const int localLmPos_;
+  enum AlignmentType {RULES, AFFILIATION};
+  AlignmentType at_;
  public:
 
   ///Constructor with registry object and several keys to access data object and registry
@@ -180,6 +182,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       lpctuples_ ( rg.getVectorString (
                        HifstConstants::kHifstLocalpruneConditions ) ),
       mw_(rg),
+      at_(RULES),
       rg_(rg)
       //      localLmPos_(rg.getVectorString(HifstConstants::kLmFeatureweights).size() + 1 + 1)
   {
@@ -204,6 +207,11 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     if (!rtnopt_) {
       LINFO ("RTN openfst optimizations will not be applied");
     }
+
+    if (rg.get<std::string>(HifstConstants::kHifstAlilatsmodeLinks) == "affiliation") {
+      at_ = AFFILIATION;
+    }
+
     LDEBUG ( "Hifst constructor done!" );
   };
 
@@ -245,7 +253,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     d.stats->setTimeStart ( "lattice-construction" );
     //Owned by rtn_;
     fst::Fst<Arc> *sfst = buildRTN ( cykdata_->categories["S"], 0,
-                                     cykdata_->sentence.size() - 1 );
+                                     cykdata_->sentence.size() - 1 ).ptr_;
     d.stats->setTimeEnd ( "lattice-construction" );
     cykfstresult_ = (*sfst);
     LINFO ( "Final - RTN head optimizations !" );
@@ -399,6 +407,30 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     }
   };
 
+  struct FSAPlusInfo {
+    fst::Fst<Arc>* ptr_;
+    unsigned cc_;
+    unsigned x_;
+    unsigned y_;
+    explicit FSAPlusInfo(fst::Fst<Arc>* p
+                         , unsigned cc
+                         , unsigned x
+                         , unsigned y
+                         )
+        : ptr_(p)
+        , cc_(cc)
+        , x_(x)
+        , y_(y)
+    {}
+
+    explicit FSAPlusInfo()
+        : ptr_(NULL)
+        , cc_(0)
+        , x_(0)
+        , y_(0)
+    {}
+  };
+
   /**
    * \remarks     Reorder fst dependencies to match the order of non-terminals of the rule
    * \param       unsigned rule_idx: index of the rule in RuleManager.
@@ -406,16 +438,24 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
    * \retval      void.
    * \return      parameter fsts has the expected order of lower lattices corresponding to the order of non-terminals of the rule
    */
-  inline void mapfsts ( unsigned int rule_idx,
-                        std::vector < fst::Fst < Arc > * >& fsts ) {
+  //  inline void mapfsts ( unsigned int rule_idx,
+  //                        std::vector < fst::Fst < Arc > * >& fsts ) {
+    inline void mapfsts ( unsigned int rule_idx,
+                         std::vector < FSAPlusInfo >& fsts ) {
     unordered_map<unsigned int, unsigned int > mappings;
     d_->ssgd->getMappings ( rule_idx, &mappings );
     USER_CHECK ( fsts.size() == mappings.size(),
                  "Mismatch between mappings and lower-level fsts" );
     LDEBUG ( "mappings size=" << mappings.size() );
-    std::vector<fst::Fst<Arc>* > newfsts ( fsts.size(), NULL );
-    for ( unsigned int k = 0; k < fsts.size(); k++ )
+    //    std::vector<fst::Fst<Arc>* > newfsts ( fsts.size(), NULL );
+    std::vector<FSAPlusInfo> newfsts(fsts.size());
+    for ( unsigned int k = 0; k < fsts.size(); k++ ) {
       newfsts[mappings[k]] = fsts[k];
+      // mmmm lack of foresight here, copy original y_:
+      newfsts[mappings[k]].x_ = fsts[mappings[k]].x_;
+      newfsts[mappings[k]].y_ = fsts[mappings[k]].y_;
+      newfsts[mappings[k]].cc_ = fsts[mappings[k]].cc_;
+    }
     fsts = newfsts;
   };
 
@@ -430,9 +470,11 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
    * \param       unsigned y: vertical axis of the grid
    * \retval      Pointer to the Fst generated for this cell.
    */
-  fst::Fst<Arc>* buildRTN ( unsigned int cc, unsigned int x, unsigned int y ) {
-    fst::Fst<Arc> *ptr = ( *rtn_ ) ( cc, x, y );
-    if ( ptr != NULL ) return ptr;
+  //  fst::Fst<Arc>* 
+  FSAPlusInfo buildRTN ( unsigned int cc, unsigned int x, unsigned int y ) {
+    FSAPlusInfo fpi( ( *rtn_ ) ( cc, x, y ), cc, x, y);
+    //    fst::Fst<Arc> *ptr = ( *rtn_ ) ( cc, x, y );
+    if ( fpi.ptr_ != NULL ) return fpi;
 #ifdef PRINTDEBUG
     std::ostringstream o;
     o << cc << "." << x << "." << y;
@@ -450,9 +492,10 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
              ( unsigned ) cykdata_->bp ( cc, x, y ).size() );
     for ( unsigned i = 0; i < cykdata_->bp ( cc, x, y ).size(); i++ ) {
       unsigned idx = cykdata_->cykgrid ( cc, x, y, i );
-      std::vector<fst::Fst<Arc>*> requiredfsts;
+      ///      std::vector<fst::Fst<Arc>*> requiredfsts;
+      std::vector<FSAPlusInfo> requiredfsts;
       if ( g.isPhrase ( idx ) ) {
-        mur.Add ( addRule ( idx, requiredfsts ) ) ;
+        mur.Add ( addRule ( idx, requiredfsts, x +  1) ) ;
         LDEBUG ( "AT " << cc << "," << x << "," << y <<
                  ":adding phrase-based rule index " << idx );
         continue;
@@ -470,7 +513,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       mapfsts ( idx, requiredfsts );
       LDEBUG ( "AT " << cc << "," << x << "," << y << ": adding hiero rule index " <<
                idx );
-      mur.Add ( addRule ( idx, requiredfsts ) );
+      mur.Add ( addRule ( idx, requiredfsts , x + 1) );
     }
     boost::shared_ptr< fst::VectorFst<Arc> >  mdfst ( mur() );
     LDBG_EXECUTE ( mdfst->Write ( "fsts/" + o.str() + ".fst" ) );
@@ -485,8 +528,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     //Calculate expanded number of states of the partial rtn.
     if ( localprune_ )
       rtnnumstates_->update ( cc, x, y, &*mdfst );
-    boost::scoped_ptr< fst::VectorFst<Arc> > pruned ( localPruning ( *mdfst, cc, x,
-        y ) );
+    boost::scoped_ptr< fst::VectorFst<Arc> > pruned ( localPruning ( *mdfst, cc, x, y ) );
     //We now might have a pruned lattice!
     if ( pruned.get() != NULL ) {
       optimize (&*pruned , numstatesthreshold_ , !hipdtmode_  && optimize_ );
@@ -495,10 +537,9 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       d_->stats->numstates[ cc * 1000000 + y * 1000 + x  ] = ( *rtnnumstates_ ) ( cc,
           x,
           y );
-      rtnnumstates_->update ( cc, x, y,
-                              &*mdfst );       //Update rtnnumstates again...
-      d_->stats->numprunedstates[ cc * 1000000 + y * 1000 + x ] = ( *rtnnumstates_ ) (
-            cc, x, y );
+      rtnnumstates_->update ( cc, x, y, &*mdfst );       //Update rtnnumstates again...
+      d_->stats->numprunedstates[ cc * 1000000 + y * 1000 + x ]
+          = ( *rtnnumstates_ ) (cc, x, y );
     } else {
       LDEBUG ( "AT " << cc << "," << x << "," << y << ":No pruning" );
     }
@@ -516,18 +557,23 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       LDEBUG ( "AT: " << cc << "," << x << "," << y << ":" <<
                "Delaying not applied. Stored, NS=" << ( unsigned ) mdfst->NumStates() );
     }
-    return ( *rtn_ ) ( cc, x, y );
+    //    return ( *rtn_ ) ( cc, x, y );
+    FSAPlusInfo fpi2( ( *rtn_ ) ( cc, x, y ), cc, x, y);
+    return fpi2;
   };
 
-  /**
+   /**
    * \brief creates a new fst based on a rule and lower-level cell lattices.
    * \param rule_idx: Rule (sorted) index
    * \param &lowerfsts: Lower level cell lattices required to build a rule.
    * \returns pointer to a newly created fst.
    */
 
+  //  fst::VectorFst<Arc> *addRule ( unsigned rule_idx,
+  //                                 std::vector<fst::Fst<Arc>*>& lowerfsts ) {
   fst::VectorFst<Arc> *addRule ( unsigned rule_idx,
-                                 std::vector<fst::Fst<Arc>*>& lowerfsts ) {
+                                 std::vector<FSAPlusInfo>& lowerfsts 
+                                 , unsigned offset ) {
     SentenceSpecificGrammarData& gd = *d_->ssgd;
     std::vector<std::string> translation = gd.getRHSSplitTranslation ( rule_idx );
     if ( !translation.size() ) {
@@ -562,23 +608,33 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     rulefst->AddState();
     rulefst->SetStart ( 0 );
     rulefst->AddState();
-    Label iw2 = gd.getIdx ( rule_idx ) + 1;
+    Label iw2 = (at_ == RULES)?gd.getIdx ( rule_idx ) + 1: 0;
     Label iw;
     if ( !aligner_ ) iw = 0;
     else iw = iw2;
-    LINFO ("Building FST for rule " << gd.getRule ( rule_idx ) );
+    LDEBUG ("Building FST for rule " << rule_idx << ":" << gd.getRule ( rule_idx ) << ", original id=" << gd.getIdx(rule_idx)
+            << ", translation size=" << translation.size() );
     unsigned kmax = translation.size();
     unsigned nonterminal = 0;
     std::vector< pair< Label, const fst::Fst<Arc> * > > pairlabelfsts;
-    for ( unsigned k = 0; k < kmax; k++ ) {
+
+    std::vector<unsigned> links(translation.size(), NORULE);
+    if (at_ == AFFILIATION) {
+      LDEBUG("Getting affiliation...");
+      gd.getLinks(rule_idx, links);
+    }
+    for ( unsigned k = 0; k < kmax; ++k ) {
       //if non-terminal... just place special arc and expand later...
       Label ow;
-      if ( !isTerminal ( translation[k] ) ) {
+      bool isnonterminal = !isTerminal ( translation[k] );
+      if ( isnonterminal) {
         ow = APRULETAG + nonterminal;
         USER_CHECK ( lowerfsts.size() > nonterminal,
                      "Missing fsts to build the rule..." );
-        pairlabelfsts.push_back ( pair< Label, const fst::Fst<Arc> * > ( ow,
-                                  lowerfsts[nonterminal++] ) );
+        offset +=lowerfsts[nonterminal].y_ + 1; // add span of the non-terminal
+        pairlabelfsts.push_back ( pair< Label, const fst::Fst<Arc> * >
+                                  ( ow, lowerfsts[nonterminal++].ptr_ ) );
+
       } else {
         std::istringstream buffer ( translation[k] );
         buffer >> ow;
@@ -586,7 +642,16 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       rulefst->AddState();
       Label iw;
       if ( !aligner_ ) iw = ow;
-      else iw = NORULE;
+      else {
+        if (isnonterminal) iw = NORULE; // ignore nts for affiliation
+        else {
+          iw = links[k];
+          if (at_ == AFFILIATION)  {
+            iw += offset - nonterminal; // links are counting nts as 1, so we need to discount them (silly)
+          }
+        }
+      }
+      LDEBUG("Adding arc iw=" << iw << ",ow=" << ow);
       rulefst->AddArc ( k, Arc ( iw, ow, Weight::One(), k + 1 ) );
     }
     float w = gd.getWeight ( rule_idx );

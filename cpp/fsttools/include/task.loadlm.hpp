@@ -27,6 +27,7 @@
 #include <lm/enumerate_vocab.hh>
 #ifdef WITH_NPLM
 #include <lm/wrappers/nplm.hh>
+#include <neuralLM.h> // v0.1
 #endif
 #include <idbridge.hpp>
 #include <hifst_enumerate_vocab.hpp>
@@ -38,16 +39,16 @@ namespace fsttools {
 // don't necessarily have the same constructor.
 // This class handles the general case
 // and template specialization helps to handle exceptions
-template<class KenLMModelT> 
+template<class KenLMModelT>
 struct KenLMModelHelper {
   std::string const file_;
   lm::ngram::Config &kenlm_config_;
   KenLMModelHelper(std::string const &file
-		   , lm::ngram::Config kenlm_config)
+		   , lm::ngram::Config &kenlm_config)
     : file_(file)
     , kenlm_config_(kenlm_config)
   {}
-    
+
   KenLMModelT *operator()(){
     return new KenLMModelT ( file_.c_str() , kenlm_config_);
   }
@@ -60,21 +61,54 @@ template<>
 struct KenLMModelHelper<lm::np::Model> {
   std::string const file_;
   lm::ngram::Config &kenlm_config_;
+
+  class NplmVocabularyWrapper {
+    nplm::vocabulary const &v_;
+  public:
+    NplmVocabularyWrapper(nplm::vocabulary const &v):v_(v) {};
+    unsigned operator()(std::string const &s) {
+      return v_.lookup_word(s);
+    }
+  };
+
   KenLMModelHelper(std::string const &file
-		   , lm::ngram::Config kenlm_config)
+		   , lm::ngram::Config &kenlm_config)
     : file_(file)
     , kenlm_config_(kenlm_config)
   {}
   lm::np::Model *operator()(){
+    // \todo: Deal with this silly kenLM+nplm issue in a more reasonable manner
+    // As we cannot pass the kenlm_config to the current
+    // nplm wrapper, here goes a v. absurd roundabout
+    // to effectively fix it and move on:
+    boost::scoped_ptr<nplm::neuralLM> p(new nplm::neuralLM(file_));
+    nplm::vocabulary const &v=p->get_vocabulary();
+    std::vector<std::string> const &words = v.words();
+    lm::HifstEnumerateVocab<ucam::util::WordMapper> *hev
+      = dynamic_cast<lm::HifstEnumerateVocab<ucam::util::WordMapper> *>
+        (kenlm_config_.enumerate_vocab);
+    for (unsigned k = 0; k < words.size(); ++k) {
+      hev->Add(k,words[k]);
+    }
+    // what if input and output vocabulary are different?
+    nplm::vocabulary const &vo=p->get_output_vocabulary();
+    std::vector<std::string> const &owords = vo.words();
+    for (unsigned k = 0; k < owords.size(); ++k) {
+      hev->AddOutput(k,owords[k]);
+    }
+
+
+    // lets draw a veil over this and
+    // return new model as usual
     return new lm::np::Model( file_);
   }
 };
 #endif
 
 lm::base::Model *loadKenLm(std::string const &file
-			   , lm::ngram::Config kenlm_config 
+			   , lm::ngram::Config kenlm_config
 			   , unsigned offset = 0) {
-  using namespace lm::ngram;				     
+  using namespace lm::ngram;
   typedef lm::np::Model NplmModel;
   // Detect here kenlm binary type
   int  kenmt = ucam::util::detectkenlm(file);
@@ -101,10 +135,6 @@ lm::base::Model *loadKenLm(std::string const &file
   return NULL;
 };
 
-
-
-
-
 /**
  * \brief Language model loader task, loads a language model wrapping it in a class to provide.
  *
@@ -112,7 +142,6 @@ lm::base::Model *loadKenLm(std::string const &file
 
 template <class Data>
 class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
-  
   typedef lm::base::Model KenLMModelT;
 
  private:
@@ -151,27 +180,29 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
    * \param lmscale   key word to access the registry object for language model scales.
    * \param forceone  To force the loading of only one language model (i.e. lm1 with scale 0.25).
    */
-  LoadLanguageModelTask ( const ucam::util::RegistryPO& rg ,
-                          const std::string& lmload = HifstConstants::kLmLoad ,
-                          const std::string& lmscale =
-                            HifstConstants::kLmFeatureweights,  //if rg.get(lmscale)=="" the scale will default to 1
-                          const std::string& lmwp =
-                            HifstConstants::kLmWordPenalty,  //if rg.get(wps)=="" the scale will default to 0
-                          const std::string& wordmapkey = HifstConstants::kLmWordmap,
-                          bool forceone = false
-                        ) :
-    rg_ ( rg ),
-    lmkey_ ( lmload ),
-    previous_ ( "" ),
-    built_ ( false ),
-    index_ ( 0 ),
-    isintegermapped_ (!rg.exists (wordmapkey)
-                      || rg.get<std::string> (wordmapkey) == ""),
-    wordmapkey_ (wordmapkey),
-    lmfile_ ( rg.getVectorString ( lmload , 0 ) ) {
-    LINFO ( "LM loader using parameters " << lmload << "/" << lmscale << "/" << lmwp
+  LoadLanguageModelTask ( const ucam::util::RegistryPO& rg
+                          , const std::string& lmload = HifstConstants::kLmLoad
+                          , const std::string& lmscale =
+                          HifstConstants::kLmFeatureweights  //if rg.get(lmscale)=="" the scale will default to 1
+                          , const std::string& lmwp =
+                          HifstConstants::kLmWordPenalty  //if rg.get(wps)=="" the scale will default to 0
+                          , const std::string& wordmapkey = HifstConstants::kLmWordmap
+                          , bool forceone = false
+                          )
+      : rg_ ( rg )
+      , lmkey_ ( lmload )
+      , previous_ ( "" )
+      , built_ ( false )
+      , index_ ( 0 )
+      , isintegermapped_ (!rg.exists (wordmapkey)
+                          || rg.get<std::string> (wordmapkey) == "")
+      , wordmapkey_ (wordmapkey)
+      , lmfile_ ( rg.getVectorString ( lmload , 0 ) )
+  {
+    LDEBUG ( "LM loader using parameters " << lmload << "/" << lmscale << "/" << lmwp
             << ", and key " << lmkey_  << ",index=" << index_ << ",wordmap=" <<
             wordmapkey_);
+    FORCELINFO("Language model loader for " << lmfile_() );
     setLanguageModelScale ( lmscale );
     setLanguageModelWordPenalty ( lmwp );
     if ( rg_.getVectorString ( lmload ).size() > 1 ) {
@@ -193,7 +224,7 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
    * \returns false (does not break in any case the chain of tasks)
    */
   bool run ( Data& d ) {
-    LINFO ( "run!" );
+    LDEBUG ( "run!" );
     if ( lmfile_() == "" ) return false;
     // No need to build again...
     if ( built_ && previous_ == lmfile_ ( d.sidx ) ) return false;
@@ -211,18 +242,18 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
                   , "Language model provided over words instead of integers. A target wordmap is required! ");
       wm = d.wm[wordmapkey_];
     }
-    lm::HifstEnumerateVocab hev (kld_.idb, wm);
+    lm::HifstEnumerateVocab<ucam::util::WordMapper> hev (kld_.idb, wm);
     kenlm_config.enumerate_vocab = &hev;
     kld_.model = loadKenLm(lmfile_(d.sidx).c_str(), kenlm_config, index_);
     d.stats->setTimeEnd ("lm-load-" + index_ );
     previous_ = lmfile_ ( d.sidx );
     built_ = true;
     if ( d.klm.find ( lmkey_ ) == d.klm.end() ) d.klm[lmkey_].resize ( index_ + 1 );
-    else if ( d.klm[lmkey_].size() < index_ + 1 ) d.klm[lmkey_].resize (
-        index_ + 1 );
+    else if ( d.klm[lmkey_].size() < index_ + 1 ) d.klm[lmkey_].resize
+        ( index_ + 1 );
     d.klm[lmkey_][index_] = (const KenLMData*) &kld_;
     LDEBUG ( "LM " << lmfile_ ( d.sidx ) << " loaded, key=" << lmkey_ <<
-             ", position=" <<  ucam::util::toString<uint> ( d.klm[lmkey_].size() - 1 ) <<
+	    ", position=" <<  ucam::util::toString<unsigned> ( d.klm[lmkey_].size() - 1 ) <<
              ",total number of language models for this key is " << d.klm[lmkey_].size() );
     return false;
   };
@@ -274,17 +305,17 @@ class LoadLanguageModelTask: public ucam::util::TaskInterface<Data> {
                       || rg.get<std::string> (wordmapkey) == ""),
     wordmapkey_ (wordmapkey),
     lmfile_ ( rg.getVectorString ( lmload , index ) ) {
-    LINFO ( "LM loader using parameters " << lmload << "/" << lmscale <<
+    LDEBUG ( "LM loader using parameters " << lmload << "/" << lmscale <<
             ", and key " << lmkey_  << ",index=" << index_ << ",wordmapkey=" <<
             wordmapkey_);
     setLanguageModelScale ( lmscale );
     setLanguageModelWordPenalty ( lmwp );
     if ( rg.getVectorString ( lmload ).size() > index_ + 1 ) {
-      LINFO ( "Appending Language model..." );
+      LDEBUG ( "Appending Language model..." );
       this->appendTask ( new LoadLanguageModelTask ( rg, index_ + 1, lmload, lmscale ,
                          lmwp , wordmapkey ) );
     }
-    LINFO ( "Ready!" );
+    LDEBUG ( "." );
   };
 
   /**

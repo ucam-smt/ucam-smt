@@ -109,7 +109,8 @@ class GrammarTask: public ucam::util::TaskInterface<Data> {
 
   /**
    *\brief ucam::util::TaskInterface mandatory method implementation.
-   * This method loads the hierarchical grammar, stores patterns, finds non-terminal hierarchy and delivers pointer to data object, for other tasks to use the grammar
+   * This method loads the hierarchical grammar, stores patterns,
+   * finds non-terminal hierarchy and delivers pointer to data object, for other tasks to use the grammar
    * \param d          Data Object
    */
 
@@ -146,7 +147,7 @@ class GrammarTask: public ucam::util::TaskInterface<Data> {
 
   inline void load ( const std::string& file ) {
     load_init();
-    LINFO ( "Loading..." << file );
+    LINFO ( "=> Loading..." << file );
     ucam::util::readtextfile<GrammarTask> ( file, *this );
     load_sort();
     LINFO ( "Done! ****" );
@@ -237,25 +238,40 @@ class GrammarTask: public ucam::util::TaskInterface<Data> {
    */
 
   __always_inline void parse ( std::string& line ) {
+    using namespace std;
+    using namespace ucam::util;
+
     boost::algorithm::trim ( line );
     if ( line == "" ) return;
-    std::size_t pos1 = line.find_first_of ( " " );
-    std::size_t pos2 = line.find_first_of ( " ", pos1 + 1 );
-    std::size_t pos3 = line.find_first_of ( " \n\0", pos2 + 1 );
-    //    vector<float> weights = ParseParamString<float> ( line, pos3 + 1 );
-    std::vector<float> weights;
-    ucam::util::ParseParamString<float> ( line, weights, pos3 + 1 );
-    std::string sweight = ucam::util::toString<float> ( ucam::util::dotproduct (
-                            weights, grammarscales_ )
-                          , std::numeric_limits<uint>::max() );
-    ucam::util::trim_trailing_zeros ( sweight );
-    line = line.substr ( 0, pos3 + 1 ) + sweight;
+    size_t pos1 = line.find_first_of ( " " ); // src
+    size_t pos2 = line.find_first_of ( " ", pos1 + 1 ); // trg
+    size_t pos3 = line.find_first_of ( " ", pos2 + 1 ); // weight
+
+    if (pos3 == std::string::npos) {
+      LERROR("Grammar not valid. At least one weight is needed: \n=>\t" << line);
+      exit(EXIT_FAILURE);
+    }
+    size_t pos4 = line.find_first_of ( "\t"); // optional alignments
+    if (pos4 == std::string::npos) pos4 = line.size();
+    LDEBUG("pos1=" << pos1 << ",pos2=" << pos2 << ",pos3=" << pos3 << ",pos4=" << pos4);
+
+    vector<float> weights;
+    ParseParamString<float> ( line, weights, pos3 + 1 , pos4 - pos3 - 1 );
+    string sweight = toString<float>
+        ( dotproduct (weights, grammarscales_ ), numeric_limits<unsigned>::max() );
+    trim_trailing_zeros ( sweight );
+    line = ( pos4 <line.size() )
+        ? line.substr ( 0, pos3 + 1 ) + sweight + line.substr(pos4)
+        : line.substr ( 0, pos3 + 1 ) + sweight;
+
+
+    LDEBUG("Adding line=[" << line  << "]");
     gd_.filecontents += line + '\n';
     posindex pi;
     bool waitingfornextfield = false;
-    uint cf = 2; //Second field
+    unsigned cf = 2; //Second field
     char previous = ' ';
-    for ( uint k = 0; k < line.size(); ++k ) {
+    for ( unsigned k = 0; k < line.size(); ++k ) {
       if ( previous == ' ' && line[k] != ' ' ) --cf;
       if ( !cf ) {
         pi.o = k;
@@ -264,10 +280,10 @@ class GrammarTask: public ucam::util::TaskInterface<Data> {
       previous = line[k];
     }
     pi.p = pos_ + pi.o;
-    std::string pattern;
+    string pattern;
     bool word = false;
     bool nt = false;
-    for ( uint k = pi.o; k < line.size(); ++k ) {
+    for ( unsigned k = pi.o; k < line.size(); ++k ) {
       if ( line[k] == ' ' ) break;
       if ( line[k] >= '0' && line[k] <= '9' ) {
         if ( !word && !nt ) {

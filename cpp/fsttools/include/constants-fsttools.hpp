@@ -6,46 +6,51 @@ namespace HifstConstants {
 
 //  const string kNThreads="nthreads";
 //  const string kRange="range";
-const std::string kRangeExtended = kRange + ",r";
-const std::string kInput = "input";
-const std::string kInputExtended = "input,i";
-const std::string kOutput = "output";
-const std::string kOutputExtended = "output,o";
+std::string const kRangeExtended = kRange + ",r";
+std::string const kInput = "input";
+std::string const kInputExtended = "input,i";
+std::string const kOutput = "output";
+std::string const kOutputExtended = "output,o";
 
-const std::string kHifstSemiring = "semiring";
-const std::string kHifstSemiringStdArc = "stdarc";
-const std::string kHifstSemiringLexStdArc = "lexstdarc";
-const std::string kHifstSemiringTupleArc = "tuplearc";
-const std::string kHifstSemiringExtended = "semiring,s";
+std::string const kHifstSemiring = "semiring";
+std::string const kHifstSemiringStdArc = "stdarc";
+std::string const kHifstSemiringLexStdArc = "lexstdarc";
+std::string const kHifstSemiringTupleArc = "tuplearc";
+std::string const kHifstSemiringExtended = "semiring,s";
 
 // Language model
+std::string const kLmFeatureweights = "lm.featureweights";
+std::string const kLmLoad = "lm.load";
+std::string const kLmWordmap = "lm.wordmap";
+std::string const kLmWordPenalty = "lm.wps";
+std::string const kLmLogTen = "lm.log10";
 
-const std::string kLmFeatureweights = "lm.featureweights";
-const std::string kLmLoad = "lm.load";
-const std::string kLmWordmap = "lm.wordmap";
-const std::string kLmWordPenalty = "lm.wps";
-const std::string kLmLogTen = "lm.log10";
+std::string const kLatticeLoad = "lattice.load";
+std::string const kLatticeLoadDeleteLmCost = "lattice.load.deletelmcost";
+std::string const kLatticeStore = "lattice.store";
+std::string const kStatsWrite = "stats.write";
 
-const std::string kLatticeLoad = "lattice.load";
-const std::string kLatticeLoadDeleteLmCost = "lattice.load.deletelmcost";
-const std::string kLatticeStore = "lattice.store";
-const std::string kStatsWrite = "stats.write";
-
+std::string const kUseBilingualModel = "usebilm";
+std::string const kUseBilingualModelSourceSize = "usebilm.sourcesize";
+std::string const kUseBilingualModelSourceSentenceFile = "usebilm.sourcesentencefile";
+std::string const kTune = "tune";
+std::string const kTuneWordPenaltyRange = "tune.wp";
+std::string const kTuneWrite = "tune.write";
 // Disambig/recaser
 
-const std::string kRecaserLmLoad = "recaser.lm.load";
-const std::string kRecaserLmFeatureweight = "recaser.lm.scale";
-const std::string kRecaserUnimapLoad = "recaser.unimap.load";
-const std::string kRecaserUnimapWeight = "recaser.unimap.scale";
-const std::string kRecaserPrune = "recaser.prune";
-const std::string kRecaserInput = "recaser.input";
-const std::string kRecaserInputExtended = kRecaserInput + ",i";
-const std::string kRecaserOutput = "recaser.output";
-const std::string kRecaserOutputExtended = kRecaserOutput + ",o";
+std::string const kRecaserLmLoad = "recaser.lm.load";
+std::string const kRecaserLmFeatureweight = "recaser.lm.scale";
+std::string const kRecaserUnimapLoad = "recaser.unimap.load";
+std::string const kRecaserUnimapWeight = "recaser.unimap.scale";
+std::string const kRecaserPrune = "recaser.prune";
+std::string const kRecaserInput = "recaser.input";
+std::string const kRecaserInputExtended = kRecaserInput + ",i";
+std::string const kRecaserOutput = "recaser.output";
+std::string const kRecaserOutputExtended = kRecaserOutput + ",o";
 
 // not used TODO: check
-const std::string kRecaserLmWps = "recaser.lm.wps";
-const std::string kRecaserLmWordmap = "recaser.lm.wordmap";
+std::string const kRecaserLmWps = "recaser.lm.wps";
+std::string const kRecaserLmWordmap = "recaser.lm.wordmap";
 
 // printstrings
 const std::string kUnique = "unique";
@@ -66,29 +71,34 @@ const std::string kSuppress = "suppress-hyps";
 const std::string kLibLinRankFormat = "liblinear-ranking";
 
 // samplehyps
-const std::string kWordRefs = "word_refs";
-const std::string kIntRefs = "int_refs";
-const std::string kExternalTokenizer = "external_tokenizer";
-const std::string kWordMap = "word_map";
-const std::string kAlpha = "alpha";
-const std::string kNSamples= "num_samples";
-const std::string kNegativeExamples= "negative_examples";
-const std::string kDontNegate= "dont_negate";
-const std::string kBinaryTarget= "binary_target";
-const std::string kRandomSeed= "random_seed";
+std::string const kWordRefs = "word_refs";
+std::string const kIntRefs = "int_refs";
+std::string const kExternalTokenizer = "external_tokenizer";
+std::string const kWordMap = "word_map";
+std::string const kAlpha = "alpha";
+std::string const kNSamples= "num_samples";
+std::string const kNegativeExamples= "negative_examples";
+std::string const kDontNegate= "dont_negate";
+std::string const kBinaryTarget= "binary_target";
+std::string const kRandomSeed= "random_seed";
 
 // lexmap
-const std::string kAction = "action";
-const std::string kActionLex2std = "lex2std";
-const std::string kActionStd2lex = "std2lex";
-const std::string kActionProjectweight2 = "projectweight2";
+std::string const kAction = "action";
+std::string const kActionLex2std = "lex2std";
+std::string const kActionStd2lex = "std2lex";
+std::string const kActionProjectweight2 = "projectweight2";
 // tunewp
-const std::string kEpsilonLabels = "epsilons";
-const std::string kWordPenalty = "word_penalty";
-const std::string kWordPenaltyExtended = kWordPenalty + ",wp";
+std::string const kEpsilonLabels = "epsilons";
+std::string const kWordPenalty = "word_penalty";
+std::string const kWordPenaltyExtended = kWordPenalty + ",wp";
 //instead of arc_type, use semiring
 
+std::string const kYes = "yes";
+std::string const kNo = "no";
+std::string const kUserWpRange = "%%wp%%";
 }
+
+namespace HC = HifstConstants;
 
 #endif
 

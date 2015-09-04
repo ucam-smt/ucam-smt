@@ -44,9 +44,7 @@ class TuneWpMain {
           !ir->done();
           ir->next() ) {
       fst::VectorFst<Arc> *mfst = VectorFstRead<Arc> (pi (ir->get() ) );
-      for ( wp.start();
-            !wp.done();
-            wp.next() ) {
+      for ( wp.start(); !wp.done(); wp.next() ) {
         fst::Map<Arc, WordPenaltyMapper<Arc> > (mfst,
                                                 WordPenaltyMapper<Arc> (mw_ (wp.get() ), epsilons) );
         if (shp < std::numeric_limits<unsigned>::max() ) {

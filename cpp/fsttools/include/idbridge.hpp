@@ -18,8 +18,10 @@
 /**
  * \file
  * \brief maps between grammar targets ids and lm ids
- * \remarks For historical and philosophical reasons we want to be able to integer-map our data
- * externally and we don't want to depend on kenlm internal integer mapping.
+ * \remarks For historical and philosophical reasons
+ * we want to be able to integer-map our data
+ * externally and we don't want to depend on kenlm
+ * internal integer mapping.
  * IdBridge maps between grammar and lm ids.
  */
 
@@ -28,26 +30,63 @@ namespace fsttools {
 
 class IdBridge {
  private:
-  std::tr1::unordered_map<unsigned, unsigned> mapper;
-
+  typedef std::tr1::unordered_map<unsigned,unsigned> MapType;
+  // rmapper (reverse) for debugging purposes only
+  MapType mapper, rmapper;
+  // output mapper for nplm with two vocabularies
+  MapType omapper, romapper;
  public:
   IdBridge() {}
 
-  inline const unsigned  map (unsigned idx) const {
-    std::tr1::unordered_map<unsigned, unsigned>::const_iterator itx = mapper.find (
-          idx);
-    if (itx != mapper.end() )
+  inline unsigned const map (unsigned idx) const {
+    MapType::const_iterator itx = mapper.find (idx);
+    if (itx != mapper.end() ) {
+      return itx->second;
+    }
+    return 0;
+  };
+
+  inline unsigned const rmap (unsigned idx) const {
+    MapType::const_iterator itx = rmapper.find (idx);
+    if (itx != rmapper.end() )
       return itx->second;
     return 0;
   };
 
+
+  inline unsigned const mapOutput (unsigned idx) const {
+    MapType::const_iterator itx = omapper.find (idx);
+    if (itx != omapper.end() ) {
+      return itx->second;
+    }
+    return 0;
+  };
+
+  inline unsigned const rmapOutput (unsigned idx) const {
+    MapType::const_iterator itx = romapper.find (idx);
+    if (itx != romapper.end() )
+      return itx->second;
+    return 0;
+  };
+
+
   inline void add (unsigned grammar_idx, unsigned lm_idx) {
     LDEBUG ("grammar idx=" << grammar_idx << ", lm_idx=" << lm_idx);
     mapper[grammar_idx] = lm_idx;
+#ifdef PRINTDEBUG1
+    rmapper[lm_idx] = grammar_idx;
+#endif
+  }
+
+
+  inline void addOutput (unsigned grammar_idx, unsigned lm_idx) {
+    LDEBUG ("ovocab: grammar idx=" << grammar_idx << ", lm_idx=" << lm_idx);
+    omapper[grammar_idx] = lm_idx;
+#ifdef PRINTDEBUG1
+    romapper[lm_idx] = grammar_idx;
+#endif
   }
 };
 
-}
-} // end namespaces
-
+}} // end namespaces
 #endif

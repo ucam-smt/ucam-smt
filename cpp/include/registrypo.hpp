@@ -276,8 +276,7 @@ class RegistryPO {
    * \returns value splitted by commas into a set of strings.
    */
 
-  inline unordered_set<std::string> getSetString ( const std::string& key )
-  const {
+  inline unordered_set<std::string> getSetString ( const std::string& key ) const {
     std::vector<std::string> vaux = getVectorString ( key );
     unordered_set<std::string> saux;
     for ( uint k = 0; k < vaux.size(); ++k )

@@ -26,15 +26,17 @@ namespace ucam {
 namespace fsttools {
 
 /**
- * \brief Convenience class that inherits Taskinterface behaviour and writes an fst to [file] using a key defined
- * in the constructor. The key is used to access the registry object (i.e. actual program option telling where to write the fst)
- * and a pointer in the data object, telling where to read the fst from.
+ * \brief Convenience class that inherits Taskinterface behaviour and writes
+ * an fst to [file] using a key defined in the constructor. The key is used
+ * to access the registry object (i.e. actual program option telling where
+ * to write the fst) and a pointer in the data object, telling where to read
+ * the fst from.
  */
 template <class Data, class Arc = fst::StdArc >
 class WriteFstTask: public ucam::util::TaskInterface<Data> {
   typedef typename Arc::Label Label;
   typedef typename Arc::Weight Weight;
-
+  typedef std::vector<pair<Label, Label> > VectorPair;
  private:
   ///key to access fst in the data object
   std::string fstkey_;
@@ -56,14 +58,17 @@ class WriteFstTask: public ucam::util::TaskInterface<Data> {
   inline static WriteFstTask * init ( const ucam::util::RegistryPO& rg
                                       , const std::string& fstkey
                                       , const std::string& readfstkey = ""
-                                    ) {
-    if ( rg.exists ( fstkey ) ) return new WriteFstTask ( rg, fstkey, readfstkey );
+                                      ) {
+    if ( rg.exists ( fstkey ) )
+      return new WriteFstTask ( rg, fstkey, readfstkey );
     return NULL;
   };
 
   /**
    * \brief Method inherited from TaskInterface. Stores fst to [file].
-   * The fst is accessed via data object using access key fstkey_. If parentheses exist, then the will be dumped too, with extra extension .parens
+   * The fst is accessed via data object using access key fstkey_.
+   * If parentheses exist, then the will be dumped too, with extra
+   *  extension .parens
    * \param &d: data object
    * \returns false (does not break in any case the chain of tasks)
    */
@@ -74,24 +79,25 @@ class WriteFstTask: public ucam::util::TaskInterface<Data> {
       exit ( EXIT_FAILURE );
     }
 
-    LINFO ( "Fst with key=" << readfstkey_);
-    FORCELINFO ("Writing lattice " << d.sidx << " to ... " << fstfile_( d.sidx ) );
-    fst::FstWrite<Arc> ( * ( static_cast< fst::Fst<Arc> *>
-                             ( d.fsts[readfstkey_] ) ), fstfile_ ( d.sidx ) );
+    FORCELINFO ("Writing lattice " << d.sidx << " to ... "
+                << fstfile_( d.sidx ) );
+
+    using namespace fst;
+    FstWrite<Arc>
+        ( * ( static_cast< Fst<Arc> *>
+              ( d.fsts[readfstkey_] ) ), fstfile_ ( d.sidx ) );
     std::string parenskey = readfstkey_ + ".parens";
-    if ( d.fsts.find ( parenskey ) != d.fsts.end() )
-      fst::WriteLabelPairs (fstfile_ ( d.sidx )  + ".parens",
-                            * (static_cast< std::vector<pair<Label, Label> > * > (  d.fsts[parenskey] ) ) );
+    if ( d.fsts.find ( parenskey ) != d.fsts.end() ) {
+      WriteLabelPairs (fstfile_ ( d.sidx )  + ".parens",
+                       * (static_cast< VectorPair * > ( d.fsts[parenskey] ) ) );
+    }
     return false;
   };
 
  private:
-
   ZDISALLOW_COPY_AND_ASSIGN ( WriteFstTask );
-
 };
 
-}
-}  // end namespaces
+}}  // end namespaces
 
 #endif
