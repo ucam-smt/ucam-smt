@@ -39,22 +39,20 @@ class TrivialThreadPool {
   std::size_t numthreads_;
 
  public:
-  TrivialThreadPool ( std::size_t n ) :
-    numthreads_ ( n > boost::thread::hardware_concurrency() ?
-                  boost::thread::hardware_concurrency() : n ),
-    service_ ( numthreads_ ),
-    work_ ( new boost::asio::io_service::work ( service_ ) )
-
+  TrivialThreadPool ( std::size_t n )
+    : numthreads_( n > boost::thread::hardware_concurrency()
+                   ? boost::thread::hardware_concurrency() : n )
+    , service_ ( numthreads_ )
+    , work_ ( new boost::asio::io_service::work ( service_ ) )
   {
-    //    LINFO ( "Creating " << numthreads_ << " threads" );
-    USER_CHECK ( numthreads_ > 0, "Number of threads has to be greater than 0!" );
+    USER_CHECK ( numthreads_ > 0
+                 , "Number of threads has to be greater than 0!" );
     for ( std::size_t i = 0; i < numthreads_; i++ )
       pool_.create_thread ( boost::bind ( &boost::asio::io_service::run,
                                           &service_ ) );
   }
 
   ~TrivialThreadPool() {
-    //    LINFO ( "Finishing threads..." );
     work_.reset();
     pool_.join_all();
   }
@@ -65,6 +63,19 @@ class TrivialThreadPool {
   }
 
 };
+
+/**
+ * \brief Trivial struct that can
+ * replace seamlessly the threadpool
+ * for single threaded executions
+ */
+ struct NoThreadPool {
+  template<typename F>
+  void operator() (F &task) {
+    task();
+  }
+};
+
 
 }
 } // end namespaces

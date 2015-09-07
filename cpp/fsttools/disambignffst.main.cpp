@@ -1,0 +1,137 @@
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use these files except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Copyright 2012 - Gonzalo Iglesias, Adrià de Gispert, William Byrne
+
+#include <main.disambignffst.hpp>
+#include <main.custom_assert.hpp>
+#include <main.logger.hpp>
+#include <common-helpers.hpp>
+#include <main.hpp>
+
+// Simple wrapper around TopoFeaturesHelper class
+// which handles lattice-specific options provided by the user
+template<class ArcT>
+struct DisambigFunctor {
+  std::string const in_, out_;
+  bool const detOut_;
+  bool const minimize_;
+  bool const exitOnFirstPassFailure_;
+  ucam::fsttools::SpeedStatsData ssd_;
+
+  DisambigFunctor(std::string const &in, std::string const &out
+                  , bool detOut, bool minimize, bool exitOnFirstPassFailure
+                  )
+      : in_(in)
+      , out_(out)
+      , detOut_(detOut)
+      , minimize_(minimize)
+      , exitOnFirstPassFailure_(exitOnFirstPassFailure)
+  {}
+
+  DisambigFunctor(DisambigFunctor const &df)
+      : in_(df.in_)
+      , out_(df.out_)
+      , detOut_(df.detOut_)
+      , minimize_(df.minimize_)
+      , exitOnFirstPassFailure_(df.exitOnFirstPassFailure_)
+      , ssd_(df.ssd_)
+  {}
+
+  void operator()() {
+    using namespace fst;
+    using ucam::util::toString;
+    using namespace ucam::fsttools;
+
+    boost::scoped_ptr<fst::VectorFst<ArcT> >mfst
+        (fst::VectorFstRead<ArcT> ( in_ ) );
+    if (mfst->NumStates()) {
+      if (detOut_)  // invert fst.
+        Invert(&*mfst);
+      RmEpsilon(&*mfst);
+      TopSort(&*mfst);
+
+      std::string ns = toString(mfst->NumStates());
+      ssd_.setTimeStart("disambig-" + out_ + ", NS=" + ns);
+      if (!minimize_) {
+        FORCELINFO("Only determinize");
+        TopoFeaturesHelper<ProjectDeterminizeAction> tfh(exitOnFirstPassFailure_);
+        tfh(&*mfst);
+      } else { // Experimental option to play with.
+        FORCELINFO("Determinize, Minimize and Push!");
+        TopoFeaturesHelper<ProjectDeterminizeMinimizePushAction> tfh(exitOnFirstPassFailure_);
+        tfh(&*mfst);
+      }
+      RmEpsilon(&*mfst); // take out epsilons created by reversals etc.
+      ssd_.setTimeEnd("disambig-" + out_ + ", NS=" + ns);
+      std::string nsd = toString(mfst->NumStates());
+      FORCELINFO(out_ << ": NS=" << ns << ",NSD=" << nsd);
+      LDBG_EXECUTE(mfst->Write("08-det-topo-final-rm.fst"));
+      if (detOut_) // invert back
+        Invert(&*mfst);
+    } else {
+      ssd_.setTimeStart("disambig-" + out_ + ", NS=0");
+      ssd_.setTimeEnd("disambig-" + out_ + ", NS=0");
+    }
+    FstWrite<StdArc> (*mfst, out_ );
+    ssd_.write(std::cerr);
+  }
+};
+
+
+// Templated method that runs over a list of FST files
+// loads, runs disambiguation and stores.
+template<class ArcT, class ThreadPoolT >
+inline void run(ucam::util::RegistryPO const &rg
+                , ThreadPoolT &tp) {
+  using namespace HifstConstants;
+  using namespace ucam::util;
+
+  PatternAddress<unsigned> pi (rg.get<std::string>(kInput) );
+  PatternAddress<unsigned> po (rg.get<std::string>(kOutput) );
+  bool detOut = rg.getBool(kDeterminizeOutput);
+  bool minimize = rg.getBool(kMinimize);
+  bool exitOnFirstPassFailure = rg.getBool(kExitOnFirstPassFailure);
+  using namespace fst;
+  for ( IntRangePtr ir (IntRangeFactory ( rg, kRangeOne ) );
+        !ir->done();
+        ir->next() ) {
+    DisambigFunctor<ArcT> df(pi(ir->get()), po(ir->get())
+                             , detOut, minimize, exitOnFirstPassFailure);
+    tp(df);
+  }
+};
+
+// Main function call this overloaded method (see main.hpp for details)
+// Determine semiring, multithreading and kick off disambiguation of
+// (potentially non-funcitonal) FSTs using topological features
+void ucam::util::MainClass::run() {
+  using namespace HifstConstants;
+  using namespace ucam::util;
+  std::string const arctype =rg_->get<std::string>(kHifstSemiring);
+  unsigned nthreads = (rg_->exists( kNThreads) )
+    ? rg_->get<unsigned>(kNThreads) : 0;
+
+  if (arctype == kHifstSemiringStdArc) {
+    if (nthreads)  { // even the single thread is in the trivial pool
+      FORCELINFO("Multithreading with " << nthreads << " threads");
+      TrivialThreadPool tp(nthreads);
+      ::run<fst::StdArc, TrivialThreadPool>(*rg_, tp);
+    } else { // not defined, will run single thread without the trivial pool
+      NoThreadPool ntp;
+      ::run<fst::StdArc, NoThreadPool>(*rg_, ntp);
+    }
+  } else {
+    LERROR("Unknown semiring!");
+    exit(EXIT_FAILURE);
+  }
+}

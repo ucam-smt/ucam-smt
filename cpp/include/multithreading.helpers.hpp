@@ -60,7 +60,7 @@ class Runner {
     if ( multithread_ ) {
       LINFO ( "Multithreading:" << threadcount_ << " threads" );
     } else {
-      LINFO ( "Multithreading:no" );
+      LINFO ( "Multithreading: no" );
     }
   };
 

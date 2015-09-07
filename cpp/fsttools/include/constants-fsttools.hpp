@@ -53,22 +53,22 @@ std::string const kRecaserLmWps = "recaser.lm.wps";
 std::string const kRecaserLmWordmap = "recaser.lm.wordmap";
 
 // printstrings
-const std::string kUnique = "unique";
-const std::string kUniqueExtended = kUnique + ",u";
-const std::string kNbest = "nbest";
-const std::string kNbestExtended = kNbest + ",n";
-const std::string kSentBleu = "sbleu";
-const std::string kSparseFormat = "sparseformat";
-const std::string kSparseDotProduct = "dotproduct";
-const std::string kTupleArcWeights = "tuplearc.weights";
-const std::string kWeight = "weight";
-const std::string kWeightExtended = kWeight + ",w";
-const std::string kLabelMap = "label-map";
-const std::string kLabelMapExtended = kLabelMap + ",m";
-const std::string kPrintOutputLabels = "print-output-labels";
-const std::string kPrintOutputLabelsExtended = kPrintOutputLabels + ",pol";
-const std::string kSuppress = "suppress-hyps";
-const std::string kLibLinRankFormat = "liblinear-ranking";
+std::string const kUnique = "unique";
+std::string const kUniqueExtended = kUnique + ",u";
+std::string const kNbest = "nbest";
+std::string const kNbestExtended = kNbest + ",n";
+std::string const kSentBleu = "sbleu";
+std::string const kSparseFormat = "sparseformat";
+std::string const kSparseDotProduct = "dotproduct";
+std::string const kTupleArcWeights = "tuplearc.weights";
+std::string const kWeight = "weight";
+std::string const kWeightExtended = kWeight + ",w";
+std::string const kLabelMap = "label-map";
+std::string const kLabelMapExtended = kLabelMap + ",m";
+std::string const kPrintOutputLabels = "print-output-labels";
+std::string const kPrintOutputLabelsExtended = kPrintOutputLabels + ",pol";
+std::string const kSuppress = "suppress-hyps";
+std::string const kLibLinRankFormat = "liblinear-ranking";
 
 // samplehyps
 std::string const kWordRefs = "word_refs";
@@ -96,6 +96,12 @@ std::string const kWordPenaltyExtended = kWordPenalty + ",wp";
 std::string const kYes = "yes";
 std::string const kNo = "no";
 std::string const kUserWpRange = "%%wp%%";
+
+  // Should this go to hifst constants?
+std::string const kDeterminizeOutput = "determinize-output";
+std::string const kMinimize = "minimize";
+std::string const kExitOnFirstPassFailure = "exit-on-first-pass-failure";
+
 }
 
 namespace HC = HifstConstants;
