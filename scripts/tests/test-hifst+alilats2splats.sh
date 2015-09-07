@@ -304,7 +304,7 @@ test_0017_align_nthreads() {
 
 
 test_0018_extractFeatures_nthreads() {
-    $alilats2splats --nthreads=4 \
+    $alilats2splats --nthreads=4 --logger.verbose \
 	--range=$range \
 	--ruleflowerlattice.load=$grammar \
 	--ruleflowerlattice.filterbyalilats \
@@ -653,8 +653,5 @@ test_0030_align_with_links() {
 
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
-# OK: test_0030_align_with_links
 runtests
-
-
 

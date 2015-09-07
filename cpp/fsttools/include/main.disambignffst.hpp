@@ -13,13 +13,12 @@
 // Copyright 2012 - Gonzalo Iglesias, Adrià de Gispert, William Byrne
 
 /** \file
- *    \brief Included headers for all the binary should be defined here. This file should be included only once.
- * \date 8-8-2012
+ * \brief Included headers for all the binary should be defined here. This file should be included only once.
+ * \date 7-9-2015
  * \author Gonzalo Iglesias
  */
 
-#ifndef APPLYLM_H
-#define APPLYLM_H
+#pragma once
 
 namespace ucam {
 namespace util {
@@ -27,12 +26,14 @@ extern bool user_check_ok;
 extern const bool detailed;
 }
 }
+
 ///hifst-specific classes and methods included in this namespace.
 #include "global_incls.hpp"
 #include "custom_assert.hpp"
 #include "global_decls.hpp"
 #include "global_funcs.hpp"
 
+///Just to make the compiler stop groaning about this.
 #include <fst/fstlib.h>
 
 #include <fst/script/print.h>
@@ -45,37 +46,21 @@ extern const bool detailed;
 #include "taskinterface.hpp"
 #include "range.hpp"
 #include "addresshandler.hpp"
-#include "multithreading.helpers.hpp"
-
-#define KENLM_MAX_ORDER 6
-#include "lm/model.hh"
-
+#include <multithreading.hpp>
+#include <multithreading.helpers.hpp>
 
 #include <constants-fsttools.hpp>
-#include "main.applylm.init_param_options.hpp"
+#include "main.disambignffst.init_param_options.hpp"
 
 #include "lexicographic-tropical-tropical-incls.h"
 #include "lexicographic-tropical-tropical-funcs.h"
-#include <tropical-sparse-tuple-weight-incls.h>
-#include <tropical-sparse-tuple-weight.h>
-#include <tropical-sparse-tuple-weight-decls.h>
-#include <tropical-sparse-tuple-weight.makeweight.h>
+#include "tropical-sparse-tuple-weight-incls.h"
+#include "tropical-sparse-tuple-weight.h"
+#include "tropical-sparse-tuple-weight-decls.h"
 
-#include <fstio.hpp>
-#include <fstutils.hpp>
+#include "fstio.hpp"
+#include "fstutils.hpp"
+#include "fstutils.mapper.hpp"
+#include "fstutils.topofeatures.hpp"
 
-#include <data.stats.hpp>
-#include <fstutils.mapper.hpp>
-#include <fstutils.applylmonthefly.hpp>
-
-#include <data.lm.hpp>
-#include <data-main.applylm.hpp>
-
-#include <task.loadlm.hpp>
-#include <task.readfst.hpp>
-#include <task.writefst.hpp>
-#include <task.applylm.hpp>
-#include <task.stats.hpp>
-#include <task.loadwordmap.hpp>
-#include <task.tunewpwrite.hpp>
-#endif
+#include "data.stats.hpp"

@@ -23,7 +23,6 @@ namespace util {
  * Detects kenlm language model types
  * code recycled from kenlm tool
  */
-
 enum {KENLM_NPLM=-1};
 
 inline int detectkenlm (std::string const& kenlmfile) {
@@ -49,7 +48,7 @@ inline int detectkenlm (std::string const& kenlmfile) {
   } else if (lm::np::Model::Recognize(kenlmfile)) {
     return KENLM_NPLM;
 #endif
-  } else { // possibly arpa file?
+  } else { // arpa file, right?
     return lm::ngram::PROBING;
   }
 }
