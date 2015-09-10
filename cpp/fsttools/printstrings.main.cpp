@@ -349,7 +349,12 @@ int run ( ucam::util::RegistryPO const& rg) {
       continue;
     }
 
-
+    // Otherwise determinization runs (both determinizefst or
+    // inside shortestpath) doesn't produce the expected result.
+    if (unique) {
+      fst::RmEpsilon<Arc>(&*ifst);
+      //      *ifst=fst::DeterminizeFst<Arc>(*ifst);
+    }
     // find nbest, compute stats, print
     ShortestPath (*ifst, &nfst, n, unique );
 
