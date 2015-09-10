@@ -309,6 +309,13 @@ int run ( ucam::util::RegistryPO const& rg) {
       if (h.size() > 0)
 	bStats = bStats + bleuScorer->SentenceBleuStats(ir->get()-1, RemoveUnprintable(h));
     }
+
+    // Otherwise determinization runs (both determinizefst or
+    // inside shortestpath) doesn't produce the expected result.
+    if (unique) {
+      fst::RmEpsilon<Arc>(&*ifst);
+      //      *ifst=fst::DeterminizeFst<Arc>(*ifst);
+    }
     // find nbest, compute stats, print
     ShortestPath (*ifst, &nfst, n, unique );
     std::vector<HypT> hyps;
