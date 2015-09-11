@@ -36,7 +36,9 @@ test_0002_lmert_run() {
 	--min_gamma=1.0 \
 	--random_seed=17 \
 	--nthreads=24 \
-	--write_params=$BASEDIR/newparams &>/dev/null
+	--write_params=$BASEDIR/newparams 
+
+## &>/dev/null
 
 	if [ "$range" == "1:99" ]; then 
 			if diff $BASEDIR/newparams $REFDIR/newparams.1-99 ; then echo ; else echo 0; return ; fi

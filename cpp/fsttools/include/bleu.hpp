@@ -5,7 +5,7 @@
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream_buffer.hpp>
 #include <boost/thread/mutex.hpp>
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include <boost/functional/hash.hpp>
 
 typedef boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> pipe_out;

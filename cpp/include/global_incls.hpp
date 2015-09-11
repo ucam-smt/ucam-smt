@@ -40,8 +40,8 @@
 #include <algorithm>
 #include <memory>
 
-#include <tr1/unordered_map>
-#include <tr1/unordered_set>
+#include <unordered_map>
+#include <unordered_set>
 
 #ifndef OSR
 //#define USE_GOOGLE_SPARSE_HASH

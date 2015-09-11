@@ -22,6 +22,8 @@
 #ifndef FSTIO_HPP
 #define FSTIO_HPP
 
+#include <fst/script/print.h>
+
 namespace fst {
 
 /**
@@ -31,10 +33,12 @@ namespace fst {
  */
 template< class Arc>
 inline void PrintFst ( const Fst<Arc>& fst, std::ostream *os ) {
-  FstPrinter<Arc> printer ( fst, 0, 0, 0, false, false );
-  ///What is this string for?
-  std::string foo;
-  printer.Print ( os, foo );
+  script::PrintFst<Arc>(fst, *os);
+
+  // FstPrinter<Arc> printer ( fst, 0, 0, 0, false, false );
+  // ///What is this string for?
+  // std::string foo;
+  // printer.Print ( os, foo );
 };
 
 /**

@@ -40,8 +40,8 @@ template <class Data ,
           class Arc = fst::LexStdArc ,
           class OptimizeT = OptimizeMachine<Arc> ,
           class CYKdataT = CYKdata ,
-          class MultiUnionT = fst::MultiUnionRational<Arc> ,
-          //          class MultiUnionT = fst::MultiUnionReplace<Arc> ,
+          // class MultiUnionT = fst::MultiUnionRational<Arc> ,
+          class MultiUnionT = fst::MultiUnionReplace<Arc> ,
           class ExpandedNumStatesRTNT = ExpandedNumStatesRTN<Arc> ,
           class ReplaceFstByArcT = ManualReplaceFstByArc<Arc> ,
           class RTNT = RTN<Arc>
@@ -92,7 +92,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
   ///  bool cellredm_;
 
   ///Pdt parentheses.
-  std::vector<pair<Label, Label> > pdtparens_;
+  std::vector<std::pair<Label, Label> > pdtparens_;
 
   ///Delayed fsts stored in a cyk-grid-like structure.
 
@@ -274,8 +274,15 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
         pairlabelfsts_.push_back ( pair< Label, const fst::Fst<Arc> * > ( hieroindex,
                                    &cykfstresult_ ) );
       ///Optimizations over the rtn -- they are generally worth doing...
-      fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, hieroindex,
-                                          !aligner_); //has ownership of modified rtn fsts
+
+
+      // Openfst 1.3.4
+      //      fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, hieroindex,
+      //                                  !aligner_); //has ownership of modified rtn fsts
+
+      fst::ReplaceUtilOptions<Arc> ruopt(hieroindex, !aligner_);
+      fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, ruopt);
+
       if (rtnopt_) {
         LINFO ("rtn optimizations...");
         d_->stats->setTimeStart ("replace-opts");

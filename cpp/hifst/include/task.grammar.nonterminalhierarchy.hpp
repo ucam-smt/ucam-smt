@@ -120,12 +120,12 @@ class NonTerminalHierarchy {
                                     unordered_set<std::string>& nt ) {
     std::map<std::string, uint> ntorder;
     int order = 0;
-    for ( std::tr1::unordered_set<std::string>::iterator itx = nt.begin();
+    for ( std::unordered_set<std::string>::iterator itx = nt.begin();
           itx != nt.end(); ++itx ) {
       ntorder[*itx] = 0;
       LINFO ( "nt:" << *itx );
     }
-    for ( std::tr1::unordered_set<std::string>::iterator itx = h.begin();
+    for ( std::unordered_set<std::string>::iterator itx = h.begin();
           itx != h.end(); ++itx ) {
       std::vector<std::string> aux;
       boost::algorithm::split ( aux, *itx, boost::algorithm::is_any_of ( " " ) );
@@ -134,7 +134,7 @@ class NonTerminalHierarchy {
     }
     LINFO ( "Extract highest nt" );
     std::string ntstring;
-    std::tr1::unordered_set<std::string> nttodelete;
+    std::unordered_set<std::string> nttodelete;
     for ( std::map<std::string, uint>::iterator itx = ntorder.begin();
           itx != ntorder.end(); ++itx ) {
       if ( !itx->second ) {
