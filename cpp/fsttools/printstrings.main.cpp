@@ -350,15 +350,13 @@ int run ( ucam::util::RegistryPO const& rg) {
     }
 
     // Otherwise determinization runs (both determinizefst or
-    // inside shortestpath) doesn't produce the expected result.
+    // inside shortestpath) doesn't produce the expected result:
+    // epsilons are being treated as symbols
     if (unique) {
       fst::RmEpsilon<Arc>(&*ifst);
-      //      *ifst=fst::DeterminizeFst<Arc>(*ifst);
     }
     // find nbest, compute stats, print
     ShortestPath (*ifst, &nfst, n, unique );
-
-
 
     std::vector<HypT> hyps;
     fst::printStrings<Arc> (nfst, &hyps);
@@ -379,7 +377,7 @@ int run ( ucam::util::RegistryPO const& rg) {
       } 
       if (nohyps == false) {
         if (printInputOutputLabels) { // add the output labels.
-          for (unsigned k = 0; k < hyps.size(); ++k) {
+          //          for (unsigned k = 0; k < hyps.size(); ++k) {
             for (unsigned j = 0; j < hyps[k].hyp.size(); ++j)
               if (hyps[k].hyp[j] != 0)
                 *out->getStream() << hyps[k].hyp[j] << " ";
@@ -389,8 +387,8 @@ int run ( ucam::util::RegistryPO const& rg) {
                 *out->getStream() << hyps[k].ohyp[j] << " ";
             if (printweight)
               *out->getStream() << "\t" << std::setprecision(myPrecision) << hyps[k].cost;
-            *out->getStream() << std::endl;
-          }
+            //    *out->getStream() << std::endl;
+            //          }
         } else {
           *out->getStream() << hyps[k];
         }
