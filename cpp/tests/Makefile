@@ -1,6 +1,6 @@
 include ../../Makefile.inc
 
-CC=g++ -Wfatal-errors -rdynamic $( $(GTEST_DIR)/scripts/gtest-config --cxxflags --ldflags --libs ) # -DUSE_FDSTREAM_HPP -DUSE_BOOSTLOG 
+CC=g++ -Wfatal-errors -rdynamic -std=c++11 $( $(GTEST_DIR)/scripts/gtest-config --cxxflags --ldflags --libs ) # -DUSE_FDSTREAM_HPP -DUSE_BOOSTLOG 
 
 OPT=-O2
 DBG=-ggdb3 -gdwarf-2 

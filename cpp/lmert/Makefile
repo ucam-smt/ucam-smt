@@ -1,6 +1,6 @@
 include ../../Makefile.inc
 
-CC=g++ -Wfatal-errors -rdynamic -std=c++0x # -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -fno-omit-frame-pointer
+CC=g++ -Wfatal-errors -rdynamic -std=c++11 # -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -fno-omit-frame-pointer
 DBG=-ggdb3 -gdwarf-2 
 PRO=-pg
 

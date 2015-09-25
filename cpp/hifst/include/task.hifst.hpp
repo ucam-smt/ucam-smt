@@ -1,3 +1,4 @@
+
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use these files except in compliance with the License.
 // You may obtain a copy of the License at
@@ -275,14 +276,16 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
                                    &cykfstresult_ ) );
       ///Optimizations over the rtn -- they are generally worth doing...
 
-
-      // Openfst 1.3.4
-      //      fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, hieroindex,
-      //                                  !aligner_); //has ownership of modified rtn fsts
-
+#if OPENFSTVERSION>=1005000
+      fst::ReplaceUtilOptions ruopt(hieroindex, !aligner_);
+      fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, ruopt);
+#elif OPENFSTVERSION>=1004000
       fst::ReplaceUtilOptions<Arc> ruopt(hieroindex, !aligner_);
       fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, ruopt);
-
+#else
+      fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, hieroindex
+	, !aligner_); //has ownership of modified rtn fsts
+#endif
       if (rtnopt_) {
         LINFO ("rtn optimizations...");
         d_->stats->setTimeStart ("replace-opts");
