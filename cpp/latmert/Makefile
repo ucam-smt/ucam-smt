@@ -2,7 +2,7 @@
 include ../../Makefile.inc
 
 
-CC=g++ -Wfatal-errors -rdynamic -std=c++0x
+CC=g++ -Wfatal-errors -rdynamic -std=c++11
 DBG=-ggdb3 -gdwarf-2 
 PRO=-pg
 
