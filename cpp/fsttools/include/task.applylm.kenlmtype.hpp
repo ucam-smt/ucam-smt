@@ -29,7 +29,7 @@ template<class Arc, template<class> class MakeWeightT>
 inline fst::ApplyLanguageModelOnTheFlyInterface<Arc> *
 assignKenLmHandler(util::RegistryPO const &rg
 		   , std::string const &lmkey
-		   , std::tr1::unordered_set<typename Arc::Label> &epsilons
+		   , std::unordered_set<typename Arc::Label> &epsilons
 		   , KenLMData const &klm
 		   , MakeWeightT<Arc> &mw
 		   , bool useNaturalLog
@@ -80,7 +80,7 @@ template<class Arc, template<class> class MakeWeightT>
 inline fst::ApplyLanguageModelOnTheFlyInterface<Arc> *
 assignKenLmHandlerBilingual(util::RegistryPO const &rg
 		   , std::string const &lmkey
-		   , std::tr1::unordered_set<typename Arc::Label> &epsilons
+		   , std::unordered_set<typename Arc::Label> &epsilons
 		   , KenLMData const &klm
 		   , MakeWeightT<Arc> &mw
 		   , bool useNaturalLog

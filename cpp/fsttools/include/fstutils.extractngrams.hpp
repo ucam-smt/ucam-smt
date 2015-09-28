@@ -19,7 +19,7 @@ namespace fst {
 
 typedef unsigned WordId;
 typedef std::basic_string<WordId> NGram;
-typedef std::tr1::unordered_map<NGram
+typedef std::unordered_map<NGram
 , StdArc::Weight
 , ucam::util::hashfvecuint
 , ucam::util::hasheqvecuint> NGramList;

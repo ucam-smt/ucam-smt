@@ -79,10 +79,11 @@ inline void init_param_options ( int argc, const char* argv[],
       , "Substring the reference lattice (yes|no)" )
     ( kReferencefilterPrunereferenceweight.c_str()
       , po::value<float>()->default_value ( std::numeric_limits<float>::max() )
-      , "Likelihood beam to prune the reference lattice" )
+      , "Likelihood beam to prune the reference lattice. Use positive value. Maxfloat (default) turns it off." )
     ( kReferencefilterPrunereferenceshortestpath.c_str()
       , po::value<unsigned>()->default_value (
-        std::numeric_limits<unsigned>::max() ) )
+        std::numeric_limits<unsigned>::max() )
+      , "Apply a shortest path to the reference lattice to only use n hypotheses. Max unsigned (default) turns it off." )
     ( kCykparserHrmaxheight.c_str()
       , po::value<unsigned>()->default_value ( 10 )
       , "Default maximum span for hierarchical rules" )

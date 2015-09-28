@@ -30,7 +30,7 @@ namespace fsttools {
 
 class IdBridge {
  private:
-  typedef std::tr1::unordered_map<unsigned,unsigned> MapType;
+  typedef std::unordered_map<unsigned,unsigned> MapType;
   // rmapper (reverse) for debugging purposes only
   MapType mapper, rmapper;
   // output mapper for nplm with two vocabularies

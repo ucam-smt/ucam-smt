@@ -34,7 +34,7 @@ template<class Arc>
 class RTN {
 
   typedef typename Arc::Label Label;
-  typedef std::tr1::unordered_map< Label , boost::shared_ptr< fst::Fst<Arc> > >
+  typedef std::unordered_map< Label , boost::shared_ptr< fst::Fst<Arc> > >
   hifst_rtn_t;
  private:
   ///rtn hash

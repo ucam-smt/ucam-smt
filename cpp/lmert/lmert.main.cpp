@@ -6,27 +6,27 @@ int main ( int argc,  const char* argv[] ) {
   using namespace ucam::util;
   using namespace ucam::fsttools;
   using namespace ucam::lmert;
+  using namespace HifstConstants;
   initLogger ( argc, argv );
   FORCELINFO ( argv[0] << " starts!" );
   RegistryPO rg ( argc, argv );
   FORCELINFO ( rg.dump ( "CONFIG parameters:\n=====================", "=====================" ) );
-  std::string extTok(rg.exists(HifstConstants::kLmertExternalTokenizer) ? rg.getString(HifstConstants::kLmertExternalTokenizer) : "");
-  std::string wMap(rg.exists(HifstConstants::kLmertWMap) ? rg.getString(HifstConstants::kLmertWMap) : "");
+  std::string extTok(rg.exists(kLmertExternalTokenizer) ? rg.getString(kLmertExternalTokenizer) : "");
+  std::string wMap(rg.exists(kLmertWMap) ? rg.getString(kLmertWMap) : "");
   std::string refFiles;
   bool intRefs;
-  if (rg.exists(HifstConstants::kLmertWordRefs)) {
-    refFiles = rg.getString(HifstConstants::kLmertWordRefs);    
+  if (rg.exists(kLmertWordRefs)) {
+    refFiles = rg.getString(kLmertWordRefs);
     intRefs = false;
   }
-  if (rg.exists(HifstConstants::kLmertIntRefs)) {
-    refFiles = rg.getString(HifstConstants::kLmertIntRefs);
+  if (rg.exists(kLmertIntRefs)) {
+    refFiles = rg.getString(kLmertIntRefs);
     intRefs = true;
   } 
-  unsigned int bleuCacheSize = rg.get<int>(HifstConstants::kLmertBleuCacheSize);
+  unsigned int bleuCacheSize = rg.get<int>(kLmertBleuCacheSize);
   BleuScorer bleuScorer(refFiles, extTok, bleuCacheSize, intRefs, wMap);
   TuneSet< TupleArc32 > tuneSet(rg);
-  ucam::lmert::PARAMS32 lambda = 
-    ucam::util::ParseParamString<float>(rg.getString(HifstConstants::kLmertInitialParams));
+  PARAMS32 lambda = ParseParamString<float>(rg.getString(kLmertInitialParams));
   RandomLineSearch< TupleArc32 > rls(rg, tuneSet, bleuScorer, lambda);
   LINFO(bleuScorer.CacheStats());
   FORCELINFO (argv[0] << " finished!");

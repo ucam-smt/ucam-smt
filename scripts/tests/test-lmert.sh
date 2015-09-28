@@ -39,13 +39,21 @@ test_0002_lmert_run() {
 	--write_params=$BASEDIR/newparams &>/dev/null
 
 	if [ "$range" == "1:99" ]; then 
-			if diff $BASEDIR/newparams $REFDIR/newparams.1-99 ; then echo ; else echo 0; return ; fi
+	   if diff $BASEDIR/newparams $REFDIR/newparams.1-99 ; then echo ; else echo 0; return ; fi
 	elif [ "$range" == "1:20" ]; then
-			if diff $BASEDIR/newparams $REFDIR/newparams.1-20 ; then echo ; else echo 0; return ; fi
+	    # instead of comparing to: $REFDIR/newparams.1-20
+	   if diff $BASEDIR/newparams $REFDIR/newparams.1-20.boost1.59 ; then echo ; else echo 0; return ; fi
 	fi
 
 ###Success
-    echo 1
+#    echo 1
+###Flagged
+# Changed references when upgrading boost 1.53 to 1.59
+# Untested working hypothesis: might be due to changes related to uniform_on_sphere.hpp
+# lmert run/log looks good, but lets wait to mark this test as success until we have
+# confirmation that the tool is tuning parameters correctly on real tasks.
+# Note that latmert regression tests ran ok.
+    echo 3
 }
 
 

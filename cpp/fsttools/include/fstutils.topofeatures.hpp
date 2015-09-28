@@ -60,7 +60,7 @@ struct OLabelToFeature {
   typedef TupleArc32 ToArc;
   typedef ToArc::Weight ToWeight;
   mutable unsigned counter_;
-  mutable std::vector<unsigned> &features_;
+  std::vector<unsigned> &features_;
   bool replaceOlabelByTopologicalLabel_;
 
   explicit OLabelToFeature(std::vector<unsigned> &features, unsigned size

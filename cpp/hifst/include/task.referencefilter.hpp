@@ -162,9 +162,14 @@ class ReferenceFilterTask: public ucam::util::TaskInterface<Data> {
       dopts.weight_threshold = mw ( weight_ );
       fst::Determinize<Arc> ( *referencesubstringlattice_, &dweight, dopts );
     }
-    if ( useshortestpath_ || useweight_ )
-      *referencesubstringlattice_ = ( fst::UnionFst<Arc> ( pruned,
-                                      dweight ) ); //should work either way
+    if ( useshortestpath_ || useweight_ ) {
+      // does not compile in openfst 1.4.1 (bug with Rational Implementation?)
+      //      *referencesubstringlattice_ = ( fst::UnionFst<Arc> ( pruned,
+      //                                                   dweight) ); 
+      // so i'll do instead:
+      *referencesubstringlattice_ = pruned;
+      fst::Union(referencesubstringlattice_, dweight);
+    }
   };
 
   /**

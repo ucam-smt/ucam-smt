@@ -50,6 +50,7 @@ runtests() {
     passed=0
     failed=0
     skip=0
+    warn=0
     for mytest in `typeset -F | awk '{print $3}'| grep "^test_" `; do 
 	let total=total+1
 	if [[ `$mytest | tail -1 ` -eq 1 ]]; then 
@@ -58,6 +59,9 @@ runtests() {
 	elif [[ `$mytest | tail -1 ` -eq 2 ]]; then 
 	    printf "SKIP! ========== %-50s\n" $mytest
 	    let skip=skip+1
+	elif [[ `$mytest | tail -1 ` -eq 3 ]]; then 
+	    printf "FLAG! ========== %-50s\n" $mytest
+	    let warn=warn+1
 	else
 	    printf "FAIL! ========== %-50s\n" $mytest
 	    let failed=failed+1
@@ -68,5 +72,6 @@ runtests() {
     printf " PASSED: %5d tests (%20s)\n" $passed `basename $0`
     printf " FAILED: %5d tests (%20s) \n" $failed `basename $0`
     printf "SKIPPED: %5d tests (%20s) \n" $skip `basename $0`
+    printf "FLAGGED: %5d tests (%20s) \n" $warn `basename $0`
     printf "  TOTAL: %5d tests (%20s) \n" $total `basename $0`
 }

@@ -152,9 +152,9 @@ class RegistryPO {
    * This constructor is only recommended for testing purposes.
    */
 
-  RegistryPO ( const std::tr1::unordered_map<std::string, boost::any>& v ) {
+  RegistryPO ( const std::unordered_map<std::string, boost::any>& v ) {
     bpo::options_description desc ( "" );
-    for ( std::tr1::unordered_map<std::string, boost::any>::const_iterator itx =
+    for ( std::unordered_map<std::string, boost::any>::const_iterator itx =
             v.begin(); itx != v.end(); ++itx ) {
       if ( any_cast<std::string> ( & ( itx->second ) ) ) {
         desc.add_options() ( itx->first.c_str(),

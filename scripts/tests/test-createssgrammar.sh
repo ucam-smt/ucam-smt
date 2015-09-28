@@ -34,7 +34,9 @@ test_0002_createssgrammar_execute(){
     
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do
-	if diff $BASEDIR/$k.gz $REFDIR/$k.gz ; then echo ; else echo 0; return; fi
+	b=`zcat $BASEDIR/$k.gz | sort | md5sum`;
+	r=`zcat $REFDIR/$k.gz | sort | md5sum`;
+	if [ "$b" == "$r" ] ; then echo ; else echo 0; return; fi
     done
 
 # Ok!

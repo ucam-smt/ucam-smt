@@ -198,7 +198,7 @@ TEST ( fstutils, applylmonthefly ) {
   fst::VectorFst<fst::StdArc> c ( a );
   //Delete scores, apply lm on-the-fly and see if it matches!
   fst::Map<fst::StdArc> ( &c, fst::RmWeightMapper<fst::StdArc>() );
-  std::tr1::unordered_set<fst::StdArc::Label> epsilons;
+  std::unordered_set<fst::StdArc::Label> epsilons;
   lm::ngram::Config kenlm_config;
   ucam::fsttools::IdBridge idb;
   lm::HifstEnumerateVocab<ucam::util::WordMapper> hev (idb, NULL);

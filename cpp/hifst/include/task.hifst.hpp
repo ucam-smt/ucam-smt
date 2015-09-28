@@ -1,3 +1,4 @@
+
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use these files except in compliance with the License.
 // You may obtain a copy of the License at
@@ -40,8 +41,8 @@ template <class Data ,
           class Arc = fst::LexStdArc ,
           class OptimizeT = OptimizeMachine<Arc> ,
           class CYKdataT = CYKdata ,
-          class MultiUnionT = fst::MultiUnionRational<Arc> ,
-          //          class MultiUnionT = fst::MultiUnionReplace<Arc> ,
+          // class MultiUnionT = fst::MultiUnionRational<Arc> ,
+          class MultiUnionT = fst::MultiUnionReplace<Arc> ,
           class ExpandedNumStatesRTNT = ExpandedNumStatesRTN<Arc> ,
           class ReplaceFstByArcT = ManualReplaceFstByArc<Arc> ,
           class RTNT = RTN<Arc>
@@ -92,7 +93,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
   ///  bool cellredm_;
 
   ///Pdt parentheses.
-  std::vector<pair<Label, Label> > pdtparens_;
+  std::vector<std::pair<Label, Label> > pdtparens_;
 
   ///Delayed fsts stored in a cyk-grid-like structure.
 
@@ -274,8 +275,17 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
         pairlabelfsts_.push_back ( pair< Label, const fst::Fst<Arc> * > ( hieroindex,
                                    &cykfstresult_ ) );
       ///Optimizations over the rtn -- they are generally worth doing...
-      fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, hieroindex,
-                                          !aligner_); //has ownership of modified rtn fsts
+
+#if OPENFSTVERSION>=1005000
+      fst::ReplaceUtilOptions ruopt(hieroindex, !aligner_);
+      fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, ruopt);
+#elif OPENFSTVERSION>=1004000
+      fst::ReplaceUtilOptions<Arc> ruopt(hieroindex, !aligner_);
+      fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, ruopt);
+#else
+      fst::ReplaceUtil<Arc> replace_util (pairlabelfsts_, hieroindex
+	, !aligner_); //has ownership of modified rtn fsts
+#endif
       if (rtnopt_) {
         LINFO ("rtn optimizations...");
         d_->stats->setTimeStart ("replace-opts");

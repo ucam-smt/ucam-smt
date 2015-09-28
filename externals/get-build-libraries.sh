@@ -1,8 +1,8 @@
 #!/bin/bash
 
 GTESTVERSION=1.7.0
-BOOSTVERSION=1_53_0
-OPENFSTVERSION=1.3.4 
+BOOSTVERSION=1_59_0
+OPENFSTVERSION=1.5.0
 
 download() {
     if [ ! -e gtest-$GTESTVERSION ]; then

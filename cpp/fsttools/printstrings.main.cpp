@@ -9,7 +9,7 @@
 #include <main.logger.hpp>
 #include <main.printstrings.hpp>
 
-typedef std::tr1::unordered_map<std::size_t, std::string> labelmap_t;
+typedef std::unordered_map<std::size_t, std::string> labelmap_t;
 typedef labelmap_t::iterator labelmap_iterator_t;
 labelmap_t vmap;
 string vmapfile;
