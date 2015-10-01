@@ -101,10 +101,10 @@ std::string const kYes = "yes";
 std::string const kNo = "no";
 std::string const kUserWpRange = "%%wp%%";
 
-  // Should this go to hifst constants?
 std::string const kDeterminizeOutput = "determinize-output";
 std::string const kMinimize = "minimize";
 std::string const kExitOnFirstPassFailure = "exit-on-first-pass-failure";
+std::string const kUseOpenFst = "use-openfst";
 
 }
 

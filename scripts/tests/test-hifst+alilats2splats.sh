@@ -163,7 +163,7 @@ test_0013_translate_pdt() {
         --source.load=$tstidx  \
 	--hifst.lattice.store=$BASEDIR/pdt-lats/?.fst.gz  \
         --lm.load=$languagemodel \
-	--hifst.replacefstbyarc.numstates=0 \
+	--hifst.replacefstbyarc.numstates=0 --hifst.localprune.numstates=1 \
 	--hifst.usepdt=yes --hifst.rtnopt=no  &>/dev/null    
 #         --hifst.prune=9    ### Would be a very good idea to actually do pruned expansion (and a use a weak language model)
 
@@ -189,7 +189,7 @@ test_0014_translate_pdt2() {
     $hifst \
         --grammar.load=$grammar \
         --source.load=$tstidx  \
-        --hifst.usepdt=yes \
+        --hifst.usepdt=yes --hifst.localprune.numstates=1 \
         --hifst.lattice.store=$BASEDIR/pdt-lats2/?.fst.gz  \
 	--lm.featureweights=1 --lm.load=$languagemodel --lm.wps=0\
         --hifst.localprune.enable=yes --hifst.localprune.conditions=S,-1,1,9 --hifst.localprune.lm.featureweights=1 --hifst.localprune.lm.load=$weaklanguagemodel --hifst.localprune.lm.wps=-2.30 \

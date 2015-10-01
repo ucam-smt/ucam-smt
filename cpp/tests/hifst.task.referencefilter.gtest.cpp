@@ -107,8 +107,9 @@ TEST ( HifstReferenceFilter, basic_test ) {
   EXPECT_EQ ( d.filters[0]->NumStates(), 3 );
   std::stringstream ss;
   fst::PrintFst ( *d.filters[0], &ss );
-  EXPECT_EQ ( ss.str(),
-              "0\t1\t10\t10\n0\t2\t100\t100\n0\n1\t2\t100\t100\n1\n2\n" );
+  LDEBUG("ss=" << ss.str());
+  EXPECT_TRUE ( ss.str() == "0\t1\t10\t10\n0\t2\t100\t100\n0\n1\t2\t100\t100\n1\n2\n" 
+		|| ss.str() == "0\t1\t10\t0,0\n0\t2\t100\t0,0\n0\t0,0\n1\t2\t100\t0,0\n1\t0,0\n2\t0,0\n" ); //openfst 1.5.0
   bfs::remove ( bfs::path ( "expecto.fst" ) );
 };
 
