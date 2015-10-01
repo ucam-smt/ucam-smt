@@ -803,7 +803,6 @@ struct TopoFeaturesHelper {
     Map(dfstw,&result,gamr);
     RelabelUtil<StdArc>().addIPL(PROTECTEDEPSILON, EPSILON)(&*fst);
     LDBG_EXECUTE(result.Write("07-det-topo-final.th.fst"));
-    // TODO: check that this still is a problem.
     fst->DeleteStates();
     *fst = result;
   };

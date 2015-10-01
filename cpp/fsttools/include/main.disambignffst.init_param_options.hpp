@@ -49,6 +49,8 @@ inline void init_param_options ( int argc, const char* argv[],
           "Determinize AND minimize (AND also push). This is an EXPERIMENTAL feature.")
         ( kExitOnFirstPassFailure.c_str(), po::value<std::string>()->default_value("yes"),
           "Exit immediately if first pass fails to position correctly the tags")
+        ( kUseOpenFst.c_str(), po::value<std::string>()->default_value("no"),
+          "Use OpenFst determinize for non-functional fsts (openfst 1.4.1/1.5.0)")
         ( kInputExtended.c_str(), po::value<std::string>(),
           "Fst(s) to determinize. Keeps best derivation.  (use ? for multiple instances) " )
         ( kOutputExtended.c_str(), po::value<std::string>(),

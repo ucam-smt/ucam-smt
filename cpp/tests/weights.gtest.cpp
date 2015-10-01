@@ -159,9 +159,13 @@ TEST(tropicalsparseweight, makeweighthifst) {
     ucam::util::RegistryPO rg(v);
     MakeWeightHifst<TupleArc32> mwh(rg);
     TupleArc32::Weight w = mwh ( 3.0f );
-    EXPECT_TRUE(ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,1,2,3,");
+    EXPECT_TRUE(ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,1,2,3,"
+		|| ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,2,3"
+		);
     w = mwh ( 6.0f , 8 );
-    EXPECT_TRUE(ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,2,2,6,-10,1,");
+    EXPECT_TRUE(ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,2,2,6,-10,1,"
+		|| ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,2,6,-10,1"
+		);
   }
   {
     unordered_map<std::string, boost::any> v;
@@ -171,9 +175,13 @@ TEST(tropicalsparseweight, makeweighthifst) {
     ucam::util::RegistryPO rg(v);
     MakeWeightHifst<TupleArc32> mwh(rg);
     TupleArc32::Weight w = mwh ( 3.0f );
-    EXPECT_TRUE(ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,1,3,3,");
+    EXPECT_TRUE(ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,1,3,3,"
+		|| ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,3,3"
+		);
     w = mwh ( 6.0f , 8 );
-    EXPECT_TRUE(ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,1,3,6,");
+    EXPECT_TRUE(ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,1,3,6,"
+		|| ucam::util::toString<TupleArc32::Weight>(w, 0) == "0,3,6"
+		);
   }
 }
 // In this context, the mapper should ignore, because we keep track separately of
@@ -253,7 +261,8 @@ TEST(tropicalsparseweight, removeKthWeight) {
   w.Push(5,-2);
   w.SetDefaultValue(300);
   std::stringstream ss; ss << w;
-  EXPECT_EQ ( ss.str(), "300,3,6,6,5,5,5,-2,");
+  EXPECT_TRUE ( ss.str() == "300,3,6,6,5,5,5,-2,"
+		|| ss.str() == "300,6,6,5,5,5,-2"); // openfst 1.5.0 does not print counts of weights
   // remove weight 5.
 
   // this does not copy default value
@@ -262,11 +271,14 @@ TEST(tropicalsparseweight, removeKthWeight) {
       w2.Push(it.Value());
   }
   std::stringstream ss2; ss2 << w2;
-  EXPECT_EQ ( ss2.str(), "0,1,6,6,");
+  EXPECT_TRUE ( ss2.str() == "0,1,6,6,"
+		|| ss2.str() == "0,6,6"
+		);
   w2.SetDefaultValue(w.DefaultValue());
   std::stringstream ss3; ss3 << w2;
-  EXPECT_EQ ( ss3.str(), "300,1,6,6,");
-
+  EXPECT_TRUE ( ss3.str() == "300,1,6,6,"
+		|| ss3.str() == "300,6,6"
+		);
   // This is implemented in SparseTupleWeightMap (sparse-tuple-weight.h)
   // The default value is used for Times operation if not available.
   TupleArc32::Weight w3=Times(w,w2);

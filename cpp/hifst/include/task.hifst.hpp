@@ -311,7 +311,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
         d_->stats->setTimeEnd ("replace-pdt-final");
         LINFO ("Number of pdtparens=" << pdtparens_.size() );
       }
-
+      LDBG_EXECUTE ( efst->Write ( "fsts/FINAL-e.fst" ) );
       // Currently no need to call this applyFilters: it will do the same
       // and it is more efficient to compose with the normal lattice
       // rather than the substringed lattice.
@@ -336,6 +336,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       } else {
         LINFO ( "No composition with full ref lattice" );
       };
+      LDBG_EXECUTE ( efst->Write ( "fsts/FINAL-ef.fst" ) );
       //Apply language model
       fst::VectorFst<Arc> *res = NULL;
       if (efst->NumStates() )
@@ -348,6 +349,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
         if ( latlm.get() == efst.get() ) {
           LWARN ( "Yikes! Unexpected situation! Will it crash? (muhahaha) " );
         }
+	LDBG_EXECUTE ( latlm->Write ( "fsts/FINAL-efc.fst" ) );
         //Todo: union with shortest path...
         if ( pruneweight_ < std::numeric_limits<float>::max() ) {
           if (!hipdtmode_ || pdtparens_.empty() ) {
@@ -371,8 +373,10 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
         pairlabelfsts_.pop_back();
     }
     pairlabelfsts_.clear();
+    LDBG_EXECUTE ( cykfstresult_.Write ( "fsts/FINAL-efcp.fst" ) );
     LINFO ( "Reps" );
     fst::RmEpsilon ( &cykfstresult_ );
+    LDBG_EXECUTE ( cykfstresult_.Write ( "fsts/FINAL-efcpr.fst" ) );
     LINFO ( "NS=" << cykfstresult_.NumStates() );
     //This should delete all pertinent fsas...
     LINFO ( "deleting data stuff..." );
@@ -541,7 +545,9 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     boost::scoped_ptr< fst::VectorFst<Arc> > pruned ( localPruning ( *mdfst, cc, x, y ) );
     //We now might have a pruned lattice!
     if ( pruned.get() != NULL ) {
+      LDBG_EXECUTE ( pruned->Write ( "fsts/" + o.str() + "redmp.fst" ) );
       optimize (&*pruned , numstatesthreshold_ , !hipdtmode_  && optimize_ );
+      LDBG_EXECUTE ( pruned->Write ( "fsts/" + o.str() + "redmpo.fst" ) );
       *mdfst = *pruned;
       //Only if we prune, we add to stats total number of states of full and pruned lattice
       d_->stats->numstates[ cc * 1000000 + y * 1000 + x  ] = ( *rtnnumstates_ ) ( cc,

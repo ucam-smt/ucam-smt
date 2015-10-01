@@ -26,16 +26,19 @@ struct DisambigFunctor {
   bool const detOut_;
   bool const minimize_;
   bool const exitOnFirstPassFailure_;
+  bool const useOpenFst_;
   ucam::fsttools::SpeedStatsData ssd_;
 
   DisambigFunctor(std::string const &in, std::string const &out
                   , bool detOut, bool minimize, bool exitOnFirstPassFailure
+		  , bool useOpenFst
                   )
       : in_(in)
       , out_(out)
       , detOut_(detOut)
       , minimize_(minimize)
       , exitOnFirstPassFailure_(exitOnFirstPassFailure)
+      , useOpenFst_(useOpenFst)
   {}
 
   DisambigFunctor(DisambigFunctor const &df)
@@ -45,6 +48,7 @@ struct DisambigFunctor {
       , minimize_(df.minimize_)
       , exitOnFirstPassFailure_(df.exitOnFirstPassFailure_)
       , ssd_(df.ssd_)
+      , useOpenFst_(df.useOpenFst_)
   {}
 
   void operator()() {
@@ -55,33 +59,54 @@ struct DisambigFunctor {
     boost::scoped_ptr<fst::VectorFst<ArcT> >mfst
         (fst::VectorFstRead<ArcT> ( in_ ) );
     if (mfst->NumStates()) {
-      if (detOut_)  // invert fst.
+      if (detOut_)  // invert fst if selected by user.
         Invert(&*mfst);
       RmEpsilon(&*mfst);
       TopSort(&*mfst);
 
       std::string ns = toString(mfst->NumStates());
       ssd_.setTimeStart("disambig-" + out_ + ", NS=" + ns);
-      if (!minimize_) {
-        FORCELINFO("Only determinize");
-        TopoFeaturesHelper<ProjectDeterminizeAction> tfh(exitOnFirstPassFailure_);
-        tfh(&*mfst);
-      } else { // Experimental option to play with.
-        FORCELINFO("Determinize, Minimize and Push!");
-        TopoFeaturesHelper<ProjectDeterminizeMinimizePushAction> tfh(exitOnFirstPassFailure_);
-        tfh(&*mfst);
+      if (!useOpenFst_) {
+	if (!minimize_) {
+	  LINFO("Only determinize");
+	  TopoFeaturesHelper<ProjectDeterminizeAction> tfh(exitOnFirstPassFailure_);
+	  tfh(&*mfst);
+	} else { // Experimental option to play with.
+	  LINFO("Determinize, Minimize and Push!");
+	  TopoFeaturesHelper<ProjectDeterminizeMinimizePushAction> tfh(exitOnFirstPassFailure_);
+	  tfh(&*mfst);
+	}
+	RmEpsilon(&*mfst); // take out epsilons created by reversals etc.
+	ssd_.setTimeEnd("disambig-" + out_ + ", NS=" + ns);
+	std::string nsd = toString(mfst->NumStates());
+	FORCELINFO(out_ << ": NS=" << ns << ",NSD=" << nsd);
+	LDBG_EXECUTE(mfst->Write("08-det-topo-final-rm.fst"));
+      } else {
+	// for quick comparisons. Note: not relabeling input epsilons.
+	// affiliation lattices are epsilon-free FSTs.
+#if OPENFSTVERSION >= 1004001
+        LINFO("Openfst Determinize..."); 
+	DeterminizeFstOptions<ArcT> dto;
+#if OPENFSTVERSION >= 1005000
+	dto.type = DETERMINIZE_DISAMBIGUATE;
+#else
+	dto.disambiguate_output = true;
+#endif
+	*mfst = DeterminizeFst<ArcT>(*mfst, dto);
+#else
+        LERROR("Openfst Determinize for non-functional FSTs is not supported (" 
+         << OPENFSTVERSION << ")");
+	exit(EXIT_FAILURE);
+#endif
+	ssd_.setTimeEnd("disambig-" + out_ + ", NS=" + ns);
       }
-      RmEpsilon(&*mfst); // take out epsilons created by reversals etc.
-      ssd_.setTimeEnd("disambig-" + out_ + ", NS=" + ns);
-      std::string nsd = toString(mfst->NumStates());
-      FORCELINFO(out_ << ": NS=" << ns << ",NSD=" << nsd);
-      LDBG_EXECUTE(mfst->Write("08-det-topo-final-rm.fst"));
-      if (detOut_) // invert back
-        Invert(&*mfst);
     } else {
       ssd_.setTimeStart("disambig-" + out_ + ", NS=0");
       ssd_.setTimeEnd("disambig-" + out_ + ", NS=0");
     }
+    if (detOut_) // invert back
+      Invert(&*mfst);
+
     FstWrite<StdArc> (*mfst, out_ );
     ssd_.write(std::cerr);
   }
@@ -101,12 +126,14 @@ inline void run(ucam::util::RegistryPO const &rg
   bool detOut = rg.getBool(kDeterminizeOutput);
   bool minimize = rg.getBool(kMinimize);
   bool exitOnFirstPassFailure = rg.getBool(kExitOnFirstPassFailure);
+  bool useOpenFst = rg.getBool(kUseOpenFst);
   using namespace fst;
   for ( IntRangePtr ir (IntRangeFactory ( rg, kRangeOne ) );
         !ir->done();
         ir->next() ) {
     DisambigFunctor<ArcT> df(pi(ir->get()), po(ir->get())
-                             , detOut, minimize, exitOnFirstPassFailure);
+                             , detOut, minimize, exitOnFirstPassFailure
+			     , useOpenFst);
     tp(df);
   }
 };
