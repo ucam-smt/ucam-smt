@@ -86,7 +86,7 @@ fi
 
 (cd cpp; make clean; make) 2>&1 | tee -a $LOGFILE
 
-(cd java/ruleXtract; sbt package) 2>&1 | tee -a $LOGFILE
+(cd java/ruleXtract; sbt assembly) 2>&1 | tee -a $LOGFILE
 
 echo "Compilation ended on $(date) on $(hostname)" >> $LOGFILE
 

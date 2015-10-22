@@ -15,6 +15,8 @@
  *******************************************************************************/
 package uk.ac.cam.eng.extraction.hadoop.features.phrase;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,16 +26,17 @@ import java.util.Map.Entry;
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.DataInputBuffer;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.mapreduce.Reducer;
 
-import uk.ac.cam.eng.extraction.datatypes.Rule;
+import uk.ac.cam.eng.extraction.Rule;
+import uk.ac.cam.eng.extraction.Symbol;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.FeatureMap;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceProbMap;
+import uk.ac.cam.eng.rule.features.Feature;
 
 /**
  * Computes marginal counts. Used for phrase based probability computation.
@@ -45,7 +48,7 @@ import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
  * @date 28 May 2014
  */
 class MarginalReducer extends
-		Reducer<RuleWritable, ProvenanceCountMap, RuleWritable, FeatureMap> {
+		Reducer<Rule, ProvenanceCountMap, Rule, FeatureMap> {
 
 	/**
 	 * Stores all the interesting positions in the byte array for a rule
@@ -55,18 +58,10 @@ class MarginalReducer extends
 	 * 
 	 */
 	private static class RuleWritableSplit {
-		int lhsStart;
-
-		int lhsLength;
-
 		int sourceStart;
-
 		int sourceLength;
-
 		int targetStart;
-
 		int targetLength;
-
 	}
 
 	/**
@@ -74,12 +69,11 @@ class MarginalReducer extends
 	 * safe. This class represents all the state that can be placed in a
 	 * ThreadLocal
 	 * 
-	 * @author aaw35
+	 * @author Aurelien Waite
 	 * 
 	 */
 	private static class MRComparatorState {
-
-		Text.Comparator comparator = new Text.Comparator();
+		
 		DataInputBuffer inBytes = new DataInputBuffer();
 
 		RuleWritableSplit split1 = new RuleWritableSplit();
@@ -90,9 +84,9 @@ class MarginalReducer extends
 
 	/**
 	 * Note that this comparator is extremely sensitive to the rule writable
-	 * binary format Change with care!
+	 * binary format. Change with care!
 	 * 
-	 * @author aaw35
+	 * @author Aurelien Waite
 	 * 
 	 */
 	public static abstract class MRComparator extends WritableComparator {
@@ -100,26 +94,10 @@ class MarginalReducer extends
 		private ThreadLocal<MRComparatorState> threadLocalState = new ThreadLocal<>();
 
 		public MRComparator() {
-			super(RuleWritable.class);
+			super(Rule.class);
 		}
 
 		protected abstract boolean isSource2Target();
-
-		protected Text getMarginal(RuleWritable r) {
-			if (isSource2Target()) {
-				return r.getSource();
-			} else {
-				return r.getTarget();
-			}
-		}
-
-		private Text getNonMarginal(RuleWritable r) {
-			if (isSource2Target()) {
-				return r.getTarget();
-			} else {
-				return r.getSource();
-			}
-		}
 
 		private MRComparatorState getState() {
 			MRComparatorState state = threadLocalState.get();
@@ -133,30 +111,30 @@ class MarginalReducer extends
 		@SuppressWarnings("rawtypes")
 		@Override
 		public int compare(WritableComparable a, WritableComparable b) {
-			WritableComparator comparator = getState().comparator;
-			int first = comparator.compare(getMarginal((RuleWritable) a),
-					getMarginal((RuleWritable) b));
-			if (first != 0) {
-				return first;
-			} else {
-				return comparator.compare(getNonMarginal((RuleWritable) a),
-						getNonMarginal((RuleWritable) b));
-			}
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+			DataOutputStream out = new DataOutputStream(bytes);
+			((Rule)a).write(out);
+			byte[] bytesA = bytes.toByteArray();
+			bytes.reset();
+			((Rule)b).write(out);
+			byte[] bytesB = bytes.toByteArray();
+			return compare(bytesA, 0, bytesA.length, bytesB, 0, bytesB.length);
 		}
 
 		private void findSplits(byte[] b, int s, int l,
 				RuleWritableSplit split, DataInputBuffer inBytes) {
 
 			try {
-				split.lhsStart = WritableUtils.decodeVIntSize(b[s]) + s;
+				split.sourceStart = WritableUtils.decodeVIntSize(b[s])
+						+ s;
 				inBytes.reset(b, s, l);
-				split.lhsLength = WritableUtils.readVInt(inBytes);
-				int sourceN = split.lhsLength + split.lhsStart;
-				split.sourceStart = WritableUtils.decodeVIntSize(b[sourceN])
-						+ sourceN;
-				inBytes.reset(b, sourceN, l - (sourceN - s));
-				split.sourceLength = WritableUtils.readVInt(inBytes);
-				int targetN = split.sourceStart + split.sourceLength;
+				int pointer = split.sourceStart;
+				int len = WritableUtils.readVInt(inBytes);
+				for(int i=0; i< len; ++i){
+					pointer += WritableUtils.decodeVIntSize(b[pointer]);
+				}
+				split.sourceLength = pointer - split.sourceStart;
+				int targetN = pointer;
 				split.targetStart = WritableUtils.decodeVIntSize(b[targetN])
 						+ targetN;
 				split.targetLength = l - (split.targetStart - s);
@@ -209,10 +187,10 @@ class MarginalReducer extends
 
 	private static class RuleCount {
 
-		final RuleWritable rule;
+		final Rule rule;
 		final ProvenanceCountMap counts;
 
-		public RuleCount(RuleWritable rule, ProvenanceCountMap counts) {
+		public RuleCount(Rule rule, ProvenanceCountMap counts) {
 			this.rule = rule;
 			this.counts = counts;
 		}
@@ -221,35 +199,29 @@ class MarginalReducer extends
 
 	public static final String SOURCE_TO_TARGET = "rulextract.source2target";
 
-	private static final String S2T_FEATURE_NAME = "source2target_probability";
-
-	private static final String T2S_FEATURE_NAME = "target2source_probability";
-
 	private ProvenanceCountMap totals = new ProvenanceCountMap();
 
 	private List<RuleCount> ruleCounts = new ArrayList<>();
 
-	private Text marginal = new Text();
+	private List<Symbol> marginal = new ArrayList<>();
 
 	private boolean source2Target = true;
 
-	private int[] mappings;
+	private ProvenanceProbMap provProbs = new ProvenanceProbMap();
+	
+	private ProvenanceProbMap globalProb = new ProvenanceProbMap();
 
+	private Feature globalF;
+	
+	private Feature provF;
+	
 	private FeatureMap features = new FeatureMap();
-
-	private Text getMarginal(RuleWritable rule) {
+	
+	private List<Symbol> getMarginal(Rule rule) {
 		if (source2Target) {
 			return rule.getSource();
 		} else {
 			return rule.getTarget();
-		}
-	}
-
-	private String getFeatureName() {
-		if (source2Target) {
-			return S2T_FEATURE_NAME;
-		} else {
-			return T2S_FEATURE_NAME;
 		}
 	}
 
@@ -263,29 +235,39 @@ class MarginalReducer extends
 					+ SOURCE_TO_TARGET);
 		}
 		source2Target = Boolean.valueOf(s2tString);
-		mappings = ProvenanceCountMap.getFeatureIndex(getFeatureName(),
-				context.getConfiguration());
+		if (source2Target) {
+					globalF = Feature.SOURCE2TARGET_PROBABILITY;
+					provF = Feature.PROVENANCE_SOURCE2TARGET_PROBABILITY;
+		} else {
+					globalF = Feature.TARGET2SOURCE_PROBABILITY;
+					provF = Feature.PROVENANCE_TARGET2SOURCE_PROBABILITY;
+		}
 	}
 
 	private void marginalReduce(Iterable<RuleCount> rules,
 			ProvenanceCountMap totals, Context context) throws IOException,
 			InterruptedException {
-		for (RuleCount rw : rules) {
+		for (RuleCount rc : rules) {
+			provProbs.clear();
+			globalProb.clear();
 			features.clear();
-			for (Entry<ByteWritable, IntWritable> entry : rw.counts.entrySet()) {
+			for (Entry<ByteWritable, IntWritable> entry : rc.counts.entrySet()) {
 				double probability = (double) entry.getValue().get()
 						/ (double) totals.get(entry.getKey()).get();
-				int featureIndex = mappings[(int) entry.getKey().get()];
-				features.put(featureIndex, probability);
-				++featureIndex;
-				features.put(featureIndex, entry.getValue().get());
+				int key = (int) entry.getKey().get();
+				if(key==0){
+					globalProb.put(key, Math.log(probability));
+				}
+				else{
+					provProbs.put(key, Math.log(probability));	
+				}
 			}
-			RuleWritable outKey = rw.rule;
+			features.put(globalF, globalProb);
+			features.put(provF, provProbs);
+			Rule outKey = rc.rule;
 			if (!source2Target) {
-				Rule r = new Rule(outKey);
-				if (r.isSwapping()) {
-					r.invertNonTerminals();
-					outKey = new RuleWritable(r.invertNonTerminals());
+				if (outKey.isSwapping()) {
+					outKey = outKey.invertNonTerminals();
 				}
 			}
 			context.write(outKey, features);
@@ -298,10 +280,10 @@ class MarginalReducer extends
 		setup(context);
 
 		while (context.nextKey()) {
-			RuleWritable key = context.getCurrentKey();
+			Rule key = context.getCurrentKey();
 			// First Key!
-			if (marginal.getLength() == 0) {
-				marginal.set(getMarginal(key));
+			if (marginal.size() == 0) {
+				marginal.addAll(getMarginal(key));
 			}
 			Iterator<ProvenanceCountMap> it = context.getValues().iterator();
 			ProvenanceCountMap counts = it.next();
@@ -314,8 +296,9 @@ class MarginalReducer extends
 				totals.clear();
 				ruleCounts.clear();
 			}
-			marginal.set(getMarginal(key));
-			ruleCounts.add(new RuleCount(new RuleWritable(key),
+			marginal.clear();
+			marginal.addAll(getMarginal(key));
+			ruleCounts.add(new RuleCount(new Rule(key),
 					new ProvenanceCountMap(counts)));
 			totals.increment(counts);
 		}

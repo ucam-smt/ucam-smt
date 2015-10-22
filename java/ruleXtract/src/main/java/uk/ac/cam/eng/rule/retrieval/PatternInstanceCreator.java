@@ -19,65 +19,46 @@
 
 package uk.ac.cam.eng.rule.retrieval;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.hadoop.conf.Configuration;
-
-import uk.ac.cam.eng.extraction.datatypes.Rule;
+import uk.ac.cam.eng.extraction.Rule;
+import uk.ac.cam.eng.extraction.Symbol;
+import uk.ac.cam.eng.util.CLI;
 
 /**
  * This class creates pattern instances given a test set
  * 
  * @author Juan Pino
+ * @author Aurelien Waite
  * @date 28 May 2014
  */
 class PatternInstanceCreator {
 
-	private  int MAX_SOURCE_PHRASE = 5; // TODO revise this value, put in
-											// constructor or something
-	private int MAX_SOURCE_ELEMENTS = 5; // TODO revise this value, put in
-											// constructor or something
-	private int MAX_TERMINAL_LENGTH = 5; // TODO revise this value, put in
-											// constructor or something
-	private int MAX_NONTERMINAL_SPAN = 10; // TODO revise this value, put in
+	private final int maxSourcePhrase;
 
-	private int HR_MAX_HEIGHT = 10;
+	private final int maxSourceElements;
 
-	private String patternFile;
+	private final int maxTerminalLength;
 
-	private List<SidePattern> sidePatterns = new ArrayList<SidePattern>();
+	private final int maxNonTerminalSpan;
 
-	public PatternInstanceCreator(Configuration conf) {
-		MAX_SOURCE_PHRASE = conf.getInt("max_source_phrase", 5);
-		MAX_SOURCE_ELEMENTS = conf.getInt("max_source_elements", 5);
-		MAX_TERMINAL_LENGTH = conf.getInt("max_terminal_length", 5);
-		MAX_NONTERMINAL_SPAN = conf.getInt("max_nonterminal_span", 10);
-		HR_MAX_HEIGHT = conf.getInt("hr_max_height", 10);
-		patternFile = conf.get("source_patterns");
-		if (patternFile == null) {
-			System.err.println("Missing property 'patternfile' in the config");
-			System.exit(1);
-		}
-	}
+	private final int hrMaxHeight;
 
-	public void createSourcePatterns() throws FileNotFoundException,
-			IOException {
-		try (BufferedReader br = new BufferedReader(new FileReader(patternFile))) {
-			String line;
-			String[] parts;
-			while ((line = br.readLine()) != null) {
-				parts = line.split("\\s+");
-				sidePatterns.add(new SidePattern(Arrays.asList(parts)));
-			}
-		}
+	private final Set<SidePattern> sidePatterns;
+
+	public PatternInstanceCreator(
+			CLI.RuleRetrieverParameters params,
+			Collection<SidePattern> sidePatterns) {
+		maxSourcePhrase = params.rp.maxSourcePhrase;
+		maxSourceElements = params.rp.maxSourceElements;
+		maxTerminalLength = params.rp.maxTerminalLength;
+		maxNonTerminalSpan = params.rp.maxNonTerminalSpan;
+		hrMaxHeight = params.hr_max_height;
+		this.sidePatterns = new HashSet<>(sidePatterns);
 	}
 
 	/**
@@ -93,22 +74,26 @@ class PatternInstanceCreator {
 		List<Integer> sourceSentence = new ArrayList<Integer>();
 		for (int i = 0; i < parts.length; i++) {
 			sourceSentence.add(Integer.parseInt(parts[i]));
-			List<Integer> sourcePhrase = new ArrayList<Integer>();
-			for (int j = 0; j < MAX_SOURCE_PHRASE && j < parts.length - i; j++) {
-				sourcePhrase.add(Integer.parseInt(parts[i + j]));
+			List<Symbol> sourcePhrase = new ArrayList<Symbol>();
+			for (int j = 0; j < maxSourcePhrase && j < parts.length - i; j++) {
+				sourcePhrase.add(Symbol.deserialise(Integer.parseInt(parts[i + j])));
 				// add source phrase
-				Rule r = new Rule(sourcePhrase, new ArrayList<Integer>());
+				Rule r = new Rule(sourcePhrase, new ArrayList<Symbol>());
 				res.add(r);
 			}
 		}
 		Set<Rule> sourcePatternInstances = getPatternInstancesFromSourceSentence(
 				sourceSentence, sidePatterns);
-		res.addAll(sourcePatternInstances);
+		for(Rule r : sourcePatternInstances){
+			if(sidePatterns.contains(r.source().toPattern())){
+				res.add(r);
+			}
+		}
 		return res;
 	}
 
 	private Set<Rule> getPatternInstancesFromSourceSentence(
-			List<Integer> sourceSentence, List<SidePattern> sidePatterns) {
+			List<Integer> sourceSentence, Set<SidePattern> sidePatterns) {
 		Set<Rule> res = new HashSet<Rule>();
 		for (SidePattern sidePattern : sidePatterns) {
 			for (int i = 0; i < sourceSentence.size(); i++) {
@@ -121,17 +106,17 @@ class PatternInstanceCreator {
 
 	private Set<Rule> merge(Rule partialLeft, Set<Rule> partialRight) {
 		Set<Rule> res = new HashSet<Rule>();
-		List<Integer> sourceLeft = partialLeft.getSource();
+		List<Symbol> sourceLeft = partialLeft.getSource();
 		if (partialRight.isEmpty()) {
-			res.add(new Rule(sourceLeft, new ArrayList<Integer>()));
+			res.add(new Rule(sourceLeft, new ArrayList<Symbol>()));
 			return res;
 		}
 		for (Rule r : partialRight) {
-			List<Integer> merged = new ArrayList<Integer>();
-			List<Integer> sourceRight = r.getSource();
+			List<Symbol> merged = new ArrayList<Symbol>();
+			List<Symbol> sourceRight = r.getSource();
 			merged.addAll(sourceLeft);
 			merged.addAll(sourceRight);
-			res.add(new Rule(merged, new ArrayList<Integer>()));
+			res.add(new Rule(merged, new ArrayList<Symbol>()));
 		}
 		return res;
 	}
@@ -153,45 +138,45 @@ class PatternInstanceCreator {
 				- startPatternIndex) {
 			return res;
 		}
-		// we already have MAX_SOURCE_ELEMENTS source elements
-		if (nbSrcElt >= MAX_SOURCE_ELEMENTS) {
+		// we already have max source elements
+		if (nbSrcElt >= maxSourceElements) {
 			return res;
 		}
-		// we already cover HR_MAX_HEIGHT
-		if (nbCoveredWords >= HR_MAX_HEIGHT) {
+		// we already cover hr max height
+		if (nbCoveredWords >= hrMaxHeight) {
 			return res;
 		}
 		if (sourceSentence.size() - startSentenceIndex == sidePattern.size()
 				- startPatternIndex) {
-			if (nbSrcElt + sidePattern.size() - startPatternIndex > MAX_SOURCE_ELEMENTS) {
+			if (nbSrcElt + sidePattern.size() - startPatternIndex > maxSourceElements) {
 				return res;
 			}
-			if (nbCoveredWords + sourceSentence.size() - startSentenceIndex > HR_MAX_HEIGHT) {
+			if (nbCoveredWords + sourceSentence.size() - startSentenceIndex > hrMaxHeight) {
 				return res;
 			}
-			List<Integer> patternInstance = new ArrayList<Integer>();
+			List<Symbol> patternInstance = new ArrayList<Symbol>();
 			for (int i = 0; i < sourceSentence.size() - startSentenceIndex; i++) {
 				if (sidePattern.get(startPatternIndex + i).equals("w")) {
-					patternInstance.add(sourceSentence.get(startSentenceIndex
-							+ i));
+					patternInstance.add(Symbol.deserialise(sourceSentence.get(startSentenceIndex
+							+ i)));
 				} else {
-					patternInstance.add(Integer.parseInt(sidePattern
-							.get(startPatternIndex + i)));
+					patternInstance.add(Symbol.deserialise(Integer.parseInt(sidePattern
+							.get(startPatternIndex + i))));
 				}
 			}
-			Rule r = new Rule(patternInstance, new ArrayList<Integer>());
+			Rule r = new Rule(patternInstance, new ArrayList<Symbol>());
 			res.add(r);
 			return res;
 		}
-		List<Integer> partialPattern = new ArrayList<Integer>();
+		List<Symbol> partialPattern = new ArrayList<Symbol>();
 		if (sidePattern.get(startPatternIndex).equals("w")) {
 			for (int i = startSentenceIndex; i < sourceSentence.size()
 					- (sidePattern.size() - startPatternIndex - 1)
-					&& i < startSentenceIndex + MAX_TERMINAL_LENGTH
-					&& i < startSentenceIndex + MAX_SOURCE_ELEMENTS - nbSrcElt
-					&& i < startSentenceIndex + HR_MAX_HEIGHT - nbCoveredWords; i++) {
-				partialPattern.add(sourceSentence.get(i));
-				Rule r = new Rule(partialPattern, new ArrayList<Integer>());
+					&& i < startSentenceIndex + maxTerminalLength
+					&& i < startSentenceIndex + maxSourceElements - nbSrcElt
+					&& i < startSentenceIndex + hrMaxHeight - nbCoveredWords; i++) {
+				partialPattern.add(Symbol.deserialise(sourceSentence.get(i)));
+				Rule r = new Rule(partialPattern, new ArrayList<Symbol>());
 				Set<Rule> right = getPatternInstancesFromSourceAndPattern2(
 						sourceSentence, sidePattern, i + 1,
 						startPatternIndex + 1, nbSrcElt + i
@@ -201,20 +186,19 @@ class PatternInstanceCreator {
 				res.addAll(merged);
 			}
 		} else {
-			partialPattern.add(Integer.parseInt(sidePattern
-					.get(startPatternIndex)));
-			Rule r = new Rule(partialPattern, new ArrayList<Integer>());
+			partialPattern.add(Symbol.deserialise(Integer.parseInt(sidePattern
+					.get(startPatternIndex))));
+			Rule r = new Rule(partialPattern, new ArrayList<Symbol>());
 			for (int i = startSentenceIndex; i < sourceSentence.size()
 					- (sidePattern.size() - startPatternIndex - 1)
-					&& i < startSentenceIndex + MAX_NONTERMINAL_SPAN
-					&& i < startSentenceIndex + HR_MAX_HEIGHT - nbCoveredWords; i++) {
+					&& i < startSentenceIndex + maxNonTerminalSpan
+					&& i < startSentenceIndex + hrMaxHeight - nbCoveredWords; i++) {
 				Set<Rule> merged = merge(
 						r,
 						getPatternInstancesFromSourceAndPattern2(
 								sourceSentence, sidePattern, i + 1,
 								startPatternIndex + 1, nbSrcElt + 1,
 								nbCoveredWords + i - startSentenceIndex + 1));
-				// System.err.println("merged: " + merged);
 				res.addAll(merged);
 			}
 		}

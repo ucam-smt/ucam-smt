@@ -1,0 +1,15 @@
+# source pattern constraints
+# nocc is the minimum number of occurrences of a hierarchical
+# rule in the training data
+# ntrans is the maximum number of translations per source
+W_V 2 10
+V_W 2 10
+W_V_W 5 10
+V_W_V1 2 10
+V1_W_V 2 10
+W_V_W_V1 10 10
+W_V1_W_V 10 10
+V_W_V1_W 10 10
+V1_W_V_W 10 10
+W_V_W_V1_W 2 10
+W_V1_W_V_W 2 10

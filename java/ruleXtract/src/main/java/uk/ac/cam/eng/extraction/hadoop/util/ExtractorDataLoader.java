@@ -31,11 +31,7 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 
 import uk.ac.cam.eng.extraction.hadoop.datatypes.TextArrayWritable;
-
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
+import uk.ac.cam.eng.util.CLI;
 
 /**
  * Load all the word aligned parallel text onto HDFS ready to have rules
@@ -50,16 +46,20 @@ public class ExtractorDataLoader {
 	/**
 	 * Loads word aligned parallel text to HDFS.
 	 * 
-	 * @param sourceTextFile The source text file, gzipped, with one sentence
-	 * per line, same number of lines as targetTextFile.
-	 * @param targetTextFile The target text file, gzipped, with one sentence
-	 * per line, same number of lines as sourceTextFile.
-	 * @param wordAlignmentFile The word alignment file, gzipped, one alignment
-	 * per line in Berkeley format ("0-0<SPACE>1-2, etc.", zero-based source
-	 * index on the left), same number of lines as sourceTextFile.
-	 * @param provenanceFile The provenance file, gzipped, one set of
-	 * provenances per line with format "prov1<SPACE>prov2, etc.", same number
-	 * of lines as sourceTextFile.
+	 * @param sourceTextFile
+	 *            The source text file, gzipped, with one sentence per line,
+	 *            same number of lines as targetTextFile.
+	 * @param targetTextFile
+	 *            The target text file, gzipped, with one sentence per line,
+	 *            same number of lines as sourceTextFile.
+	 * @param wordAlignmentFile
+	 *            The word alignment file, gzipped, one alignment per line in
+	 *            Berkeley format ("0-0<SPACE>1-2, etc.", zero-based source
+	 *            index on the left), same number of lines as sourceTextFile.
+	 * @param provenanceFile
+	 *            The provenance file, gzipped, one set of provenances per line
+	 *            with format "prov1<SPACE>prov2, etc.", same number of lines as
+	 *            sourceTextFile.
 	 * @param hdfsName
 	 * @throws IOException
 	 */
@@ -119,59 +119,14 @@ public class ExtractorDataLoader {
 		}
 	}
 
-	/**
-	 * Defines command line args.
-	 */
-	@Parameters(separators = "=")
-	private static class ExtractorDataLoaderParameters {
-		@Parameter(
-				names = { "--source", "-src" },
-				description = "Source text file",
-				required = true)
-		private String sourceTextFile;
-
-		@Parameter(
-				names = { "--target", "-trg" },
-				description = "Target text file",
-				required = true)
-		private String targetTextFile;
-
-		@Parameter(
-				names = { "--alignment", "-align" },
-				description = "Word alignment file",
-				required = true)
-		private String alignmentFile;
-
-		@Parameter(
-				names = { "--provenance", "-prov" },
-				description = "Provenance file",
-				required = true)
-		private String provenanceFile;
-
-		@Parameter(
-				names = { "--hdfsout", "-hdfs" },
-				description = "Output file name on HDFS",
-				required = true)
-		private String hdfsName;
-	}
-
 	public static void main(String[] args) throws FileNotFoundException,
 			IOException {
-		ExtractorDataLoaderParameters params =
-				new ExtractorDataLoaderParameters();
-		JCommander cmd = new JCommander(params);
-		try {
-			cmd.parse(args);
-			ExtractorDataLoader loader = new ExtractorDataLoader();
-			loader.loadTrainingData2Hdfs(
-					params.sourceTextFile,
-					params.targetTextFile,
-					params.alignmentFile,
-					params.provenanceFile,
-					params.hdfsName);
-		} catch (ParameterException e) {
-			System.err.println(e.getMessage());
-			cmd.usage();
-		}
+		CLI.ExtractorDataLoaderParameters params = new CLI.ExtractorDataLoaderParameters();
+		Util.parseCommandLine(args, params);
+		ExtractorDataLoader loader = new ExtractorDataLoader();
+		loader.loadTrainingData2Hdfs(params.sourceTextFile,
+				params.targetTextFile, params.alignmentFile,
+				params.provenanceFile, params.hdfsName);
+
 	}
 }
