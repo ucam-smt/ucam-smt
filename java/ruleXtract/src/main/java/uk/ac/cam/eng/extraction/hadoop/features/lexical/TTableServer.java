@@ -38,28 +38,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang.time.StopWatch;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
 
-import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
-
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
+import uk.ac.cam.eng.util.CLI;
 
 /**
+ * 
+ * Start a TTable as a daemon process. Shuts down after 24 hours.
  * 
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class TTableServer extends Configured implements Closeable, Tool {
+public class TTableServer implements Closeable {
 
 	final static int BUFFER_SIZE = 65536;
+
+	private static final String GENRE = "$GENRE";
+
+	private static final String DIRECTION = "$DIRECTION";
 
 	private ExecutorService threadPool = Executors.newFixedThreadPool(6);
 
@@ -159,16 +156,6 @@ public class TTableServer extends Configured implements Closeable, Tool {
 		}
 	}
 
-	static final String TTABLE_S2T_SERVER_PORT = "ttable_s2t_server_port";
-
-	static final String TTABLE_T2S_SERVER_PORT = "ttable_t2s_server_port";
-
-	private static final String LEX_TABLE_TEMPLATE = "ttable_server_template";
-
-	private static final String GENRE = "$GENRE";
-
-	private static final String DIRECTION = "$DIRECTION";
-
 	private ServerSocket serverSocket;
 
 	private Map<Byte, Map<Integer, Map<Integer, Double>>> model = new HashMap<>();
@@ -193,7 +180,7 @@ public class TTableServer extends Configured implements Closeable, Tool {
 		}
 	};
 
-	private void startServer() {
+	public void startServer() {
 		Thread serverThread = new Thread(server);
 		serverThread.setDaemon(true);
 		serverThread.start();
@@ -233,27 +220,37 @@ public class TTableServer extends Configured implements Closeable, Tool {
 		}
 	}
 
-	private void setup(Configuration conf, String direction,
-			boolean source2Target) throws IOException, InterruptedException {
+	public void setup(CLI.TTableServerParameters params) throws IOException,
+			InterruptedException {
+		boolean source2Target;
+		if (params.ttableDirection.equals("s2t")) {
+			source2Target = true;
+		} else if (params.ttableDirection.equals("t2s")) {
+			source2Target = false;
+		} else {
+			throw new RuntimeException("Unknown direction: "
+					+ params.ttableDirection);
+		}
 		int serverPort;
 		if (source2Target) {
-			serverPort = Integer.parseInt(conf.get(TTABLE_S2T_SERVER_PORT));
+			serverPort = params.sp.ttableS2TServerPort;
 		} else {
-			serverPort = Integer.parseInt(conf.get(TTABLE_T2S_SERVER_PORT));
+			serverPort = params.sp.ttableT2SServerPort;
+			;
 		}
-		minLexProb = Double.parseDouble(conf.get("min_lex_prob"));
+		minLexProb = params.minLexProb;
 		serverSocket = new ServerSocket(serverPort);
-		String lexTemplate = conf.get(LEX_TABLE_TEMPLATE);
+		String lexTemplate = params.ttableServerTemplate;
 		String allString = lexTemplate.replace(GENRE, "ALL").replace(DIRECTION,
-				direction);
+				params.ttableLanguagePair);
 		System.out.println("Loading " + allString);
-		String[] provenances = conf.getStrings(ProvenanceCountMap.PROV);
+		String[] provenances = params.prov.provenance.split(",");
 		ExecutorService loaderThreadPool = Executors.newFixedThreadPool(4);
 		model.put((byte) 0, new HashMap<Integer, Map<Integer, Double>>());
 		loaderThreadPool.execute(new LoadTask(allString, (byte) 0));
 		for (int i = 0; i < provenances.length; ++i) {
 			String provString = lexTemplate.replace(GENRE, provenances[i])
-					.replace(DIRECTION, direction);
+					.replace(DIRECTION, params.ttableLanguagePair);
 			System.out.println("Loading " + provString);
 			byte prov = (byte) (i + 1);
 			model.put(prov, new HashMap<Integer, Map<Integer, Double>>());
@@ -269,73 +266,18 @@ public class TTableServer extends Configured implements Closeable, Tool {
 		threadPool.shutdown();
 	}
 
-	/**
-	 * Defines command line args.
-	 */
-	@Parameters(separators = "=")
-	public static class TTableServerParameters {
-		@Parameter(names = { "--ttable_s2t_server_port" }, description = "TTable source-to-target server port")
-		public String ttable_s2t_server_port = "4949";
-
-		@Parameter(names = { "--ttable_s2t_host" }, description = "TTable source-to-target host name")
-		public String ttable_s2t_host = "localhost";
-
-		@Parameter(names = { "--ttable_t2s_server_port" }, description = "TTable target-to-source server port")
-		public String ttable_t2s_server_port = "9494";
-
-		@Parameter(names = { "--ttable_t2s_host" }, description = "TTable target-to-source host name")
-		public String ttable_t2s_host = "localhost";
-
-		@Parameter(names = { "--ttable_server_template" }, description = "TTable target-to-source host name", required = true)
-		public String ttable_server_template;
-
-		@Parameter(names = { "--ttable_direction" }, description = "TTable direction for the lexical model ('s2t' or 't2s')", required = true)
-		public String ttable_direction;
-
-		@Parameter(names = { "--ttable_language_pair" }, description = "TTable language pair for the lexical model (e.g. 'en2ru' or 'ru2en')", required = true)
-		public String ttable_language_pair;
-
-		@Parameter(names = { "--provenance" }, description = "Comma-separated list of provenances", required = true)
-		public String provenance;
-
-		@Parameter(names = { "--min_lex_prob" }, description = "Minimum probability for a Model 1 entry. Entries with lower probability are discarded.")
-		public String min_lex_prob = "0";
-	}
-
-	public int run(String[] args) throws IllegalArgumentException,
+	public static void main(String[] args) throws IllegalArgumentException,
 			IllegalAccessException, IOException, InterruptedException {
-		TTableServerParameters params = new TTableServerParameters();
-		JCommander cmd = new JCommander(params);
+		CLI.TTableServerParameters params = new CLI.TTableServerParameters();
+		Util.parseCommandLine(args, params);
 
-		try {
-			cmd.parse(args);
-			Configuration conf = getConf();
-			Util.ApplyConf(cmd, "", conf);
-			boolean source2Target;
-			if (params.ttable_direction.equals("s2t")) {
-				source2Target = true;
-			} else if (params.ttable_direction.equals("t2s")) {
-				source2Target = false;
-			} else {
-				throw new RuntimeException("Unknown direction: " + args[2]);
-			}
-			try (TTableServer server = new TTableServer()) {
-				server.setup(conf, params.ttable_language_pair, source2Target);
-				server.startServer();
-				System.err.println("TTable server ready on port: "
-						+ server.serverSocket.getLocalPort());
-				Thread.sleep(24 * 60 * 60 * 1000); // Sleep for 24 hours
-			}
-		} catch (ParameterException e) {
-			System.err.println(e.getMessage());
-			cmd.usage();
+		try (TTableServer server = new TTableServer()) {
+			server.setup(params);
+			server.startServer();
+			System.err.println("TTable server ready on port: "
+					+ server.serverSocket.getLocalPort());
+			Thread.sleep(24 * 60 * 60 * 1000); // Sleep for 24 hours
 		}
-
-		return 1;
 	}
 
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(new TTableServer(), args);
-		System.exit(res);
-	}
 }

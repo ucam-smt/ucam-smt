@@ -20,20 +20,27 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.file.tfile.Utils;
 
+import uk.ac.cam.eng.extraction.Alignment;
+
 /**
  * @author Juan Pino
+ * @author Aurelien Waite
  * @date 14 July 2014
  */
-class AlignmentCountMapWritable extends
-		HashMap<AlignmentWritable, Integer> implements Writable {
+public class AlignmentCountMapWritable extends
+		HashMap<Alignment, Integer> implements Writable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final AlignmentCountMapWritable EMPTY = new AlignmentCountMapWritable() {
-		public Integer put(AlignmentWritable key, Integer value) {
+
+		private static final long serialVersionUID = 1L;
+
+		public Integer put(Alignment key, Integer value) {
 			throw new UnsupportedOperationException();
 		};
 	};
@@ -41,11 +48,17 @@ class AlignmentCountMapWritable extends
 	public AlignmentCountMapWritable() {
 
 	}
+	
+	public AlignmentCountMapWritable(AlignmentCountMapWritable other){
+		for(Entry<Alignment, Integer> entry : other.entrySet()){
+			put(new Alignment(entry.getKey()), entry.getValue());
+		}
+	}
 
 	public void increment(AlignmentCountMapWritable newCounts) {
-		for (Entry<AlignmentWritable, Integer> alignCount : newCounts
+		for (Entry<Alignment, Integer> alignCount : newCounts
 				.entrySet()) {
-			AlignmentWritable key = alignCount.getKey();
+			Alignment key = alignCount.getKey();
 			if (containsKey(key)) {
 				put(key, get(key) + newCounts.get(key));
 			} else {
@@ -53,7 +66,7 @@ class AlignmentCountMapWritable extends
 			}
 		}
 	}
-
+	
 	public void merge(AlignmentCountMapWritable other) {
 		int expectedSize = size() + other.size();
 		putAll(other);
@@ -71,7 +84,7 @@ class AlignmentCountMapWritable extends
 	@Override
 	public void write(DataOutput out) throws IOException {
 		Utils.writeVInt(out, size());
-		for (AlignmentWritable a : keySet()) {
+		for (Alignment a : keySet()) {
 			a.write(out);
 			Utils.writeVInt(out, get(a));
 		}
@@ -87,7 +100,7 @@ class AlignmentCountMapWritable extends
 		clear();
 		int size = Utils.readVInt(in);
 		for (int i = 0; i < size; ++i) {
-			AlignmentWritable a = new AlignmentWritable();
+			Alignment a = new Alignment();
 			a.readFields(in);
 			int alignmentCount = Utils.readVInt(in);
 			put(a, alignmentCount);

@@ -18,14 +18,12 @@ package uk.ac.cam.eng.extraction.hadoop.datatypes;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Writable;
@@ -45,8 +43,6 @@ public class ProvenanceCountMap implements Writable,
 	private static Map<Byte, ByteWritable> bytesCache = new HashMap<>();
 
 	private Map<ByteWritable, IntWritable> instance = new HashMap<ByteWritable, IntWritable>();
-
-	public static final String PROV = "provenance";
 
 	public ProvenanceCountMap() {
 
@@ -78,51 +74,6 @@ public class ProvenanceCountMap implements Writable,
 		return result;
 	}
 
-	private static Map<Byte, String> getProvenanceMap(Configuration config) {
-		String provString = config.get(PROV);
-		String[] fields = provString.split(",");
-		Map<Byte, String> result = new HashMap<>();
-		for (int i = 0; i < fields.length; ++i) {
-			result.put((byte) (i + 1), fields[i]);
-		}
-		return result;
-	}
-
-	public static int[] getFeatureIndex(String featureName, Configuration conf) {
-		return getFeatureIndex(featureName, "", conf);
-	}
-
-	public static int[] getFeatureIndex(String featureName, String suffix,
-			Configuration conf) {
-		Map<Byte, String> id2Prov = ProvenanceCountMap.getProvenanceMap(conf);
-		int[] mapping = new int[id2Prov.size() + 1];
-		// If there is a problem with the mappings then we should know about it
-		Arrays.fill(mapping, Integer.MIN_VALUE);
-		String featureIndex = conf.get(featureName + suffix);
-		try {
-			mapping[0] = Integer.parseInt(featureIndex);
-		} catch (NumberFormatException e) {
-			throw new RuntimeException("Unable to parse feature: "
-					+ featureIndex, e);
-		}
-		for (Entry<Byte, String> entry : id2Prov.entrySet()) {
-			String provenance = entry.getValue();
-			String configKey = "provenance_" + featureName + "-" + provenance
-					+ suffix;
-			featureIndex = conf.get(configKey);
-			if (featureIndex == null) {
-				throw new RuntimeException(configKey);
-			}
-			try {
-				mapping[entry.getKey().intValue()] = Integer
-						.parseInt(featureIndex);
-			} catch (NumberFormatException e) {
-				throw new RuntimeException("Unable to parse feature: "
-						+ configKey, e);
-			}
-		}
-		return mapping;
-	}
 
 	public void increment(ProvenanceCountMap newCounts) {
 		for (Entry<ByteWritable, IntWritable> provCount : newCounts.entrySet()) {

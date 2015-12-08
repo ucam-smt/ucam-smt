@@ -38,21 +38,19 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import uk.ac.cam.eng.extraction.RuleExtractor;
-import uk.ac.cam.eng.extraction.datatypes.Alignment;
-import uk.ac.cam.eng.extraction.datatypes.Rule;
-import uk.ac.cam.eng.extraction.datatypes.SentencePair;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.AlignmentWritable;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.ProvenanceCountMap;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleInfoWritable;
-import uk.ac.cam.eng.extraction.hadoop.datatypes.RuleWritable;
+import uk.ac.cam.eng.extraction.Alignment;
+import uk.ac.cam.eng.extraction.Extract;
+import uk.ac.cam.eng.extraction.ExtractOptions;
+import uk.ac.cam.eng.extraction.Rule;
+import uk.ac.cam.eng.extraction.hadoop.datatypes.ExtractedData;
 import uk.ac.cam.eng.extraction.hadoop.datatypes.TextArrayWritable;
+import uk.ac.cam.eng.extraction.hadoop.features.phrase.Source2TargetJob.Source2TargetComparator;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
+import uk.ac.cam.eng.util.CLI;
+import uk.ac.cam.eng.util.CLI.Provenance;
+import uk.ac.cam.eng.util.Pair;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
 
 /**
  * 
@@ -69,16 +67,20 @@ public class ExtractorJob extends Configured implements Tool {
 	 * @throws IOException
 	 */
 	public static Job getJob(Configuration conf) throws IOException {
-		conf.set("mapreduce.map.java.opts", "-Xmx200m");
-		conf.set("mapreduce.reduce.java.opts", "-Xmx4096m");
+		conf.setIfUnset("mapreduce.map.java.opts", "-Xmx800m");
+		conf.setIfUnset("mapreduce.reduce.java.opts", "-Xmx4096m");
+		conf.setIfUnset("mapreduce.map.memory.mb", "1000");
+		conf.setIfUnset("mapreduce.reduce.memory.mb", "6000");
+		conf.setIfUnset("mapreduce.input.fileinputformat.split.maxsize", "4194304");
 		Job job = new Job(conf, "Rule extraction");
 		job.setJarByClass(ExtractorJob.class);
-		job.setMapOutputKeyClass(RuleWritable.class);
-		job.setMapOutputValueClass(RuleInfoWritable.class);
-		job.setOutputKeyClass(RuleWritable.class);
-		job.setOutputValueClass(RuleInfoWritable.class);
+		job.setMapOutputKeyClass(Rule.class);
+		job.setMapOutputValueClass(ExtractedData.class);
+		job.setOutputKeyClass(Rule.class);
+		job.setOutputValueClass(ExtractedData.class);
 		job.setMapperClass(ExtractorMapper.class);
 		job.setReducerClass(ExtractorReducer.class);
+		job.setSortComparatorClass(Source2TargetComparator.class);
 		job.setCombinerClass(ExtractorReducer.class);
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
@@ -93,13 +95,12 @@ public class ExtractorJob extends Configured implements Tool {
 	 * add more info to the rule. The output will be the input to mapreduce
 	 * features.
 	 */
-	private static class ExtractorMapper
-			extends
-			Mapper<MapWritable, TextArrayWritable, RuleWritable, RuleInfoWritable> {
+	private static class ExtractorMapper extends
+			Mapper<MapWritable, TextArrayWritable, Rule, ExtractedData> {
 
 		private static final IntWritable ONE = new IntWritable(1);
 
-		private RuleInfoWritable ruleInfo = new RuleInfoWritable();
+		private ExtractedData ruleInfo = new ExtractedData();
 
 		private Map<Text, ByteWritable> prov2Id = new HashMap<>();
 
@@ -109,8 +110,7 @@ public class ExtractorJob extends Configured implements Tool {
 		protected void setup(Context context) throws IOException,
 				InterruptedException {
 			super.setup(context);
-			String provString = context.getConfiguration().get(
-					ProvenanceCountMap.PROV);
+			String provString = context.getConfiguration().get(Provenance.PROV);
 			String[] provs = provString.split(",");
 			if (provs.length + 1 >= Byte.MAX_VALUE) {
 				throw new RuntimeException(
@@ -137,12 +137,25 @@ public class ExtractorJob extends Configured implements Tool {
 			String sourceSentence = ((Text) value.get()[0]).toString();
 			String targetSentence = ((Text) value.get()[1]).toString();
 			String wordAlign = ((Text) value.get()[2]).toString();
-			SentencePair sp = new SentencePair(sourceSentence, targetSentence);
-			Alignment a = new Alignment(wordAlign, sp);
-			RuleExtractor re = new RuleExtractor(conf);
-			for (Rule r : re.extract(a, sp)) {
-				RuleWritable rw = new RuleWritable(r);
-				AlignmentWritable aw = new AlignmentWritable(r.getAlignment());
+
+			int maxSourcePhrase = conf.getInt(
+					CLI.RuleParameters.MAX_SOURCE_PHRASE, -1);
+			int maxSourceElements = conf.getInt(
+					CLI.RuleParameters.MAX_SOURCE_ELEMENTS, -1);
+			int maxTerminalLength = conf.getInt(
+					CLI.RuleParameters.MAX_TERMINAL_LENGTH, -1);
+			int maxNonTerminalSpan = conf.getInt(
+					CLI.RuleParameters.MAX_NONTERMINAL_SPAN, -1);
+			boolean removeMonotonicRepeats = conf.getBoolean(
+					CLI.ExtractorJobParameters.REMOVE_MONOTONIC_REPEATS, false);
+			boolean compatabilityMode = conf.getBoolean(
+					CLI.ExtractorJobParameters.COMPATIBILITY_MODE, false);
+			ExtractOptions opts = new ExtractOptions(maxSourcePhrase,
+					maxSourceElements, maxTerminalLength, maxNonTerminalSpan,
+					removeMonotonicRepeats, compatabilityMode);
+
+			for (Pair<Rule, Alignment> ra : Extract.extractJava(opts,
+					sourceSentence, targetSentence, wordAlign)) {
 				ruleInfo.clear();
 				ruleInfo.putProvenanceCount(ALL, ONE);
 				for (Writable prov : key.keySet()) {
@@ -150,86 +163,44 @@ public class ExtractorJob extends Configured implements Tool {
 						ruleInfo.putProvenanceCount(prov2Id.get(prov), ONE);
 					}
 				}
-				ruleInfo.putAlignmentCount(aw, 1);
-				context.write(rw, ruleInfo);
+				ruleInfo.putAlignmentCount(ra.getSecond(), 1);
+				context.write(ra.getFirst(), ruleInfo);
 			}
 		}
 	}
 
-	private static class ExtractorReducer
-			extends
-			Reducer<RuleWritable, RuleInfoWritable, RuleWritable, RuleInfoWritable> {
+	private static class ExtractorReducer extends
+			Reducer<Rule, ExtractedData, Rule, ExtractedData> {
 
-		private RuleInfoWritable compressed = new RuleInfoWritable();
+		private ExtractedData compressed = new ExtractedData();
 
 		@Override
-		protected void reduce(
-				RuleWritable key,
-				Iterable<RuleInfoWritable> values, Context context)
-				throws IOException, InterruptedException {
+		protected void reduce(Rule key, Iterable<ExtractedData> values,
+				Context context) throws IOException, InterruptedException {
 			compressed.clear();
-			for (RuleInfoWritable value : values) {
+			for (ExtractedData value : values) {
 				compressed.increment(value);
 			}
 			context.write(key, compressed);
 		}
 	}
 
-	/**
-	 * Defines command line args.
-	 */
-	@Parameters(separators = "=")
-	public static class ExtractorJobParameters {
-		@Parameter(names = { "--input", "-i" }, description = "Input training data on HDFS", required = true)
-		public String input;
-
-		@Parameter(names = { "--output", "-o" }, description = "Output rules on HDFS", required = true)
-		public String output;
-
-		@Parameter(names = { "--remove_monotonic_repeats"}, description = "Gives an "
-				+ "occurrence count of 1 to monotonic hiero rules (e.g. "
-				+ "phrase-pair <a b c, d e f> with alignment 0-0 1-1 2-2 "
-				+ "generates hiero rule <a X, d X> twice but the count is "
-				+ "still one)")
-		public String remove_monotonic_repeats = "true";
-
-		@Parameter(names = { "--max_source_phrase"}, description = "Maximum source phrase length in a phrase-based rule")
-		public String max_source_phrase = "9";
-		
-		@Parameter(names = { "--max_source_elements"}, description = "Maximum number of source elements (terminals and nonterminals) in a hiero rule")
-		public String max_source_elements = "5";
-
-		@Parameter(names = { "--max_terminal_length" }, description = "Maximum number of consecutive source terminals in a hiero rule")
-		public String max_terminal_length = "5";
-
-		@Parameter(names = { "--max_nonterminal_span" }, description = "Maximum number of source terminals covered by a right-hand-side source nonterminal in a hiero rule")
-		public String max_nonterminal_span = "10";
-
-		@Parameter(names = { "--provenance" }, description = "Comma-separated provenances")
-		public String provenance;
-	}
-
 	public int run(String[] args) throws FileNotFoundException, IOException,
 			ClassNotFoundException, InterruptedException,
 			IllegalArgumentException, IllegalAccessException {
 
-		ExtractorJobParameters params = new ExtractorJobParameters();
-		JCommander cmd = new JCommander(params);
-
+		CLI.ExtractorJobParameters params = new CLI.ExtractorJobParameters();
 		try {
-			cmd.parse(args);
-			Configuration conf = getConf();
-			Util.ApplyConf(cmd, "", conf);
-			Job job = getJob(conf);
-			FileInputFormat.setInputPaths(job, params.input);
-			FileOutputFormat.setOutputPath(job, new Path(params.output));
-			return job.waitForCompletion(true) ? 0 : 1;
+			Util.parseCommandLine(args, params);
 		} catch (ParameterException e) {
-			System.err.println(e.getMessage());
-			cmd.usage();
+			return 1;
 		}
-
-		return 1;
+		Configuration conf = getConf();
+		Util.ApplyConf(params, conf);
+		Job job = getJob(conf);
+		FileInputFormat.setInputPaths(job, params.input);
+		FileOutputFormat.setOutputPath(job, new Path(params.output));
+		return job.waitForCompletion(true) ? 0 : 1;
 	}
 
 	public static void main(String[] args) throws Exception {
