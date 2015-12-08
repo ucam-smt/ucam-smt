@@ -15,13 +15,17 @@
  *******************************************************************************/
 package uk.ac.cam.eng.extraction.hadoop.features.phrase;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.DataInputBuffer;
@@ -185,24 +189,18 @@ class MarginalReducer extends
 		}
 	}
 
-	private static class RuleCount {
-
-		final Rule rule;
-		final ProvenanceCountMap counts;
-
-		public RuleCount(Rule rule, ProvenanceCountMap counts) {
-			this.rule = rule;
-			this.counts = counts;
-		}
-
-	}
-
 	public static final String SOURCE_TO_TARGET = "rulextract.source2target";
 
+	private Rule outKey = new Rule();
+	
+	private ProvenanceCountMap c = new ProvenanceCountMap();
+	
 	private ProvenanceCountMap totals = new ProvenanceCountMap();
 
-	private List<RuleCount> ruleCounts = new ArrayList<>();
-
+	private ByteArrayOutputStream ruleCache = new ByteArrayOutputStream();
+	
+	private DataOutputStream ruleCounts;
+	
 	private List<Symbol> marginal = new ArrayList<>();
 
 	private boolean source2Target = true;
@@ -242,16 +240,22 @@ class MarginalReducer extends
 					globalF = Feature.TARGET2SOURCE_PROBABILITY;
 					provF = Feature.PROVENANCE_TARGET2SOURCE_PROBABILITY;
 		}
+		ruleCounts = new DataOutputStream(new GZIPOutputStream(ruleCache));
 	}
 
-	private void marginalReduce(Iterable<RuleCount> rules,
+	private void marginalReduce(int noOfRecords,
 			ProvenanceCountMap totals, Context context) throws IOException,
 			InterruptedException {
-		for (RuleCount rc : rules) {
+		ruleCounts.close();
+		DataInputStream in = new DataInputStream(new GZIPInputStream(
+				new ByteArrayInputStream(ruleCache.toByteArray())));
+		for (int i=0; i<noOfRecords; ++i) {
+			outKey.readFields(in);
+			c.readFields(in);
 			provProbs.clear();
 			globalProb.clear();
 			features.clear();
-			for (Entry<ByteWritable, IntWritable> entry : rc.counts.entrySet()) {
+			for (Entry<ByteWritable, IntWritable> entry : c.entrySet()) {
 				double probability = (double) entry.getValue().get()
 						/ (double) totals.get(entry.getKey()).get();
 				int key = (int) entry.getKey().get();
@@ -264,7 +268,6 @@ class MarginalReducer extends
 			}
 			features.put(globalF, globalProb);
 			features.put(provF, provProbs);
-			Rule outKey = rc.rule;
 			if (!source2Target) {
 				if (outKey.isSwapping()) {
 					outKey = outKey.invertNonTerminals();
@@ -272,13 +275,12 @@ class MarginalReducer extends
 			}
 			context.write(outKey, features);
 		}
-
 	}
 
 	@Override
 	public void run(Context context) throws IOException, InterruptedException {
 		setup(context);
-
+		int noOfRecords = 0;
 		while (context.nextKey()) {
 			Rule key = context.getCurrentKey();
 			// First Key!
@@ -292,17 +294,20 @@ class MarginalReducer extends
 				throw new RuntimeException("Non-unique rule! " + key);
 			}
 			if (!marginal.equals(getMarginal(key))) {
-				marginalReduce(ruleCounts, totals, context);
+				marginalReduce(noOfRecords, totals, context);
 				totals.clear();
-				ruleCounts.clear();
+				noOfRecords = 0;
+				ruleCache.reset();
+				ruleCounts = new DataOutputStream(new GZIPOutputStream(ruleCache));
 			}
 			marginal.clear();
 			marginal.addAll(getMarginal(key));
-			ruleCounts.add(new RuleCount(new Rule(key),
-					new ProvenanceCountMap(counts)));
+			key.write(ruleCounts);
+			counts.write(ruleCounts);
+			++noOfRecords;
 			totals.increment(counts);
 		}
-		marginalReduce(ruleCounts, totals, context);
+		marginalReduce(noOfRecords, totals, context);
 		cleanup(context);
 	}
 }
