@@ -285,7 +285,7 @@ public:
     unsigned int rL;
     for (unsigned int k=0; k<refLengths[sid].size(); k++) {
       unsigned int d = abs( (int) refLengths[sid][k] - (int) hypLength);
-      if (d < rD) {
+      if (d < rD || d == rD && rL > refLengths[sid][k]) {
 	rD = d;
 	rL = refLengths[sid][k];
       }
