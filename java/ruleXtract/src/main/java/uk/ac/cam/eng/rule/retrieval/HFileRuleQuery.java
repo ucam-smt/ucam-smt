@@ -150,7 +150,7 @@ class HFileRuleQuery implements Runnable {
 					Set<Integer> sentenceIds = retriever.sourceToSentenceId.get(source);
 					for (Entry<Rule, RuleData> e : filtered.entrySet()) {
 						queue.put(e.getKey(), Pair.createPair(type, e.getValue()));
-						List<Symbol> words = e.getKey().target().getTerminals();
+						List<Integer> words = e.getKey().target().getTerminals();
 						for(int id : sentenceIds){
 							synchronized(retriever.targetSideVocab){
 								retriever.targetSideVocab.get(id).addAll(words);

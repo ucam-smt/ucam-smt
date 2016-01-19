@@ -53,7 +53,7 @@ public class SidePattern {
 
 	public static SidePattern parsePattern(String patternString) {
 		String[] parts = patternString.split("_");
-		List<String> elements = new ArrayList<String>();
+		List<String> elements = new ArrayList<>();
 		for (String part : parts) {
 			if (part.equals("V")) {
 				elements.add("-1");

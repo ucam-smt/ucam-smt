@@ -49,8 +49,8 @@ class LexicalProbability {
 	public void buildQuery(Rule ruleWritable, int noOfProvs,
 			Map<List<Integer>, Double> batchWordAlignments) {
 		Rule rule = new Rule(ruleWritable);
-		List<Symbol> sourceWords;
-		List<Symbol> targetWords;
+		List<Integer> sourceWords;
+		List<Integer> targetWords;
 		if (source2target) {
 			sourceWords = rule.getSource();
 			targetWords = rule.getTarget();
@@ -59,13 +59,13 @@ class LexicalProbability {
 			targetWords = rule.getSource();
 		}
 		if (sourceWords.size() > 1) {
-			targetWords.add(Terminal.create(0));
+			targetWords.add(0);
 		}
-		for (Symbol sourceWord : sourceWords) {
-			for (Symbol targetWord : targetWords) {
+		for (int sourceWord : sourceWords) {
+			for (int targetWord : targetWords) {
 				for (int i = 0; i < noOfProvs; ++i) {
 					Integer[] key;
-					key = new Integer[] { i, sourceWord.serialised(), targetWord.serialised() };
+					key = new Integer[] { i, sourceWord, targetWord };
 					batchWordAlignments.put(Arrays.asList(key),
 							Double.MAX_VALUE);
 				}
@@ -78,8 +78,8 @@ class LexicalProbability {
 			Map<List<Integer>, Double> batchWordAlignments) throws IOException {
 		double lexprob = 1;
 		Rule rule = new Rule(ruleWritable);
-		List<Symbol> sourceWords;
-		List<Symbol> targetWords;
+		List<Integer> sourceWords;
+		List<Integer> targetWords;
 		if (source2target) {
 			sourceWords = rule.source().getTerminals();
 			targetWords = rule.target().getTerminals();
@@ -88,13 +88,13 @@ class LexicalProbability {
 			targetWords = rule.source().getTerminals();
 		}
 		if (sourceWords.size() > 1) {
-			targetWords.add(Terminal.create(0));
+			targetWords.add(0);
 		}
-		for (Symbol sourceWord : sourceWords) {
+		for (int sourceWord : sourceWords) {
 			double sum = 0;
-			for (Symbol targetWord : targetWords) {
+			for (int targetWord : targetWords) {
 				Integer[] key;
-				key = new Integer[] { (int) prov, sourceWord.serialised(), targetWord.serialised() };
+				key = new Integer[] { (int) prov, sourceWord, targetWord};
 				List<Integer> serverKey = Arrays.asList(key);
 				if (batchWordAlignments.containsKey(serverKey)) {
 					double val = batchWordAlignments.get(serverKey);

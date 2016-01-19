@@ -203,7 +203,7 @@ class MarginalReducer extends
 
 	private List<RuleCount> ruleCounts = new ArrayList<>();
 
-	private List<Symbol> marginal = new ArrayList<>();
+	private List<Integer> marginal = new ArrayList<>();
 
 	private boolean source2Target = true;
 
@@ -217,7 +217,7 @@ class MarginalReducer extends
 	
 	private FeatureMap features = new FeatureMap();
 	
-	private List<Symbol> getMarginal(Rule rule) {
+	private List<Integer> getMarginal(Rule rule) {
 		if (source2Target) {
 			return rule.getSource();
 		} else {

@@ -54,7 +54,7 @@ public class Target2SourceJob extends PhraseJob {
 	private static class Target2SourcePartitioner extends
 			Partitioner<Rule, ProvenanceCountMap> {
 
-		private Partitioner<List<Symbol>, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
+		private Partitioner<List<Integer>, ProvenanceCountMap> defaultPartitioner = new HashPartitioner<>();
 
 		@Override
 		public int getPartition(Rule key, ProvenanceCountMap value,

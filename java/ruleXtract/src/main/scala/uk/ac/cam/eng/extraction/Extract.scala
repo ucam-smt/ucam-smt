@@ -15,6 +15,7 @@
 
 package uk.ac.cam.eng.extraction
 
+import Symbol._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Buffer
 import scala.collection.mutable.ListBuffer
@@ -35,9 +36,7 @@ object Extract {
   def filterNTSpan(options: ExtractOptions, srcSpan: Span) =
     srcSpan.end - srcSpan.start + 1 <= options.maxNonTerminalSpan
 
-  def toSymbols(s: String): Vector[Symbol] = {
-    s.split(" ").map(x => Terminal.create(x.toInt)).toVector
-  }
+  def toSymbols(s: String): Vector[Symbol] = s.split(" ").map(deserialise(_)).toVector
 
   def splitPhrasePairs(results: Seq[(Span, Span)], a: Alignment, options: ExtractOptions): (Seq[(Span, Span)], Seq[(Span, Span)], Seq[(Span, Span)]) = {
     val parentPhrases = new ArrayBuffer[(Span, Span)]

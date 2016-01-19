@@ -15,8 +15,9 @@
 
 package uk.ac.cam.eng.extraction
 
+import Symbol._
+
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.ListBuffer
 import scala.math.Ordering.Implicits.seqDerivedOrdering
 import org.apache.hadoop.io.Writable
 import org.apache.hadoop.io.WritableUtils
@@ -53,21 +54,20 @@ class RuleString extends ArrayBuffer[Symbol] with Writable with WritableComparab
 
   override def toString() = this.map(_.toString).mkString("_")
 
-  def toPattern(): SidePattern = new SidePattern(this.map {
-    case _: Terminal => "w"
-    case nt          => nt.serialised.toString()
+  def toPattern(): SidePattern = new SidePattern(this.map { s =>
+    if(!Symbol.isNonTerminal(s))
+      "w"
+    else
+      s.serialised.toString()
   }.foldLeft(new ArrayBuffer[String]){(pattern, sym)=> 
       if (!pattern.isEmpty && pattern.last == sym) pattern else pattern += sym})
 
-  def getWordCount() = this.count {
-    case t: Terminal => t.serialised > 0
-    case _           => false
-  }
+  def getWordCount() = this.count (
+    !Symbol.isNonTerminal(_)
+  )
  
-  def getTerminals() : java.util.List[Symbol]= this.filter { 
-    case _ : Terminal => true
-    case _ => false
-  }
+  def getTerminals() : java.util.List[Integer]= this.filterNot(Symbol.isNonTerminal(_))
+    .map{s => toJavaInteger(s.serialised)}
   
 }
 
@@ -94,8 +94,8 @@ class Rule(val source: RuleString, val target: RuleString) extends Equals
   def this(other: Rule) =
     this(new RuleString ++= other.source, new RuleString ++= other.target)
 
-  def this(src: java.util.List[Symbol], trg: java.util.List[Symbol]) =
-    this(new RuleString ++= src, new RuleString ++= trg)
+  def this(src: java.util.List[java.lang.Integer], trg: java.util.List[java.lang.Integer]) =
+    this(new RuleString ++= src.map(deserialise(_)), new RuleString ++= trg.map(deserialise(_)))
 
   override def toString() = source.toString() + " " + target.toString()
 
@@ -151,9 +151,9 @@ class Rule(val source: RuleString, val target: RuleString) extends Equals
 
   override def compareTo(other: Rule) = S2TOrdering.compare(this, other)
 
-  def getSource(): java.util.List[Symbol] = source
+  def getSource(): java.util.List[java.lang.Integer] = source.map{s => toJavaInteger(s.serialised)}
 
-  def getTarget(): java.util.List[Symbol] = target
+  def getTarget(): java.util.List[java.lang.Integer] = target.map{s => toJavaInteger(s.serialised)}
 
   private def set(str: RuleString, other: RuleString) = {
     str.clear()
@@ -181,6 +181,7 @@ object S2TOrdering extends Ordering[Rule] {
 }
 
 object Rule{
+
   def apply(s : String) : Rule = new Rule(s)
   
   def unapply(r : Rule) : Option[String] = Some(r.toString())

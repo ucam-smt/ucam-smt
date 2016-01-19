@@ -27,4 +27,5 @@ package object extraction {
     override def compare(t1: RuleTuple, t2: RuleTuple) = S2TOrdering.compare(t1._1, t2._1)
   }
 
+  def toJavaInteger(i : Int) : Integer = i
 }
