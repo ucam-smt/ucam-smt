@@ -26,5 +26,9 @@ package object extraction {
   object RuleTupleOrdering extends Ordering[RuleTuple] {
     override def compare(t1: RuleTuple, t2: RuleTuple) = S2TOrdering.compare(t1._1, t2._1)
   }
+  
+  implicit val ruleStringOrdering = new Ordering[RuleString] {
+    override def compare(s1: RuleString, s2: RuleString) = RuleString.comparator.compare(s1, s2)
+  }
 
 }

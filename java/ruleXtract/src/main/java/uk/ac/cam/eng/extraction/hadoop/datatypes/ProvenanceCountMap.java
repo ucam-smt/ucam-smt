@@ -26,14 +26,15 @@ import java.util.Set;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Writable;
+
+import uk.ac.cam.eng.extraction.hadoop.util.HadoopExternalizable;
 
 /**
  * 
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class ProvenanceCountMap implements Writable,
+public class ProvenanceCountMap implements HadoopExternalizable,
 		Map<ByteWritable, IntWritable> {
 
 	// Probably should fix the integer cache to work in the same way

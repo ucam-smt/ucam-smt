@@ -20,10 +20,10 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 
 import uk.ac.cam.eng.extraction.RuleString;
+import uk.ac.cam.eng.extraction.hadoop.util.HadoopExternalizable;
 import uk.ac.cam.eng.util.Pair;
 
 /**
@@ -36,7 +36,7 @@ import uk.ac.cam.eng.util.Pair;
  * @date 28 May 2014
  */
 public class TargetFeatureList extends
-		ArrayList<Pair<RuleString, RuleData>> implements Writable {
+		ArrayList<Pair<RuleString, RuleData>> implements HadoopExternalizable {
 
 	private static final long serialVersionUID = 1L;
 

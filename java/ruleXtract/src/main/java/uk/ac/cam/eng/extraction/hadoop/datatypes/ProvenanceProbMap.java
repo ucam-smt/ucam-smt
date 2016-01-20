@@ -25,8 +25,9 @@ import java.util.Set;
 
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
+
+import uk.ac.cam.eng.extraction.hadoop.util.HadoopExternalizable;
 
 /**
  * 
@@ -36,7 +37,7 @@ import org.apache.hadoop.io.WritableUtils;
  * @author Aurelien Waite
  * @date 28 May 2014
  */
-public class ProvenanceProbMap implements Writable,
+public class ProvenanceProbMap implements HadoopExternalizable,
 		Map<IntWritable, DoubleWritable> {
 
 	static final ProvenanceProbMap EMPTY = new ProvenanceProbMap() {

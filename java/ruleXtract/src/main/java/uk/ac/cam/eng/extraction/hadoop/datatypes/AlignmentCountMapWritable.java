@@ -21,10 +21,10 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.file.tfile.Utils;
 
 import uk.ac.cam.eng.extraction.Alignment;
+import uk.ac.cam.eng.extraction.hadoop.util.HadoopExternalizable;
 
 /**
  * @author Juan Pino
@@ -32,7 +32,7 @@ import uk.ac.cam.eng.extraction.Alignment;
  * @date 14 July 2014
  */
 public class AlignmentCountMapWritable extends
-		HashMap<Alignment, Integer> implements Writable {
+		HashMap<Alignment, Integer> implements HadoopExternalizable {
 
 	private static final long serialVersionUID = 1L;
 

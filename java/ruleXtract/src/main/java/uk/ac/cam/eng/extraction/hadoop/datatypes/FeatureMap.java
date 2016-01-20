@@ -20,12 +20,12 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.EnumMap;
 
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 
+import uk.ac.cam.eng.extraction.hadoop.util.HadoopExternalizable;
 import uk.ac.cam.eng.rule.features.Feature;
 
-public class FeatureMap extends EnumMap<Feature, ProvenanceProbMap> implements Writable {
+public class FeatureMap extends EnumMap<Feature, ProvenanceProbMap> implements HadoopExternalizable {
 
 	private static final Feature[] enums = Feature.values();
 	

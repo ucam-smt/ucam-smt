@@ -20,7 +20,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.hadoop.io.Writable;
+import uk.ac.cam.eng.extraction.hadoop.util.HadoopExternalizable;
 
 
 /**
@@ -31,7 +31,7 @@ import org.apache.hadoop.io.Writable;
  * computations.
  * 
  */
-public class RuleData implements Writable {
+public class RuleData implements HadoopExternalizable {
 
 	private ProvenanceCountMap provCounts;
 	

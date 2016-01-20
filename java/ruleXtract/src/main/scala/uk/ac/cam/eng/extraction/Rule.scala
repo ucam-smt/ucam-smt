@@ -24,8 +24,9 @@ import org.apache.hadoop.io.WritableComparable
 import collection.JavaConversions._
 import uk.ac.cam.eng.rule.retrieval.SidePattern
 import uk.ac.cam.eng.extraction.hadoop.merge.MergeComparator
+import uk.ac.cam.eng.extraction.hadoop.util.HadoopExternalizable
 
-class RuleString extends ArrayBuffer[Symbol] with Writable with WritableComparable[RuleString] {
+class RuleString extends ArrayBuffer[Symbol] with HadoopExternalizable with WritableComparable[RuleString] {
 
   def readFields(in: java.io.DataInput): Unit = {
     clear();
@@ -39,7 +40,7 @@ class RuleString extends ArrayBuffer[Symbol] with Writable with WritableComparab
   }
   
   override def compareTo(other : RuleString) = RuleString.comparator.compare(this, other)
-
+  
   // Methods needed for java
 
   def javaSize(): Int = size
@@ -79,7 +80,7 @@ object RuleString{
 }
 
 class Rule(val source: RuleString, val target: RuleString) extends Equals
-  with Writable with WritableComparable[Rule] {
+  with HadoopExternalizable with WritableComparable[Rule] {
 
   def this() = this(new RuleString, new RuleString)
 

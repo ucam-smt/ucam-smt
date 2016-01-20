@@ -25,9 +25,9 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Writable;
 
 import uk.ac.cam.eng.extraction.Alignment;
+import uk.ac.cam.eng.extraction.hadoop.util.HadoopExternalizable;
 
 
 /**
@@ -40,7 +40,7 @@ import uk.ac.cam.eng.extraction.Alignment;
  * @author Juan Pino
  * @date 28 May 2014
  */
-public class ExtractedData implements Writable {
+public class ExtractedData implements HadoopExternalizable {
 
 	private ProvenanceCountMap provenance;
 	private AlignmentCountMapWritable alignment;

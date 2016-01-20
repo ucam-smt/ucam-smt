@@ -21,6 +21,8 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
 
+import uk.ac.cam.eng.extraction.hadoop.util.HadoopExternalizable;
+
 /**
  * A general writable pair. This class should replace all other writable pairs
  * 
@@ -30,7 +32,7 @@ import org.apache.hadoop.io.Writable;
  * @param <S>
  */
 class PairWritable<F extends Writable, S extends Writable> implements
-		Writable {
+	HadoopExternalizable {
 
 	public F first;
 	public S second;
