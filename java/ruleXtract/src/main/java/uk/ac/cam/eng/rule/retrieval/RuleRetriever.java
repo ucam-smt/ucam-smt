@@ -56,9 +56,7 @@ import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import uk.ac.cam.eng.extraction.Rule;
 import uk.ac.cam.eng.extraction.RuleString;
 import uk.ac.cam.eng.extraction.Symbol;
-import uk.ac.cam.eng.extraction.dr$;
 import uk.ac.cam.eng.extraction.hadoop.util.Util;
-import uk.ac.cam.eng.extraction.oov$;
 import uk.ac.cam.eng.rule.features.Feature;
 import uk.ac.cam.eng.rule.features.FeatureRegistry;
 import uk.ac.cam.eng.rule.filtering.RuleFilter;
@@ -98,7 +96,7 @@ public class RuleRetriever {
 
 	Map<RuleString, Set<Integer>> sourceToSentenceId = new HashMap<>();
 
-	List<Set<Symbol>> targetSideVocab = new ArrayList<>();
+	List<Set<Integer>> targetSideVocab = new ArrayList<>();
 
 	private int maxSourcePhrase;
 
@@ -179,8 +177,8 @@ public class RuleRetriever {
 						throw new IOException("Malformed pass through rules file: "
 										+ passThroughRulesFileName);
 					}
-					List<Symbol> source = new ArrayList<Symbol>();
-					List<Symbol> target = new ArrayList<Symbol>();
+					List<Integer> source = new ArrayList<>();
+					List<Integer> target = new ArrayList<>();
 					int i = 0;
 					while (i < sourceString.length) {
 						if (i % maxSourcePhrase == 0 && i > 0) {
@@ -189,8 +187,8 @@ public class RuleRetriever {
 							source.clear();
 							target.clear();
 						}
-						source.add(Symbol.deserialise(Integer
-								.parseInt(sourceString[i])));
+						source.add(Integer
+								.parseInt(sourceString[i]));
 						target.add(Symbol.deserialise(Integer
 								.parseInt(targetString[i])));
 						i++;
@@ -357,11 +355,11 @@ public class RuleRetriever {
 			// Add Deletion and OOV rules
 			Rule deletionRuleWritable = new Rule();
 			RuleString dr = new RuleString();
-			dr.add((Symbol)(dr$.MODULE$));
+			dr.add(Symbol.dr());
 			deletionRuleWritable.setTarget(dr);
 			Rule oovRuleWritable = new Rule();
 			RuleString oov = new RuleString();
-			oov.add((Symbol)(oov$.MODULE$));
+			oov.add(Symbol.oov());
 			oovRuleWritable.setTarget(oov);
 			for (RuleString source : retriever.testVocab) {
 				// If in the vocab then write deletion rule
@@ -384,11 +382,11 @@ public class RuleRetriever {
 		if (retriever.targetVocabFile != null) {
 			try (BufferedWriter out = new BufferedWriter(new FileWriter(
 					retriever.targetVocabFile))) {
-				for (Set<Symbol> words : retriever.targetSideVocab.subList(1,
+				for (Set<Integer> words : retriever.targetSideVocab.subList(1,
 						retriever.targetSideVocab.size())) {
 					out.write("1 2"); // Include the start and end symbols
-					for(Symbol word : words){
-						out.write(" " + word);
+					for(int word : words){
+						out.write(" " + Symbol.getStringRepresentation(word));
 					}
 					out.write("\n");
 				}

@@ -15,64 +15,65 @@
 
 package uk.ac.cam.eng.extraction
 
-sealed abstract class Symbol(val serialised: Int) extends Ordered[Symbol] {
+case class Symbol (val serialised: Int) extends AnyVal with Ordered[Symbol] {
 
   def compare(that: Symbol) = this.serialised - that.serialised
 
-}
-
-object Symbol {
-
-  val mapping = Map(V.toString() -> V, V1.toString() -> V1,
-    S.toString() -> S, X.toString() -> X, D.toString -> D, 
-    oov.toString() -> oov, dr.toString() -> dr)
-
-  def deserialise(symbol: Int): Symbol = {
-    symbol match {
-      case V.serialised  => V
-      case V1.serialised => V1
-      case S.serialised  => S
-      case X.serialised  => X
-      case D.serialised  => D
-      case oov.serialised  => oov
-      case dr.serialised  => dr
-      case _             => Terminal.create(symbol)
+  override def toString() = {
+    import Symbol._
+    this match{
+      case V => "V"
+      case V1 => "V1"
+      case S => "S"
+      case X => "X"
+      case D => "D"
+      case `oov` => "<oov>"
+      case `dr` => "<dr>"
+      case _ => serialised.toString
     }
   }
 
-  def deserialise(symbol: String): Symbol = 
-    mapping.getOrElse(symbol, Terminal.create(symbol.toInt))
+}
+
+sealed trait SymbolClass
+
+case object Terminal extends SymbolClass
+
+case object NonTerminal extends SymbolClass
+
+
+object Symbol {
+
+  val V = Symbol(-1)
     
+  val V1 = Symbol(-2)
+
+  val S = Symbol(-3)
+
+  val X = Symbol(-4)
+
+  val D = Symbol(-5)
+
+  val oov = Symbol(-6)
+
+  val dr = Symbol(-7)
+  
+  val nonTerminalMappings = Map(V.toString() -> V, V1.toString() -> V1,
+    S.toString() -> S, X.toString() -> X, D.toString -> D, 
+    oov.toString() -> oov, dr.toString() -> dr)
+
+  val nonTerminals = Set.empty ++ nonTerminalMappings.values
+
+  def deserialise(symbol: Int): Symbol = Symbol(symbol)
+
+  def deserialise(symbol: String): Symbol =
+    nonTerminalMappings.getOrElse(symbol, Symbol(symbol.toInt))
+
+  def isNonTerminal(s : Symbol) = nonTerminals.contains(s)
+
+  def getStringRepresentation(i : Int) = Symbol.deserialise(i).toString()
+
 }
 
-case class Terminal private (token: Int) extends Symbol(token) {
 
-  override def toString() = token.toString()
 
-}
-
-object Terminal {
-
-  val terminalCache = for (i <- 0 until 10000) yield new Terminal(i)
-
-  def create(token: Int) =
-    if (token < 10000) terminalCache(token) else new Terminal(token)
-}
-
-case object V extends Symbol(-1)
-
-case object V1 extends Symbol(-2)
-
-case object S extends Symbol(-3)
-
-case object X extends Symbol(-4)
-
-case object D extends Symbol(-5)
-
-case object oov extends Symbol(-6){
-  override def toString() = "<oov>"
-}
-
-case object dr extends Symbol(-7){
-  override def toString() = "<dr>"
-}

@@ -31,4 +31,5 @@ package object extraction {
     override def compare(s1: RuleString, s2: RuleString) = RuleString.comparator.compare(s1, s2)
   }
 
+  def toJavaInteger(i : Int) : Integer = i
 }

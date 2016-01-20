@@ -93,12 +93,12 @@ public class RuleExtractorTest {
 	}
 
 	
-	private boolean isContiguous(List<Rule> rules, Function<Rule, List<Symbol>> getStr){
-		Set<List<Symbol>> prevs = new HashSet<>();
-		List<Symbol> prev = getStr.apply(rules.get(0));
+	private boolean isContiguous(List<Rule> rules, Function<Rule, List<Integer>> getStr){
+		Set<List<Integer>> prevs = new HashSet<>();
+		List<Integer> prev = getStr.apply(rules.get(0));
 		prevs.add(prev);
 		for(Rule rule : rules){
-			List<Symbol> str = getStr.apply(rule);
+			List<Integer> str = getStr.apply(rule);
 			if(!(str.equals(prev) || prevs.add(str))){
 				return false;
 			}

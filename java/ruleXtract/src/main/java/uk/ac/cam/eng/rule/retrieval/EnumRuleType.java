@@ -15,10 +15,8 @@
  *******************************************************************************/
 package uk.ac.cam.eng.rule.retrieval;
 
-import uk.ac.cam.eng.extraction.D$;
-import uk.ac.cam.eng.extraction.S$;
-import uk.ac.cam.eng.extraction.V$;
-import uk.ac.cam.eng.extraction.X$;
+import uk.ac.cam.eng.extraction.Symbol;
+
 
 
 
@@ -28,15 +26,15 @@ import uk.ac.cam.eng.extraction.X$;
  * @date 28 May 2014
  */
 public enum EnumRuleType {
-	X(X$.MODULE$), V(V$.MODULE$), S(S$.MODULE$), D(D$.MODULE$);
+	X(Symbol.X()), V(Symbol.V()), S(Symbol.S()), D(Symbol.D());
 
-	private EnumRuleType(Object lhs) {
+	EnumRuleType(int lhs) {
 		this.lhs = lhs;
 	}
 
-	private final Object lhs;
+	private final int lhs;
 
-	public Object getLhs() {
+	public int getLhs() {
 		return lhs;
 	}
 }
