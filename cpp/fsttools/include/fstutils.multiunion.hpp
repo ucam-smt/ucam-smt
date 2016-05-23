@@ -86,7 +86,7 @@ class MultiUnionReplace {
   VectorFst<Arc> head_;
 
   // List of pairs label/FSA.
-  std::vector< pair< typename Arc::Label, const Fst<Arc> * > > pairlabelfsts_;
+  std::vector< std::pair< typename Arc::Label, const Fst<Arc> * > > pairlabelfsts_;
   std::vector<boost::shared_ptr< Fst<Arc> const > > fsts_;
 
  public:
@@ -98,7 +98,7 @@ class MultiUnionReplace {
     head_.AddState();
     head_.SetStart ( 0 );
     head_.SetFinal ( 1, Arc::Weight::One() );
-    pairlabelfsts_.push_back ( pair< typename Arc::Label, const Fst<Arc> * >
+    pairlabelfsts_.push_back ( std::pair< typename Arc::Label, const Fst<Arc> * >
                                ( unionindex_, &head_ ) );
   };
 
@@ -112,7 +112,7 @@ class MultiUnionReplace {
     ///Add pair labels for Replace operation
     head_.AddArc ( 0, Arc ( unionindex_ + counter_, unionindex_ + counter_,
                             Arc::Weight::One(), 1 ) );
-    pairlabelfsts_.push_back ( pair< typename Arc::Label, const Fst<Arc> * >
+    pairlabelfsts_.push_back ( std::pair< typename Arc::Label, const Fst<Arc> * >
                                ( unionindex_ + counter_, fst ) );
     ++counter_;
   };

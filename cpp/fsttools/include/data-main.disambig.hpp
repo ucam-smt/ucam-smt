@@ -42,7 +42,7 @@ struct DisambigData {
   ///lists of language models indexed by a key (i.e. parameter )
   unordered_map<std::string, std::vector <const KenLMData*> > klm;
   ///Mixed case vocabulary used by the unigram model and the language model
-  unordered_set<std::string> *recasingvcblm;
+  std::unordered_set<std::string> *recasingvcblm;
   ///Unigram model to be stored here
   unordered_map<std::string, void * > fsts;
 

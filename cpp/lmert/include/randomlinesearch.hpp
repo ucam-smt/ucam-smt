@@ -97,7 +97,7 @@ private:
   }
 
   boost::random::mt19937 rand_gen;
-  vector< ucam::fsttools::PARAMS32 > directions_;
+  std::vector< ucam::fsttools::PARAMS32 > directions_;
   ucam::fsttools::PARAMS32 lambda_;
   ucam::fsttools::Bleu optBleu_;
   ucam::fsttools::Bleu iBleu_;

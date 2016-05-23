@@ -63,7 +63,7 @@ struct CYKdata {
   // However, certain non-terminals in a hiero-style grammar
   // must be able to reach higher spans. Most notably, this is the case of non-terminal S, used as glue rule.
   // The list of exceptions are included in nt_exceptions_maxspan.
-  unordered_set<std::string> nt_exceptions_maxspan;
+  std::unordered_set<std::string> nt_exceptions_maxspan;
 
   /**
    * \remarks     Frees memory.

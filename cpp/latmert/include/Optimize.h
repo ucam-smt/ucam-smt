@@ -36,7 +36,7 @@ extern MERT mert;
 
 class Optimizer {
  public:
-  virtual const pair<PARAMS, double> operator() (PARAMS&) = 0;
+  virtual const std::pair<PARAMS, double> operator() (PARAMS&) = 0;
 
   virtual void Init (int) = 0;
 
@@ -151,7 +151,7 @@ class OptimizerImpl: public Optimizer {
  protected:
   typedef typename ErrorSurface::ErrorStats ErrorStats;
   typedef typename ErrorStats::Error Error;
-  typedef pair<PARAMS, Error> OptimizationResult;
+  typedef std::pair<PARAMS, Error> OptimizationResult;
 
   OptimizationResult MakeOptimizationResult (ErrorSurface& surface,
       const PARAMS& direction, const OptimizationResult& prev) {
@@ -216,7 +216,7 @@ class OptimizerImpl: public Optimizer {
       counter = (counter + 1) % dim;
       if (counter % percent == 0) {
         tracer << "gamma: " << gamma << " error: " << tunedError
-               << endl;
+               << std::endl;
       }
     }
   }
@@ -283,7 +283,7 @@ class Directions {
   PARAMS current;
 
   // Stores the features that are populated for each axis
-  unordered_map<Sid, unordered_set<unsigned int> > feature_filter;
+  unordered_map<Sid, std::unordered_set<unsigned int> > feature_filter;
 
   bool * hasDirection;
 
@@ -306,7 +306,7 @@ class RandomOptimizer: public OptimizerImpl<Algo, ErrorSurface> {
 
   virtual ~RandomOptimizer() {}
 
-  virtual const pair<PARAMS, double> operator() (PARAMS& startPoint) {
+  virtual const std::pair<PARAMS, double> operator() (PARAMS& startPoint) {
     Error startError = ComputeError (this->refData, this->lats, startPoint);
     OptimizationResult start = make_pair (startPoint, startError);
     OptimizationResult prev = start;
@@ -362,7 +362,7 @@ class RandomOptimizer: public OptimizerImpl<Algo, ErrorSurface> {
         tracer << "full random iteration completed with error: "
                << best.second << '\n';
         std::cerr << std::fixed << std::setprecision (opts.printPrecision)
-                  << VectorScale (best.first) << endl;
+                  << VectorScale (best.first) << std::endl;
       }
       if (best.second.GetError() - prev.second.GetError()
           < opts.bleuThreshold) {
@@ -412,7 +412,7 @@ class PowellOptimizer: public OptimizerImpl<Algo, ErrorSurface> {
 
   virtual void Init (int);
 
-  virtual const pair<PARAMS, double> operator() (PARAMS& startPoint) {
+  virtual const std::pair<PARAMS, double> operator() (PARAMS& startPoint) {
     ErrorSurface surface (this->lats.ids.size(), & (this->refData) );
     Error startError = ComputeError (this->refData, this->lats, startPoint);
     OptimizationResult start = make_pair (startPoint, startError);
@@ -438,7 +438,7 @@ class PowellOptimizer: public OptimizerImpl<Algo, ErrorSurface> {
           if (debugError.GetError() != current.second.GetError() ) {
             tracer << "Direction: " << d
                    << " Incorrect Error Surface: "
-                   << testSurface.GetOptimalGamma() << endl;
+                   << testSurface.GetOptimalGamma() << std::endl;
           }
         }
         if (!opts.writeSurface.empty() ) {
@@ -498,7 +498,7 @@ class PowellOptimizer: public OptimizerImpl<Algo, ErrorSurface> {
         tracer << "full powell iteration compleated with error: "
                << prev.second << '\n';
         std::cerr << std::fixed << std::setprecision (opts.printPrecision)
-                  << VectorScale (prev.first) << endl;
+                  << VectorScale (prev.first) << std::endl;
       }
     }
     return make_pair (prev.first, prev.second.GetError() );

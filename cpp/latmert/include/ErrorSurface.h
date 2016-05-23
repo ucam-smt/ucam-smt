@@ -163,11 +163,11 @@ class ErrorSurface {
 
   void PrintErrorSurface (ostream& os) const {
     ErrorStats aggregate;
-    os << optimalGamma << " " << optimalError << endl;
+    os << optimalGamma << " " << optimalError << std::endl;
     for (typename std::vector<IntervalBoundary>::const_iterator it =
            initials.begin(); it != initials.end(); ++it) {
       aggregate = aggregate + it->errorStats;
-      os << *it << endl;
+      os << *it << std::endl;
     }
     IntervalBoundary temp;
     for (typename std::vector<IntervalBoundary>::const_iterator it =
@@ -175,7 +175,7 @@ class ErrorSurface {
       temp = *it;
       aggregate = aggregate + it->errorStats;
       temp.errorStats = aggregate;
-      os << temp << endl;
+      os << temp << std::endl;
     }
   }
 
@@ -185,7 +185,7 @@ class ErrorSurface {
     sstream << filename << lineOptCount;
     std::ofstream ofs (sstream.str().c_str() );
     if (!ofs.good() ) {
-      cerr << "ERROR: can't write: " << sstream.str() << '\n';
+      std::cerr << "ERROR: can't write: " << sstream.str() << '\n';
       exit (1);
     }
     tracer << "writing error surface to " << sstream.str() << '\n';

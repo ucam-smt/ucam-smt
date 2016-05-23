@@ -90,8 +90,8 @@ class PatternsToInstancesTask: public ucam::util::TaskInterface<Data> {
     LINFO ( "maxspan_=" << maxspan_ << ",gapmaxspan=" << gapmaxspan_ );
     std::vector<std::string> ss;
     boost::algorithm::split ( ss, d.sentence, boost::algorithm::is_any_of ( " " ) );
-    const unordered_set<std::string>& patterns = d.grammar->patterns;
-    for ( unordered_set<std::string>::const_iterator itx = patterns.begin();
+    const std::unordered_set<std::string>& patterns = d.grammar->patterns;
+    for ( std::unordered_set<std::string>::const_iterator itx = patterns.begin();
           itx != patterns.end(); ++itx ) { /// for each grammar-specific pattern.
       LDEBUG ( "pattern:" << *itx );
       std::vector<std::string> spattern;
@@ -112,7 +112,7 @@ class PatternsToInstancesTask: public ucam::util::TaskInterface<Data> {
                    boost::algorithm::join ( pinstances[k],
                                             "_" ) << "values=(" << j << "," << spattern.size() - 1 );
           d.hpinstances[boost::algorithm::join ( pinstances[k],
-                                                 "_" )].push_back ( pair<unsigned, unsigned> ( j, spattern.size() - 1 ) );
+                                                 "_" )].push_back ( std::pair<unsigned, unsigned> ( j, spattern.size() - 1 ) );
         }
       }
     }
@@ -176,12 +176,12 @@ class PatternsToInstancesTask: public ucam::util::TaskInterface<Data> {
     if ( file != "" ) {
       LINFO ( "file to output:" << file );
       ucam::util::oszfstream o ( file + ".hash" );
-      for ( unordered_map<std::string, std::vector <pair <unsigned, unsigned> > >::iterator
+      for ( unordered_map<std::string, std::vector <std::pair <unsigned, unsigned> > >::iterator
             itx = d.hpinstances.begin(); itx != d.hpinstances.end(); ++itx ) {
         o << itx->first << ":" ;
         for ( unsigned k = 0; k < itx->second.size(); ++k )
           o << itx->second[k].first << "," << itx->second[k].second << ";";
-        o << endl;
+        o << std::endl;
       }
       o.close();
     }

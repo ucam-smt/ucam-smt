@@ -33,9 +33,9 @@ namespace hifst {
 class NonTerminalHierarchy {
  private:
   ///Contains identity rules
-  unordered_set<std::string> h_;
+  std::unordered_set<std::string> h_;
   ///Contains set of non-terminals
-  unordered_set<std::string> nt_;
+  std::unordered_set<std::string> nt_;
 
   ///Determines whether s_ has been found or not.
   bool s_;
@@ -64,8 +64,8 @@ class NonTerminalHierarchy {
   bool operator() ( std::string& ntlist ) {
     s_ = false;
     ntlist = "";
-    unordered_set<std::string> haux = h_;
-    unordered_set<std::string> nt = nt_;
+    std::unordered_set<std::string> haux = h_;
+    std::unordered_set<std::string> nt = nt_;
     populate_nt ( nt );
     if ( !nt.size() ) return true;
     uint count = 0;
@@ -86,7 +86,7 @@ class NonTerminalHierarchy {
       LINFO ( "Conflict!" );
       LINFO ( "Partial list of ordered non-terminals:" << ntlist );
       LINFO ( "Rules containing a cycle:" );
-      for ( unordered_set<std::string>::iterator itx = haux.begin();
+      for ( std::unordered_set<std::string>::iterator itx = haux.begin();
             itx != haux.end(); ++itx )
         LINFO ( "===" << *itx );
       return false;
@@ -100,8 +100,8 @@ class NonTerminalHierarchy {
  private:
 
   ///Given a set of rules, identifies non-terminals and populates an unordered_set with them.
-  void populate_nt ( unordered_set<std::string>& nt ) {
-    for ( unordered_set<std::string>::iterator itx = h_.begin(); itx != h_.end();
+  void populate_nt ( std::unordered_set<std::string>& nt ) {
+    for ( std::unordered_set<std::string>::iterator itx = h_.begin(); itx != h_.end();
           ++itx ) {
       std::vector<std::string> aux;
       boost::algorithm::split ( aux, *itx, boost::algorithm::is_any_of ( " " ) );
@@ -116,8 +116,8 @@ class NonTerminalHierarchy {
   /// given the identity rules and the set of non-terminals. Rules and non-terminals
   ///that have been accounted for will be deleted. In order to identify the complest list
   ///one or more consecutive calls to this method required
-  std::string identify_highest_nt ( unordered_set<std::string>& h,
-                                    unordered_set<std::string>& nt ) {
+  std::string identify_highest_nt ( std::unordered_set<std::string>& h,
+                                    std::unordered_set<std::string>& nt ) {
     std::map<std::string, uint> ntorder;
     int order = 0;
     for ( std::unordered_set<std::string>::iterator itx = nt.begin();
@@ -149,8 +149,8 @@ class NonTerminalHierarchy {
         nttodelete.insert ( itx->first );
       }
     }
-    unordered_set<std::string> nttodelete2;
-    for ( unordered_set<std::string>::iterator itx = h.begin(); itx != h.end();
+    std::unordered_set<std::string> nttodelete2;
+    for ( std::unordered_set<std::string>::iterator itx = h.begin(); itx != h.end();
           ++itx ) {
       std::vector<std::string> aux;
       boost::algorithm::split ( aux, *itx, boost::algorithm::is_any_of ( " " ) );
@@ -158,7 +158,7 @@ class NonTerminalHierarchy {
         nttodelete2.insert ( *itx );
       }
     }
-    for ( unordered_set<std::string>::iterator itx = nttodelete2.begin();
+    for ( std::unordered_set<std::string>::iterator itx = nttodelete2.begin();
           itx != nttodelete2.end(); ++itx ) {
       h.erase ( *itx );
     }

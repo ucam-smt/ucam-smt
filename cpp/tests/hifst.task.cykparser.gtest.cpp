@@ -63,9 +63,9 @@ struct DataForCyK {
   uh::GrammarData *grammar;
 
   ///Target vocabulary
-  unordered_set<std::string> tvcb;
+  std::unordered_set<std::string> tvcb;
 
-  unordered_map<std::string, std::vector< pair <unsigned, unsigned> > >
+  unordered_map<std::string, std::vector< std::pair <unsigned, unsigned> > >
   hpinstances;
   uh::SentenceSpecificGrammarData *ssgd;
   uh::CYKdata *cykdata;
@@ -97,24 +97,24 @@ TEST ( HifstCykParserTask, basic_test ) {
   //We need to generate some rules. It is easy to do so with GrammarTask, so we do it.
   uh::GrammarTask<DataForCyK> gt ( rg );
   std::stringstream ss;
-  ss << "X 3 3 0" << endl << "S S_X S_X 0" << endl;
-  ss << "X 4 4 0" << endl << "X 5 5 0" << endl << "X 1 1 0" << endl << "X 2 2 0"
-     << endl;
-  ss << "X 3_4 3_4 0" << endl << "X 3_X1_5 3_X1_5 0" << endl << "S X1 X1 0" <<
-     endl;
+  ss << "X 3 3 0" << std::endl << "S S_X S_X 0" << std::endl;
+  ss << "X 4 4 0" << std::endl << "X 5 5 0" << std::endl << "X 1 1 0" << std::endl << "X 2 2 0"
+     << std::endl;
+  ss << "X 3_4 3_4 0" << std::endl << "X 3_X1_5 3_X1_5 0" << std::endl << "S X1 X1 0" <<
+     std::endl;
   gt.load ( ss );
   DataForCyK d;
   d.grammar = gt.getGrammarData();
   d.sentence = "1 3 4 5 2";
-  d.hpinstances["1"].push_back ( pair<unsigned, unsigned> ( 0, 0 ) );
-  d.hpinstances["3"].push_back ( pair<unsigned, unsigned> ( 1, 0 ) );
-  d.hpinstances["4"].push_back ( pair<unsigned, unsigned> ( 2, 0 ) );
-  d.hpinstances["5"].push_back ( pair<unsigned, unsigned> ( 3, 0 ) );
-  d.hpinstances["2"].push_back ( pair<unsigned, unsigned> ( 4, 0 ) );
-  d.hpinstances["3_4"].push_back ( pair<unsigned, unsigned> ( 1, 1 ) );
-  d.hpinstances["3_X_5"].push_back ( pair<unsigned, unsigned> ( 1, 2 ) );
-  d.hpinstances["X_X"].push_back ( pair<unsigned, unsigned> ( 0, 1 ) );
-  d.hpinstances["X"].push_back ( pair<unsigned, unsigned> ( 0, 0 ) );
+  d.hpinstances["1"].push_back ( std::pair<unsigned, unsigned> ( 0, 0 ) );
+  d.hpinstances["3"].push_back ( std::pair<unsigned, unsigned> ( 1, 0 ) );
+  d.hpinstances["4"].push_back ( std::pair<unsigned, unsigned> ( 2, 0 ) );
+  d.hpinstances["5"].push_back ( std::pair<unsigned, unsigned> ( 3, 0 ) );
+  d.hpinstances["2"].push_back ( std::pair<unsigned, unsigned> ( 4, 0 ) );
+  d.hpinstances["3_4"].push_back ( std::pair<unsigned, unsigned> ( 1, 1 ) );
+  d.hpinstances["3_X_5"].push_back ( std::pair<unsigned, unsigned> ( 1, 2 ) );
+  d.hpinstances["X_X"].push_back ( std::pair<unsigned, unsigned> ( 0, 1 ) );
+  d.hpinstances["X"].push_back ( std::pair<unsigned, unsigned> ( 0, 0 ) );
   uh::SentenceSpecificGrammarTask<DataForCyK> ssgt ( rg );
   ssgt.run ( d );
   //At this point we are ready to run a cyk parse.

@@ -77,7 +77,7 @@ class ApplyLanguageModelTask: public ucam::util::TaskInterface<Data> {
    if (almotf_.size()) return; // already done
    almotf_.resize(d.klm[lmkey_].size());
    fst::MakeWeight<Arc> mw;
-   unordered_set<Label> epsilons;
+   std::unordered_set<Label> epsilons;
    /// We want the language model to ignore these guys:
    epsilons.insert ( DR );
    epsilons.insert ( OOV );
@@ -187,7 +187,7 @@ class ApplyBiLMTask: public ucam::util::TaskInterface<Data> {
     if (almotf_.size()) return; // already done
     almotf_.resize(d.klm[lmkey_].size());
     fst::MakeWeight<Arc> mw;
-    unordered_set<Label> epsilons;
+    std::unordered_set<Label> epsilons;
     /// We want the language model to ignore these guys:
     epsilons.insert ( DR );
     epsilons.insert ( OOV );

@@ -60,7 +60,7 @@ struct GrammarData {
   /// Number of rules
   std::size_t sizeofvpos;
   /// Patterns in these rules
-  unordered_set<std::string> patterns;
+  std::unordered_set<std::string> patterns;
   /// Pointer to a Comparison object, assumed no ownership
   CompareTool *ct;
 
@@ -223,7 +223,7 @@ struct GrammarData {
    */
 
   inline const bool isAcceptedByVocabulary ( const std::size_t idx,
-      const unordered_set<std::string>& vcb ) const {
+      const std::unordered_set<std::string>& vcb ) const {
     if ( !vcb.size() ) return true;
     std::vector<std::string> tx = getRHSSplitTranslation ( idx );
     for ( uint k = 0; k < tx.size(); ++k ) {

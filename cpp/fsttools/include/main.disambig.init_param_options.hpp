@@ -74,10 +74,10 @@ inline void init_param_options ( int argc, const char* argv[],
       exit ( EXIT_FAILURE );
     }
   } catch ( std::exception& e ) {
-    cerr << "error: " << e.what() << "\n";
+    std::cerr << "error: " << e.what() << "\n";
     exit ( EXIT_FAILURE );
   } catch ( ... ) {
-    cerr << "Exception of unknown type!\n";
+    std::cerr << "Exception of unknown type!\n";
     exit ( EXIT_FAILURE );
   }
   LINFO ( "Configuration loaded" );

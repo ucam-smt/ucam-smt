@@ -39,12 +39,12 @@ TupleArcFst* TuneSet::LoadLattice (const Sid s) const {
   TupleArcFst32* fst32 = TupleArcFst32::Read (is, fst::FstReadOptions() );
   TopSort (fst32);
   if (!fst32) {
-    cerr << "ERROR: unable to load vector lattice: " << ExpandPath (m_pattern,
+    std::cerr << "ERROR: unable to load vector lattice: " << ExpandPath (m_pattern,
          s) << '\n';
     exit (1);
   }
   if (fst32->Properties (fst::kNotTopSorted, true) ) {
-    cerr << "ERROR: Input lattices are not topologically sorted: " << '\n';
+    std::cerr << "ERROR: Input lattices are not topologically sorted: " << '\n';
     exit (1);
   }
   TupleArcFst* fst = new TupleArcFst;
@@ -56,7 +56,7 @@ TupleArcFst* TuneSet::LoadLattice (const Sid s) const {
 
 void TuneSet::Initialize (const bool use_cache) {
   if (FLAGS_lats.empty() ) {
-    cerr << "ERROR: mandatory parameter not specified: 'lats'\n";
+    std::cerr << "ERROR: mandatory parameter not specified: 'lats'\n";
     exit (1);
   }
   if (!FLAGS_idxlimits.empty() ) {
@@ -66,7 +66,7 @@ void TuneSet::Initialize (const bool use_cache) {
     InitializeFromScript (ids, FLAGS_idxscript.data() );
   }
   if (ids.size() == 0) {
-    cerr
+    std::cerr
         << "ERROR: must specify either 'idxlimits' or 'idxscript' parameters"
         << '\n';
     exit (1);

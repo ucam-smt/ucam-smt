@@ -174,7 +174,7 @@ FunctionWeight Times (const FunctionWeight& w1,
     singleton = w2.values;
     fullList = w1.values;
   } else {
-    cout << "No singleton list!" << endl;
+    std::cout << "No singleton list!" << std::endl;
     exit (1);
   }
   MertLine multiplier = singleton.front();
@@ -285,7 +285,7 @@ std::istream& FunctionWeight::Read (std::istream& strm) {
 }
 
 std::size_t FunctionWeight::Hash() const {
-  cout << "aaw35 Tried to access hash function" << endl;
+  std::cout << "aaw35 Tried to access hash function" << std::endl;
   exit (1);
 }
 
@@ -295,7 +295,7 @@ bool FunctionWeight::Member() const {
 
 FunctionWeight FunctionWeight::Divide (const FunctionWeight& fw1,
                                        const FunctionWeight&, fst::DivideType) {
-  cout << "aaw35 Tried to access divide function" << endl;
+  std::cout << "aaw35 Tried to access divide function" << std::endl;
   exit (1);
 }
 

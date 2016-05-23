@@ -26,7 +26,7 @@ namespace fst {
 
 ///Traverses a machine and returns the indices actually used for the sparse vector weight tropical semiring.
 inline void listSparseFeatureIndices ( VectorFst<TupleArc32>& myfst,
-                                       unordered_set<uint>& idx ) {
+                                       std::unordered_set<uint>& idx ) {
   typedef TupleArc32::StateId StateId;
   for ( StateIterator< VectorFst<TupleArc32> > si ( myfst ); !si.Done();
         si.Next() ) {

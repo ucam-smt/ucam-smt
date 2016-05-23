@@ -30,7 +30,7 @@ typedef std::basic_string<uint> ssgrammar_listofrules_t;
 typedef unordered_map<std::string, ssgrammar_listofrules_t >
 ssgrammar_firstelementmap_t;
 typedef unordered_map<uint, ssgrammar_firstelementmap_t > ssgrammar_rulesmap_t;
-typedef unordered_map<std::string, std::vector< pair <uint, uint> > >
+typedef unordered_map<std::string, std::vector< std::pair <uint, uint> > >
 ssgrammar_instancemap_t;
 
 }

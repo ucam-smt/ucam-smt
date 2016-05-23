@@ -48,7 +48,7 @@ class DataForPatternsToInstancesTask {
   std::string sentence;
   uh::GrammarData *grammar;
 
-  unordered_map<std::string, std::vector< pair <unsigned, unsigned> > >
+  unordered_map<std::string, std::vector< std::pair <unsigned, unsigned> > >
   hpinstances;
   boost::shared_ptr<uf::StatsData> stats;
 };

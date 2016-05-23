@@ -36,7 +36,7 @@ class TuneWpMain {
     ucam::util::NumberRange<float> wp ( rg_.get<std::string>
                                         (HifstConstants::kWordPenalty ) );
     //Insert epsilons
-    unordered_set<typename Arc::Label> epsilons =
+    std::unordered_set<typename Arc::Label> epsilons =
       rg_.getSetNumber<typename Arc::Label> (HifstConstants::kEpsilonLabels);
     unsigned shp = rg_.get<unsigned> (HifstConstants::kNbest);
     for ( ucam::util::IntRangePtr ir (ucam::util::IntRangeFactory ( rg_,

@@ -2,7 +2,7 @@
 
 GTESTVERSION=1.7.0
 BOOSTVERSION=1_59_0
-OPENFSTVERSION=1.5.0
+OPENFSTVERSION=1.5.2
 
 download() {
     if [ ! -e gtest-$GTESTVERSION ]; then
@@ -50,6 +50,7 @@ installExternals() {
                 --enable-const-fsts \
                 --enable-far \
                 --enable-lookahead-fsts \
+                --enable-python \
                 --enable-pdt \
                 --enable-static \
                 --enable-ngram-fsts

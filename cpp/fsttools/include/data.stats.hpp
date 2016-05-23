@@ -68,7 +68,7 @@ struct SpeedStatsData {
       fst_time += last_time;
       o << std::setw ( 10 ) << last_time;
       o << std::setw ( 10 ) << fst_time ;
-      o << " (" << itx->second.size() << " times )" << endl;
+      o << " (" << itx->second.size() << " times )" << std::endl;
     }
   }
 
@@ -152,7 +152,7 @@ struct StatsData {
       fst_time += last_time;
       o << std::setw ( 10 ) << last_time;
       o << std::setw ( 10 ) << fst_time ;
-      o << " ms  (" << itx->second.size() << " times )" << endl;
+      o << " ms  (" << itx->second.size() << " times )" << std::endl;
     }
   }
 };

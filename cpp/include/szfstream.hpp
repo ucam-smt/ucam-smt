@@ -272,7 +272,7 @@ class oszfstream {
     if ( filename == "-" ) command += "/dev/stdout";
     else command += filename;
     if ( ( sfile_ = popen ( command.c_str(), "w" ) ) == NULL ) {
-      cerr << "Error while opening file via: " << command << endl;
+      std::cerr << "Error while opening file via: " << command << std::endl;
       exit ( EXIT_FAILURE );
     }
     LINFO ( "Opening (fd)" << command );
@@ -371,7 +371,7 @@ inline void writetextfile ( const std::string& filename, FM& fm ) {
   oszfstream oszf ( filename );
   std::string line;
   while ( fm.toLine ( line ) ) {
-    oszf << line << endl;
+    oszf << line << std::endl;
   }
   oszf.close();
 };

@@ -31,7 +31,7 @@ namespace bfs = boost::filesystem;
 ///Test iszfstream
 TEST ( iszfstream, basictest ) {
   std::stringstream ss;
-  ss << "expecto patronum" << endl << "obliviate" << endl << "avada kedavra";
+  ss << "expecto patronum" << std::endl << "obliviate" << std::endl << "avada kedavra";
   uu::iszfstream teststream ( ss );
   EXPECT_EQ ( teststream.is_open(), true );
   teststream.close();
@@ -60,7 +60,7 @@ TEST ( oszfstream, basictest ) {
   teststream.open ( ss );
   EXPECT_EQ ( teststream.is_open(), true );
   std::string line = "obliviate";
-  teststream << line << endl;
+  teststream << line << std::endl;
   std::string line2;
   * static_cast<std::stringstream *> ( teststream.getStream() ) >> line2;
   EXPECT_EQ ( line, line2 );
@@ -69,8 +69,8 @@ TEST ( oszfstream, basictest ) {
 
 TEST (ioszfstream, combinedtest) {
   uu::oszfstream o ("test.gz");
-  o << "expecto" << endl ;
-  o << "patronum" << endl;
+  o << "expecto" << std::endl ;
+  o << "patronum" << std::endl;
   o.close();
   uu::iszfstream i ("test.gz");
   std::string line;
@@ -85,10 +85,10 @@ TEST (ioszfstream, combinedtest) {
 TEST ( iszfstream, fastforwardread ) {
   //Do not delete!
   std::stringstream *ss = new std::stringstream;
-  *ss << "one" << endl;
-  *ss << "two" << endl;
-  *ss << "three" << endl;
-  *ss << "four" << endl;
+  *ss << "one" << std::endl;
+  *ss << "two" << std::endl;
+  *ss << "three" << std::endl;
+  *ss << "four" << std::endl;
   *ss << "five" ;
   {
     uu::FastForwardRead<> ffr ( ss );
@@ -115,7 +115,7 @@ TEST ( iszfstream, fastforwardread ) {
     user_check_ok = true;
   }
   ss = new std::stringstream;
-  *ss << "one" << endl;
+  *ss << "one" << std::endl;
   {
     std::string line;
     bool finished;

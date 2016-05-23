@@ -36,7 +36,7 @@ template <class Data, class Arc = fst::StdArc >
 class WriteFstTask: public ucam::util::TaskInterface<Data> {
   typedef typename Arc::Label Label;
   typedef typename Arc::Weight Weight;
-  typedef std::vector<pair<Label, Label> > VectorPair;
+  typedef std::vector<std::pair<Label, Label> > VectorPair;
  private:
   ///key to access fst in the data object
   std::string fstkey_;

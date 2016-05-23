@@ -127,10 +127,10 @@ T DotProduct ( const TropicalSparseTupleWeight<T>& w,
     if ( vw.empty() ) {
       param = 1;
     } else if ( it.Value().first > int ( vw.size() ) ) {
-      cerr
+      std::cerr
           << "feature vector has a larger dimensionality than the parameters. "
           << "Params: " << vw.size() << " Features: "
-          << it.Value().first << endl;
+          << it.Value().first << std::endl;
       exit ( 1 );
     } else if (it.Value().first <  0) // ignore negative indices
       param = 0;

@@ -35,19 +35,19 @@ int main (int argc, char **argv) {
   usage += argv[0];
   InitFst (usage.c_str(), &argc, &argv, true);
   if (argc != 1) {
-    cerr << "ERROR: invalid arguments" << endl;
+    std::cerr << "ERROR: invalid arguments" << std::endl;
     return 1;
   }
   TupleArcFst32* fst;
   if (FLAGS_tuplearc) {
     fst = new TupleArcFst32;
-    fst::StdVectorFst* stdfst = fst::StdVectorFst::Read (cin,
+    fst::StdVectorFst* stdfst = fst::StdVectorFst::Read (std::cin,
                                 fst::FstReadOptions() );
     fst::StdToVector<float> m (FLAGS_k);
     fst::Map (*stdfst, fst, StdToSparseMapper (m) );
     delete stdfst;
   } else {
-    fst = TupleArcFst32::Read (cin, fst::FstReadOptions() );
+    fst = TupleArcFst32::Read (std::cin, fst::FstReadOptions() );
   }
   if (FLAGS_stdarc || FLAGS_dot) {
     fst::StdVectorFst stdfst;

@@ -36,7 +36,7 @@ template <class Data, class Arc = fst::StdArc >
 class TuneWpWriteFstTask: public ucam::util::TaskInterface<Data> {
   typedef typename Arc::Label Label;
   typedef typename Arc::Weight Weight;
-  typedef std::vector<pair<Label, Label> > VectorPair;
+  typedef std::vector<std::pair<Label, Label> > VectorPair;
  private:
   ///key to access fst in the data object
   std::string fstkey_;
@@ -44,7 +44,7 @@ class TuneWpWriteFstTask: public ucam::util::TaskInterface<Data> {
   ///Fst filename
   ucam::util::IntegerPatternAddress fstfile_;
   ucam::util::NumberRange<float> wp_;
-  unordered_set<Label> epsilons_;
+  std::unordered_set<Label> epsilons_;
   bool doTune_;
   fst::MakeWeight<Arc> mw_;
  public:

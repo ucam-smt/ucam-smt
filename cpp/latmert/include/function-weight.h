@@ -290,7 +290,7 @@ class FunctionToStdMapper {
       return ToArc (arc.ilabel, arc.olabel, TW::One(), arc.nextstate);
     }
     if (function.size() != 1) {
-      cout << "Function arc has more than one function";
+      std::cout << "Function arc has more than one function";
       exit (1);
     }
     TW mapped (function.front().m * gamma + function.front().y);

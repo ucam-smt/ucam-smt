@@ -71,7 +71,7 @@ Collection ParseParamString (const std::string& stringparams) {
     ++index;
   }
   if (strm.fail() || strm.bad() ) {
-    cerr << "ERROR: Unable to parse params: " << stringparams << endl;
+    std::cerr << "ERROR: Unable to parse params: " << stringparams << std::endl;
     exit (1);
   }
   return result;
@@ -87,7 +87,7 @@ struct ParamsInit {
     if (paramsfile) {
       ifstream ifs (paramsfile);
       if (!ifs.good() ) {
-        cerr << "ERROR: unable to open file " << paramsfile << '\n';
+        std::cerr << "ERROR: unable to open file " << paramsfile << '\n';
         exit (1);
       }
       getline (ifs, stringparams);
@@ -95,7 +95,7 @@ struct ParamsInit {
       char * pParams = getenv ("PARAMS");
       if (!pParams) {
         if (FLAGS_v > 0) {
-          cerr
+          std::cerr
               << "Warning: cannot find parameter vector. Defaulting to flat parameters\n";
         }
         return;
@@ -104,12 +104,12 @@ struct ParamsInit {
     }
     params = ParseParamString<T, std::vector<T> > (stringparams);
     if (FLAGS_v > 0) {
-      cerr << "Setting params to: ";
+      std::cerr << "Setting params to: ";
       for (typename std::vector<T>::const_iterator it = params.begin();
            it != params.end(); ++it) {
-        cerr << *it << ", ";
+        std::cerr << *it << ", ";
       }
-      cerr << endl;
+      std::cerr << std::endl;
     }
   }
 

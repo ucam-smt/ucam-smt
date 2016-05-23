@@ -45,7 +45,7 @@ class LoadUnimapTask : public ucam::util::TaskInterface<Data> {
   ///Scale applied to the unimap model
   float uscale_;
   ///Target vocabulary
-  unordered_set<std::string> vcblm_;
+  std::unordered_set<std::string> vcblm_;
 
   ///Registry object with user parameters
   const ucam::util::RegistryPO& rg_;

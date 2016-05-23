@@ -36,7 +36,7 @@ unsigned int GetSeed() {
   } else {
     seed = (unsigned int) FLAGS_seed;
   }
-  tracer << "Seed used for random directions: " << seed << endl;
+  tracer << "Seed used for random directions: " << seed << std::endl;
   return seed;
 }
 
@@ -96,7 +96,7 @@ void Directions::Resize (unsigned int dim, TuneSet& lats) {
     hasDirection[i] = false;
   }
   feature_filter.clear();
-  unordered_set<unsigned int> total_features;
+  std::unordered_set<unsigned int> total_features;
   unordered_map<unsigned int, std::vector<Sid> > latticesByFeature;
   for (std::vector<Sid>::const_iterator sit = lats.ids.begin();
        sit != lats.ids.end(); ++sit) {
@@ -129,7 +129,7 @@ void Directions::Resize (unsigned int dim, TuneSet& lats) {
     }
   }
   tracer << "lattices contain " << total_features.size() << " features"
-         << endl;
+         << std::endl;
 }
 
 const PARAMS& Directions::Get (unsigned int axis) {
@@ -163,8 +163,8 @@ bool Directions::ContainsAxis (Sid sid, unsigned int axis) {
   if (directions.count (axis) > 0) {
     return true;
   }
-  const unordered_set<unsigned int>& features = feature_filter[sid];
-  unordered_set<unsigned int>::const_iterator it = features.find (axis);
+  const std::unordered_set<unsigned int>& features = feature_filter[sid];
+  std::unordered_set<unsigned int>::const_iterator it = features.find (axis);
   bool containsAxis = it != features.end();
   return containsAxis;
 }

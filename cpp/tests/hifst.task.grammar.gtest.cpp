@@ -49,7 +49,7 @@ struct TaskData {
 TEST ( HifstGrammar, task ) {
   uh::GrammarTask<TaskData> gt ( "", "" );
   std::stringstream ss;
-  ss << "X 35 43 0" << endl << "S S_X S_X 0" << endl;
+  ss << "X 35 43 0" << std::endl << "S S_X S_X 0" << std::endl;
   gt.load ( ss );
   uh::GrammarData *grammar = gt.getGrammarData();
   ASSERT_EQ ( grammar->sizeofvpos, 2 );
@@ -60,7 +60,7 @@ TEST ( HifstGrammar, task ) {
 TEST ( HifstGrammar, data_grammar ) {
   uh::GrammarTask<TaskData> gt ( "", "" );
   std::stringstream ss;
-  ss << "X 35_47 43_55_58 0.45" << endl << "S S_X S_X 0.37" << endl;
+  ss << "X 35_47 43_55_58 0.45" << std::endl << "S S_X S_X 0.37" << std::endl;
   gt.load ( ss );
   uh::GrammarData *grammar = gt.getGrammarData();
   ASSERT_EQ ( grammar->vcat.size(), 2 );

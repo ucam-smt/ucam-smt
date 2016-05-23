@@ -81,7 +81,7 @@ TEST ( registrypo, alternativegetmethods ) {
   ASSERT_EQ ( j.getPairMappedStringUInt ( "turinwrong" ).size(), 2 );
   EXPECT_EQ ( user_check_ok, false );
   user_check_ok = true;
-  unordered_set<std::string> aux = j.getSetString ( "goblin" );
+  std::unordered_set<std::string> aux = j.getSetString ( "goblin" );
   EXPECT_EQ ( aux.size(), 3 );
   EXPECT_TRUE ( aux.find ( "S" ) != aux.end() );
   EXPECT_TRUE ( aux.find ( "X" ) != aux.end() );
@@ -99,9 +99,9 @@ TEST ( registrypo, get_string ) {
   unordered_map<std::string, boost::any> v;
   v["hobbits"] = std::string ( "file://hobbits" );
   uu::oszfstream o ( "hobbits" );
-  o << "frodo,bilbo" << endl;
-  o << "sam" << endl;
-  o << "merry" << endl;
+  o << "frodo,bilbo" << std::endl;
+  o << "sam" << std::endl;
+  o << "merry" << std::endl;
   o.close();
   uu::RegistryPO j ( v );
   EXPECT_EQ ( j.getString ( "hobbits" ), "frodo,bilbo sam merry" );

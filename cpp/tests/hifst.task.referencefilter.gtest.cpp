@@ -57,7 +57,7 @@ class DataForReferenceFilter {
   Weight;
 
   std::vector < fst::VectorFst<Arc> *> filters;
-  unordered_set<std::string> tvcb;
+  std::unordered_set<std::string> tvcb;
   unordered_map<std::string, fst::VectorFst<Arc> *> fsts;
 };
 

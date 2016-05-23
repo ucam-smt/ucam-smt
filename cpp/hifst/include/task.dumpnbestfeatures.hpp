@@ -149,7 +149,7 @@ class DumpNbestFeaturesTask: public ucam::util::TaskInterface<Data> {
     ucam::util::oszfstream file ( filename );
     while ( !pq.empty() ) {
       struct fst::hypcost hc = pq.top();
-      file << hc.hyp << "\t" << hc.cost << endl;
+      file << hc.hyp << "\t" << hc.cost << std::endl;
       pq.pop();
     }
     file.close();
@@ -168,7 +168,7 @@ class DumpNbestFeaturesTask: public ucam::util::TaskInterface<Data> {
                fst::GenericWeightMapper<TupleArc32, Arc, fst::DotProductMap<float>  > ( m ) );
     fst::printstrings<Arc> ( lattice, hyps );
     fst::VectorFst<TupleArc32> vl ( vectorlattice );
-    unordered_set<unsigned> latticefeatures;
+    std::unordered_set<unsigned> latticefeatures;
     listSparseFeatureIndices ( vl, latticefeatures );
     LINFO ( "Number of Active features:" << latticefeatures.size() );
     for ( unsigned k = 0; k < scales_.size(); ++k ) {
@@ -208,7 +208,7 @@ class DumpNbestFeaturesTask: public ucam::util::TaskInterface<Data> {
     ucam::util::oszfstream file ( filename );
     while ( !pq.empty() ) {
       struct fst::hypcost hc = pq.top();
-      file << hc.hyp << endl;
+      file << hc.hyp << std::endl;
       pq.pop();
     }
     file.close();

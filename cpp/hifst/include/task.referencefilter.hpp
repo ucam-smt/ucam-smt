@@ -39,7 +39,7 @@ class ReferenceFilterTask: public ucam::util::TaskInterface<Data> {
  private:
 
   ///Lattice right-side vocabulary  (words)
-  unordered_set<std::string> vocabulary_;
+  std::unordered_set<std::string> vocabulary_;
 
   ///Substring version of translation lattice
   fst::VectorFst<Arc> *referencesubstringlattice_;
@@ -119,7 +119,7 @@ class ReferenceFilterTask: public ucam::util::TaskInterface<Data> {
   inline unsigned getShortestPath ( void ) {
     return shortestpath_;
   };
-  inline const unordered_set<std::string>&  getVocabulary()  {
+  inline const std::unordered_set<std::string>&  getVocabulary()  {
     return vocabulary_;
   };
   inline const std::string getTranslationLatticeFile()  {

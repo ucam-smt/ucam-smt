@@ -126,8 +126,8 @@ class GrammarTask: public ucam::util::TaskInterface<Data> {
       std::string patternfile = patternfile_ ( d.sidx );
       if ( patternfile != "" ) {
         ucam::util::oszfstream o ( patternfile );
-        for ( unordered_set<std::string>::iterator itx = gd_.patterns.begin();
-              itx != gd_.patterns.end(); ++itx ) o << *itx << endl;
+        for ( std::unordered_set<std::string>::iterator itx = gd_.patterns.begin();
+              itx != gd_.patterns.end(); ++itx ) o << *itx << std::endl;
         o.close();
       }
       previous_ = thisgrammarfile;

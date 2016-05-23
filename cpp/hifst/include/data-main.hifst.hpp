@@ -64,13 +64,13 @@ class HifstTaskData {
   /// Holds instanced patterns (string) over the sentence, mapped to extra information pair<1,2>:
   /// positions at which these were encountered (1), and minimum span (2).
   /// \todo Possibly, add minimum span
-  unordered_map<std::string, std::vector< pair <unsigned, unsigned> > > hpinstances;
+  unordered_map<std::string, std::vector< std::pair <unsigned, unsigned> > > hpinstances;
 
   ///Sentence-specific grammar information -- hashes to rule indices.
   SentenceSpecificGrammarData *ssgd;
 
   ///Target vocabulary
-  unordered_set<std::string> tvcb;
+  std::unordered_set<std::string> tvcb;
 
   ///cyk data structures
   CYKdata *cykdata;
@@ -107,7 +107,7 @@ class HifstTaskData {
   std::string *translation;
 
   ///mixed-case vocabulary of the recasing unigram language model
-  unordered_set<std::string> *recasingvcblm;
+  std::unordered_set<std::string> *recasingvcblm;
 
   /// This information used for stats
   grammar_inversecategories_t vcat;

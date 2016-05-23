@@ -92,7 +92,7 @@ std::vector<PARAMS> InitializeVectorsFromFile (const string& filename) {
   std::vector<PARAMS> vws;
   std::ifstream ifs (filename.c_str() );
   if (!ifs.good() ) {
-    cerr << "ERROR: unable to open file " << filename << '\n';
+    std::cerr << "ERROR: unable to open file " << filename << '\n';
     exit (1);
   }
   std::string line;
@@ -119,7 +119,7 @@ std::vector<PARAMS> InitializeVectorsFromAxes (unsigned int dim) {
 }
 
 std::vector<PARAMS> InitializeVectorsFromRandom() {
-  cerr << "ERROR: 'random' vector initialization not supported";
+  std::cerr << "ERROR: 'random' vector initialization not supported";
   exit (1);
 }
 
@@ -140,7 +140,7 @@ std::vector<PARAMS> InitializeVectors (const std::string& pattern) {
 std::string ReadWeight (const std::string& filename) {
   std::ifstream ifs (filename.c_str() );
   if (!ifs.good() ) {
-    cerr << "ERROR: unable to open file " << filename << '\n';
+    std::cerr << "ERROR: unable to open file " << filename << '\n';
     exit (1);
   }
   std::string weight;
@@ -162,8 +162,8 @@ std::ostream& operator<< (std::ostream& strm, const PARAMS& vw) {
 
 PARAMS operator- (const PARAMS& vw1, const PARAMS& vw2) {
   if (vw1.size() != vw2.size() ) {
-    cerr << "Cannot subtract two vectors of different sizes. V1: "
-         << vw1.size() << " V2:" << vw2.size() << endl;
+    std::cerr << "Cannot subtract two vectors of different sizes. V1: "
+         << vw1.size() << " V2:" << vw2.size() << std::endl;
     exit (1);
   }
   PARAMS vv (vw1.size() );
@@ -175,8 +175,8 @@ PARAMS operator- (const PARAMS& vw1, const PARAMS& vw2) {
 
 PARAMS operator+ (const PARAMS& vw1, const PARAMS& vw2) {
   if (vw1.size() != vw2.size() ) {
-    cerr << "Cannot sum two vectors of different sizes. V1: " << vw1.size()
-         << " V2:" << vw2.size() << endl;
+    std::cerr << "Cannot sum two vectors of different sizes. V1: " << vw1.size()
+         << " V2:" << vw2.size() << std::endl;
     exit (1);
   }
   PARAMS vv (vw1.size() );
@@ -192,7 +192,7 @@ template double fst::DotProduct<double> (
 std::vector<std::string> InitRefDataFilenames (int argc, char** argv) {
   std::vector<std::string> refFilenames;
   if (argc == 1) {
-    cerr << "ERROR: no reference files specified\n";
+    std::cerr << "ERROR: no reference files specified\n";
     exit (1);
   } else {
     tracer << argc - 1 << " reference files specified:\n";

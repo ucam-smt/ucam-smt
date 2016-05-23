@@ -74,8 +74,8 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
 
   ///Non-terminals for which its cell lattices will be replaced by a trivial arc, o-o .
   ReplaceFstByArcT *rfba_;
-  unordered_set<std::string> replacefstbyarc_;
-  unordered_set<std::string> replacefstbyarcexceptions_;
+  std::unordered_set<std::string> replacefstbyarc_;
+  std::unordered_set<std::string> replacefstbyarcexceptions_;
   unsigned replacefstbynumstates_;
 
   /// Pointer to the cyk data structure.
@@ -272,7 +272,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       Label hieroindex = APBASETAG + 1 * APCCTAG + 0 * APXTAG +
                          ( cykdata_->sentence.size() - 1 ) * APYTAG;
       if ( hieroindexexistence_.find ( hieroindex ) == hieroindexexistence_.end() )
-        pairlabelfsts_.push_back ( pair< Label, const fst::Fst<Arc> * > ( hieroindex,
+        pairlabelfsts_.push_back ( std::pair< Label, const fst::Fst<Arc> * > ( hieroindex,
                                    &cykfstresult_ ) );
       ///Optimizations over the rtn -- they are generally worth doing...
 
@@ -357,7 +357,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
             fst::Prune<Arc> (*latlm, &cykfstresult_, mw_ ( pruneweight_ ) );
           } else {
             LINFO ("Expanding, weight=" << pruneweight_);
-            fst::ExpandOptions<Arc> eopts (true, false, mw_ ( pruneweight_ ) );
+            fst::PdtExpandOptions<Arc> eopts (true, false, mw_ ( pruneweight_ ) );
             Expand ( *latlm, pdtparens_, &cykfstresult_, eopts);
             pdtparens_.clear();
           }
@@ -566,7 +566,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
                vcat[cc] << ",NS=" << mdfst->NumStates() );
       rtn_->Add ( cc, x, y, outfst , mdfst );
       hieroindexexistence_.insert ( hieroindex );
-      pairlabelfsts_.push_back ( pair< Label, const fst::Fst<Arc> * > ( hieroindex,
+      pairlabelfsts_.push_back ( std::pair< Label, const fst::Fst<Arc> * > ( hieroindex,
                                  &*mdfst ) );
     } else {
       rtn_->Add ( cc, x, y, mdfst , outfst );
@@ -632,7 +632,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
             << ", translation size=" << translation.size() );
     unsigned kmax = translation.size();
     unsigned nonterminal = 0;
-    std::vector< pair< Label, const fst::Fst<Arc> * > > pairlabelfsts;
+    std::vector< std::pair< Label, const fst::Fst<Arc> * > > pairlabelfsts;
 
     std::vector<unsigned> links(translation.size(), NORULE);
     if (at_ == AFFILIATION) {
@@ -648,7 +648,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
         USER_CHECK ( lowerfsts.size() > nonterminal,
                      "Missing fsts to build the rule..." );
         offset +=lowerfsts[nonterminal].y_ + 1; // add span of the non-terminal
-        pairlabelfsts.push_back ( pair< Label, const fst::Fst<Arc> * >
+        pairlabelfsts.push_back ( std::pair< Label, const fst::Fst<Arc> * >
                                   ( ow, lowerfsts[nonterminal++].ptr_ ) );
 
       } else {
@@ -676,7 +676,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     rulefst->SetFinal ( kmax + 1, Weight::One() );
     fst::VectorFst<Arc>* auxi;
     if ( nonterminal > 0 ) {
-      pairlabelfsts.push_back ( pair< Label, const fst::Fst<Arc> * >
+      pairlabelfsts.push_back ( std::pair< Label, const fst::Fst<Arc> * >
                                 ( APRULETAG + nonterminal, rulefst ) );
       fst::VectorFst<Arc> *aux = new fst::VectorFst<Arc>;
       Replace (pairlabelfsts, aux, APRULETAG + nonterminal, !aligner_);
@@ -763,7 +763,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       return; // already done
     }
     almotf.resize(d_->klm[lmkey].size());
-    unordered_set<Label> epsilons;
+    std::unordered_set<Label> epsilons;
     for ( unsigned k = 0; k < d_->klm[lmkey].size(); ++k ) {
       USER_CHECK ( d_->klm[lmkey][k]->model != NULL,
 		   "Language model " << k << " not available!" );
@@ -795,7 +795,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
       = new fst::VectorFst<Arc> (* (const_cast<fst::Fst<Arc> *> ( &localfst ) ) );
 
     // unfortunately they can be lattice-specific (pdt parentheses)
-    unordered_set<Label> epsilons;
+    std::unordered_set<Label> epsilons;
     epsilons.insert ( DR );
     epsilons.insert ( OOV );
     epsilons.insert ( EPSILON );
@@ -854,7 +854,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
     USER_CHECK ( localfst.NumStates() > 0, "Empty lattice?" );
     ///This guy might not exist in the pair list<index,fst> , therefore we need to add it first
     if ( hieroindexexistence_.find ( hieroindex ) == hieroindexexistence_.end() )
-      pairlabelfsts_.push_back ( pair< Label, const fst::Fst<Arc> * > ( hieroindex,
+      pairlabelfsts_.push_back ( std::pair< Label, const fst::Fst<Arc> * > ( hieroindex,
                                  &localfst ) );
     fst::VectorFst<Arc> *aux = new fst::VectorFst<Arc>;
     if (!hipdtmode_ ) {
@@ -920,7 +920,7 @@ class HiFSTTask: public ucam::util::TaskInterface<Data> {
           fst::Prune<Arc> ( latlm, mw_ ( weight ) );
         } else {
           LINFO ( "PDT expanding with weight=" << weight );
-          fst::ExpandOptions<Arc> eopts (true, false, mw_ ( weight ) );
+          fst::PdtExpandOptions<Arc> eopts (true, false, mw_ ( weight ) );
           fst::VectorFst<Arc> latlmaux;
           Expand ( *latlm, pdtparens_, &latlmaux, eopts);
           *latlm = latlmaux;

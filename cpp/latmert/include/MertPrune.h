@@ -18,7 +18,7 @@
 #include <utility>
 #include "function-weight.h"
 
-typedef pair<FunctionArc::StateId, FunctionArc::StateId> StatePair;
+typedef std::pair<FunctionArc::StateId, FunctionArc::StateId> StatePair;
 
 struct PruneStats {
   PruneStats();

@@ -66,8 +66,8 @@ class HifstStatsTask: public ucam::util::TaskInterface<Data> {
     if ( writeCYKStats_ )
       writeCYKStats ( o );
     o << "=================================================================" <<
-      endl;
-    o << "Local pruning during lattice construction" << endl;
+      std::endl;
+    o << "Local pruning during lattice construction" << std::endl;
     writePruneStats ( o );
     o.close();
     return false;
@@ -87,24 +87,24 @@ class HifstStatsTask: public ucam::util::TaskInterface<Data> {
                               boost::algorithm::is_any_of ( " " ) );
     std::stringstream line;
     for ( unsigned z = 0; z < width_; ++z ) line << "-";
-    o << "Source sentence:" << d_->sentence << endl;
-    o << "Word count:" << ws.size() << endl;
+    o << "Source sentence:" << d_->sentence << std::endl;
+    o << "Word count:" << ws.size() << std::endl;
 // Not available right now.
 //    o << "Sentence-specific grammar size:" << d_->rules.size() << " rules " << endl;
     o << "Number of rules (R), states (NS) and states after pruning (NSP) for each cell of the CYK grid:"
-      << endl;
+      << std::endl;
     o << "=================================================================" <<
-      endl;
+      std::endl;
     o << std::setw ( width_ + 5 ) << std::setiosflags ( std::ios::left ) << "x\\y";
     for ( unsigned x = 0; x < ws.size(); x++ ) {
       o << std::setw ( width_ ) << std::setiosflags ( std::ios::left ) << x + 1;
     }
-    o << endl;
+    o << std::endl;
     o << std::setw ( 4 ) << std::setiosflags ( std::ios::left ) << "----";
     for ( unsigned x = 0; x < ws.size() + 1; x++ ) {
       o << std::setw ( width_ ) <<  line.str();
     }
-    o << endl;
+    o << std::endl;
     for ( unsigned x = 0; x < ws.size(); x++ ) {
       o << std::setw ( 4 ) << std::setiosflags ( std::ios::left ) <<
         std::resetiosflags ( std::ios::right ) << ( ucam::util::toString<unsigned>
@@ -125,7 +125,7 @@ class HifstStatsTask: public ucam::util::TaskInterface<Data> {
         o << std::setw ( width_ ) << std::setiosflags ( std::ios::left ) <<
           std::resetiosflags ( std::ios::right ) << a1.str() ;
       }
-      o << std::setiosflags ( std::ios::left ) << "|" << endl;
+      o << std::setiosflags ( std::ios::left ) << "|" << std::endl;
       o << std::setw ( width_ ) <<  " ";
       o << std::setw ( 4 ) << std::setiosflags ( std::ios::right ) << "NS:";
       for ( unsigned int y = 0; y < ws.size() - x; y++ ) {
@@ -141,7 +141,7 @@ class HifstStatsTask: public ucam::util::TaskInterface<Data> {
         o << std::setw ( width_ ) << std::setiosflags ( std::ios::left ) <<
           std::resetiosflags ( std::ios::right ) << a2.str();
       }
-      o << std::setiosflags ( std::ios::left ) << "|" << endl;
+      o << std::setiosflags ( std::ios::left ) << "|" << std::endl;
       o << std::setw ( width_ ) << " ";
       o << std::setw ( 4 ) << std::setiosflags ( std::ios::right ) << "NSP:";
       for ( unsigned int y = 0; y < ws.size() - x; y++ ) {
@@ -157,14 +157,14 @@ class HifstStatsTask: public ucam::util::TaskInterface<Data> {
         o << std::setw ( width_ ) << std::setiosflags ( std::ios::left ) <<
           std::resetiosflags ( std::ios::right ) << a3.str();
       }
-      o << std::setiosflags ( std::ios::left ) << "|" << endl;
+      o << std::setiosflags ( std::ios::left ) << "|" << std::endl;
       o << std::setw ( 4 ) << "----";
       for ( unsigned int y = 0; y < ws.size() - x + 1; y++ ) {
         o << std::setw ( width_ ) <<  line.str();
       }
-      o << endl;
+      o << std::endl;
     }
-    o << endl;
+    o << std::endl;
   }
 
   /**
@@ -172,7 +172,7 @@ class HifstStatsTask: public ucam::util::TaskInterface<Data> {
    * \param &o [file] stream
    */
   void writePruneStats ( oszfstream& o ) {
-    o << "Number of times=" << d_->stats->lpcount << endl;
+    o << "Number of times=" << d_->stats->lpcount << std::endl;
   }
 
 };

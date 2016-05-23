@@ -115,10 +115,10 @@ class HifstTest : public testing::Test {
     //We need to generate some rules. It is easy to do so with GrammarTask, so we do it. We need to keep these tasks during all the lifespan of the tests, though.
     gt_ = new uh::GrammarTask<uh::HifstTaskData<> > ( rg );
     std::stringstream ss;
-    ss << "X 3 3 0" << endl << "S S_X S_X 0" << endl;
-    ss << "X 4 4 0" << endl << "X 5 5 0" << endl << "X 1 1 0" << endl << "X 2 2 0"
-       << endl;
-    ss << "X 3_4 3_4 0" << endl << "X 3_X_5 3_X_5 0" << endl << "S X X 0" << endl;
+    ss << "X 3 3 0" << std::endl << "S S_X S_X 0" << std::endl;
+    ss << "X 4 4 0" << std::endl << "X 5 5 0" << std::endl << "X 1 1 0" << std::endl << "X 2 2 0"
+       << std::endl;
+    ss << "X 3_4 3_4 0" << std::endl << "X 3_X_5 3_X_5 0" << std::endl << "S X X 0" << std::endl;
     gt_->load ( ss );
     d_.grammar = gt_->getGrammarData();
     for ( unsigned k = 0; k < 9; ++k ) {
@@ -128,15 +128,15 @@ class HifstTest : public testing::Test {
     // Now we prepare manually some instance-patterns
     d_.sidx = 0;
     d_.sentence = "1 3 4 5 2";
-    d_.hpinstances["1"].push_back ( pair<unsigned, unsigned> ( 0, 0 ) );
-    d_.hpinstances["3"].push_back ( pair<unsigned, unsigned> ( 1, 0 ) );
-    d_.hpinstances["4"].push_back ( pair<unsigned, unsigned> ( 2, 0 ) );
-    d_.hpinstances["5"].push_back ( pair<unsigned, unsigned> ( 3, 0 ) );
-    d_.hpinstances["2"].push_back ( pair<unsigned, unsigned> ( 4, 0 ) );
-    d_.hpinstances["3_4"].push_back ( pair<unsigned, unsigned> ( 1, 1 ) );
-    d_.hpinstances["3_X_5"].push_back ( pair<unsigned, unsigned> ( 1, 2 ) );
-    d_.hpinstances["X_X"].push_back ( pair<unsigned, unsigned> ( 0, 1 ) );
-    d_.hpinstances["X"].push_back ( pair<unsigned, unsigned> ( 0, 0 ) );
+    d_.hpinstances["1"].push_back ( std::pair<unsigned, unsigned> ( 0, 0 ) );
+    d_.hpinstances["3"].push_back ( std::pair<unsigned, unsigned> ( 1, 0 ) );
+    d_.hpinstances["4"].push_back ( std::pair<unsigned, unsigned> ( 2, 0 ) );
+    d_.hpinstances["5"].push_back ( std::pair<unsigned, unsigned> ( 3, 0 ) );
+    d_.hpinstances["2"].push_back ( std::pair<unsigned, unsigned> ( 4, 0 ) );
+    d_.hpinstances["3_4"].push_back ( std::pair<unsigned, unsigned> ( 1, 1 ) );
+    d_.hpinstances["3_X_5"].push_back ( std::pair<unsigned, unsigned> ( 1, 2 ) );
+    d_.hpinstances["X_X"].push_back ( std::pair<unsigned, unsigned> ( 0, 1 ) );
+    d_.hpinstances["X"].push_back ( std::pair<unsigned, unsigned> ( 0, 0 ) );
     // Prepare sentence-specific grammar.
     ssgt_ = new uh::SentenceSpecificGrammarTask<uh::HifstTaskData<> > ( rg );
     ssgt_->run ( d_ );
@@ -224,27 +224,27 @@ TEST_F ( HifstTest, basic_translation3 ) {
   using namespace HifstConstants;
   {
     uu::oszfstream o ( "mylm" );
-    o << endl;
-    o << "\\data\\" << endl;
-    o << "ngram 1=5" << endl;
-    o << "ngram 2=2" << endl;
-    o << "ngram 3=1" << endl;
-    o << endl;
-    o << "\\1-grams:" << endl;
-    o << "-1\t3\t0" << endl;
-    o << "-10\t4\t0" << endl;
-    o << "-100\t5\t0" << endl;
-    o << "-1000\t</s>\t0" << endl;
-    o << "0\t<s>\t0" << endl;
-    o << endl;
-    o << "\\2-grams:" << endl;
-    o << "-10000\t3 4\t0" << endl;
-    o << "-100000\t4 </s>\t0" << endl;
-    o << endl;
-    o << "\\3-grams:" << endl;
-    o << "-1000000\t3 4 </s>" << endl;
-    o << endl;
-    o << "\\end\\" << endl;
+    o << std::endl;
+    o << "\\data\\" << std::endl;
+    o << "ngram 1=5" << std::endl;
+    o << "ngram 2=2" << std::endl;
+    o << "ngram 3=1" << std::endl;
+    o << std::endl;
+    o << "\\1-grams:" << std::endl;
+    o << "-1\t3\t0" << std::endl;
+    o << "-10\t4\t0" << std::endl;
+    o << "-100\t5\t0" << std::endl;
+    o << "-1000\t</s>\t0" << std::endl;
+    o << "0\t<s>\t0" << std::endl;
+    o << std::endl;
+    o << "\\2-grams:" << std::endl;
+    o << "-10000\t3 4\t0" << std::endl;
+    o << "-100000\t4 </s>\t0" << std::endl;
+    o << std::endl;
+    o << "\\3-grams:" << std::endl;
+    o << "-1000000\t3 4 </s>" << std::endl;
+    o << std::endl;
+    o << "\\end\\" << std::endl;
     o.close();
   }
   v_[kLmFeatureweights] = std::string ( "1.0" );
@@ -429,9 +429,9 @@ TEST ( HifstTest2, manualreplacefstbyarc ) {
   uh::grammar_inversecategories_t vcat;
   vcat[1] = "S";
   vcat[2] = "X";
-  unordered_set<std::string> replacefstbyarc;
+  std::unordered_set<std::string> replacefstbyarc;
   replacefstbyarc.insert ( "X" );
-  unordered_set<std::string> replacefstbyarcexceptions;
+  std::unordered_set<std::string> replacefstbyarcexceptions;
   replacefstbyarcexceptions.insert ("S");
   fst::VectorFst<fst::StdArc> a;
   for ( unsigned k = 0; k < 2; ++k ) a.AddState();

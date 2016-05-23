@@ -68,7 +68,7 @@ TEST (lmbr, extractngrams) {
   std::stringstream ss;
   for (unsigned k = 0; k < ng.size(); ++k)
     for (fst::NGramList::iterator itx = ng[k].begin(); itx != ng[k].end(); ++itx) {
-      ss << itx->first << endl;
+      ss << itx->first << std::endl;
       EXPECT_TRUE (itx->second == fst::StdArc::Weight::One() );
     }
   // 2 refs due to sorting

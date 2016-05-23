@@ -79,7 +79,7 @@ inline void loadflowerfst ( ucam::util::iszfstream& umf,
 /// and rewrites them using a special tag on output side (OOV)
 template<class Arc>
 inline void tagOOVs ( fst::VectorFst<Arc> *myfst,
-                      unordered_set<std::string>& vcb ) {
+                      std::unordered_set<std::string>& vcb ) {
   fst::MakeWeight<Arc> mw;
   typedef typename Arc::StateId StateId;
   for ( fst::StateIterator< fst::VectorFst<Arc> > si ( *myfst ); !si.Done();

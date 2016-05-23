@@ -89,7 +89,7 @@ class SingleThreadedLmbrTask: public ucam::util::TaskInterface<Data> {
           *onebestfiles[filename] << d.lmbronebest->alpha[j]
                                   << " " << d.lmbronebest->wps[j]
                                   << " " << d.lmbronebest->idx
-                                  << ":" << d.lmbronebest->hyp[j] << endl;
+                                  << ":" << d.lmbronebest->hyp[j] << std::endl;
         }
       }
     }
@@ -185,7 +185,7 @@ class MultiThreadedLmbrTask: public ucam::util::TaskInterface<Data> {
           *onebestfiles[filename] << lmbronebest[k]->alpha[j]
                                   << " " << lmbronebest[k]->wps[j]
                                   << " " << lmbronebest[k]->idx
-                                  << ":" << lmbronebest[k]->hyp[j] << endl;
+                                  << ":" << lmbronebest[k]->hyp[j] << std::endl;
         }
       }
     }

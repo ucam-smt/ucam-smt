@@ -178,7 +178,7 @@ template <class Arc>
 class MertLatticeWrap {
  public:
   MertLatticeWrap ( Sid sidx, fst::VectorFst<Arc>* fst, const PARAMS32& lambda,
-                    const PARAMS32& direction, vector< MertEnvelope<Arc> >& env ) :
+                    const PARAMS32& direction, std::vector< MertEnvelope<Arc> >& env ) :
     sid_ ( sidx ), fst_ ( fst ), lambda_ ( lambda ), direction_ ( direction ),
     env_ ( env ) {}
 
@@ -191,7 +191,7 @@ class MertLatticeWrap {
   fst::VectorFst<Arc>* fst_;
   PARAMS32 lambda_;
   PARAMS32 direction_;
-  vector< MertEnvelope<Arc> >& env_;
+  std::vector< MertEnvelope<Arc> >& env_;
 };
 
 }}  // end namespaces

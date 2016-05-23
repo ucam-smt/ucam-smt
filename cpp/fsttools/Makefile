@@ -3,7 +3,7 @@ CC=g++ -Wfatal-errors -rdynamic -std=c++11 # -fno-builtin-malloc -fno-builtin-ca
 DBG=-ggdb3 -gdwarf-2 
 PRO=-pg
 
-LIBS=-lfst -lpthread -lm -ldl $(BOOST_LOG_LIB1) $(BOOST_LOG_LIB2) -lboost_regex -lboost_program_options -lboost_iostreams -lboost_serialization -lboost_filesystem -lboost_system -lkenlm -lboost_thread -pthread -lz -lrt
+LIBS=-lfst -lpthread -lm -ldl $(BOOST_LOG_LIB1) $(BOOST_LOG_LIB2) -lboost_regex -lboost_program_options -lboost_iostreams -lboost_serialization -lboost_filesystem -lboost_system -lkenlm -lboost_thread -pthread -lz -lrt -lfstscript
 INCLUDE=-I./ -Iinclude -I../include -I../fsttools/include
 OINCLUDE=-I$(OPENFST_INCLUDE) -I$(BOOST_INCLUDE) -I./ -Iinclude -I../include -I$(KENLM_DIR)
 OLIBDIRS=-L$(OPENFST_LIB) -L$(BOOST_LIB) -L../../bin 

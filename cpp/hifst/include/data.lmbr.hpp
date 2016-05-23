@@ -22,7 +22,7 @@ namespace lmbr {
 
 const unsigned kEpsLabel = 0;
 
-typedef unordered_set<fst::WordId> Wlist;
+typedef std::unordered_set<fst::WordId> Wlist;
 typedef Wlist::iterator WlistIt;
 typedef double Posterior;
 typedef unordered_map< fst::NGram

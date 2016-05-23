@@ -100,7 +100,7 @@ inline void ParseParamString ( const std::string& stringparams
   if ( strm.fail() || strm.bad() ) {
     LERROR("Unable to parse params : " << stringparams.substr ( pos , span) );
     for ( unsigned k = 0; k < params.size(); ++k )
-      cerr << params[k] << endl;
+      std::cerr << params[k] << std::endl;
     exit ( EXIT_FAILURE );
   }
 }
@@ -156,7 +156,7 @@ struct ParamsInit {
           it != params.end(); ++it ) {
       ss << *it << ", ";
     }
-    std::cerr << "Setting params to: " << ss.str() << endl;
+    std::cerr << "Setting params to: " << ss.str() << std::endl;
 #endif
   }
 

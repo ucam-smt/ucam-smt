@@ -115,7 +115,7 @@ void WriteTunedParameters (const PARAMS& best,
                            const std::string& filename, const bool normalize) {
   std::ofstream ofs (filename.c_str() );
   if (!ofs.good() ) {
-    cerr << "ERROR: unable to write file " << filename << '\n';
+    std::cerr << "ERROR: unable to write file " << filename << '\n';
     exit (1);
   }
   PARAMS final = best;
@@ -135,15 +135,15 @@ int main (int argc, char** argv) {
   usage += argv[0];
   InitFst (usage.c_str(), &argc, &argv, true);
   if (FLAGS_lambda.empty() ) {
-    cerr << "ERROR: mandatory parameter not specified: 'lambda'\n";
+    std::cerr << "ERROR: mandatory parameter not specified: 'lambda'\n";
     return 1;
   }
   if (FLAGS_direction.empty() ) {
-    cerr << "ERROR: mandatory parameter not specified: 'direction'\n";
+    std::cerr << "ERROR: mandatory parameter not specified: 'direction'\n";
     return 1;
   }
   if (FLAGS_algorithm.empty() ) {
-    cerr << "ERROR: mandatory parameter not specified: 'algorithm'\n";
+    std::cerr << "ERROR: mandatory parameter not specified: 'algorithm'\n";
     return 1;
   }
   //tracer << "M=" << PARAMS::VECTOR_DIMENSIONS << " dimensions" << '\n';
@@ -168,8 +168,8 @@ int main (int argc, char** argv) {
     params_min = fst::ParseParamString<double, std::vector<double> > (
                    ReadWeight (FLAGS_params_min.data() ) );
     if (params_min.size() != dim) {
-      cerr << "Params min dimensionality does not match param vector "
-           << endl;
+      std::cerr << "Params min dimensionality does not match param vector "
+           << std::endl;
       exit (1);
     }
   }
@@ -177,8 +177,8 @@ int main (int argc, char** argv) {
     params_max = fst::ParseParamString<double, std::vector<double> > (
                    ReadWeight (FLAGS_params_max.data() ) );
     if (params_max.size() != dim) {
-      cerr << "Params max dimensionality does not match param vector "
-           << endl;
+      std::cerr << "Params max dimensionality does not match param vector "
+           << std::endl;
       exit (1);
     }
   }
@@ -195,7 +195,7 @@ int main (int argc, char** argv) {
   Optimizer* optimizer = optimizers[key];
   if (optimizer == 0) {
     tracer << "Unrecognized Optimizer\t" << FLAGS_error_function << "\t" <<
-           FLAGS_algorithm << "\t" << FLAGS_search << endl;
+           FLAGS_algorithm << "\t" << FLAGS_search << std::endl;
     exit (1);
   }
   optimizer->InitTuneSet (FLAGS_cache_lattices);
@@ -203,15 +203,15 @@ int main (int argc, char** argv) {
   optimizer->LoadRefData (refFilenames);
   optimizer->Init (dim);
   std::string startScore = optimizer->ComputeError (lambda);
-  tracer << "starting point bleu=" << startScore << endl;
-  pair<PARAMS, double> tuned = (*optimizer) (lambda);
+  tracer << "starting point bleu=" << startScore << std::endl;
+  std::pair<PARAMS, double> tuned = (*optimizer) (lambda);
   tracer << "optimization result:\n";
   if (opts.fullLog) {
-    tracer << "  start: " << lambda << " " << startScore << endl;
-    tracer << "  final: " << tuned.first << " " << tuned.second << endl;
+    tracer << "  start: " << lambda << " " << startScore << std::endl;
+    tracer << "  final: " << tuned.first << " " << tuned.second << std::endl;
   } else {
-    tracer << "  start: " << startScore << endl;
-    tracer << "  final: " << tuned.second << endl;
+    tracer << "  start: " << startScore << std::endl;
+    tracer << "  final: " << tuned.second << std::endl;
   }
   if (!FLAGS_write_parameters.empty() ) {
     WriteTunedParameters (tuned.first, FLAGS_write_parameters,

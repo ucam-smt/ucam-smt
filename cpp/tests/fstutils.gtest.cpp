@@ -110,11 +110,11 @@ TEST ( fstutils, multiepsiloncomposition ) {
   //Ready to use the multiepsilon compose
   //Compare to traditional approach:
   // Traverse a and relabel OOV and DR to epsilon
-  std::vector<pair< fst::StdArc::Label, fst::StdArc::Label> > ipairs;
-  std::vector<pair< fst::StdArc::Label, fst::StdArc::Label> > opairs;
-  opairs.push_back ( pair< fst::StdArc::Label, fst::StdArc::Label> ( OOV,
+  std::vector<std::pair< fst::StdArc::Label, fst::StdArc::Label> > ipairs;
+  std::vector<std::pair< fst::StdArc::Label, fst::StdArc::Label> > opairs;
+  opairs.push_back ( std::pair< fst::StdArc::Label, fst::StdArc::Label> ( OOV,
                      EPSILON ) );
-  opairs.push_back ( pair< fst::StdArc::Label, fst::StdArc::Label> ( DR,
+  opairs.push_back ( std::pair< fst::StdArc::Label, fst::StdArc::Label> ( DR,
                      EPSILON ) );
   //Both approaches should be equivalent, right?
   //test epsilon-free determinized lattices resulting from both methods...
@@ -159,26 +159,26 @@ TEST ( fstutils, phicompose ) {
 TEST ( fstutils, applylmonthefly ) {
   {
     ucam::util::oszfstream o ( "mylm" );
-    o << endl;
-    o << "\\data\\" << endl;
-    o << "ngram 1=4" << endl;
-    o << "ngram 2=2" << endl;
-    o << "ngram 3=1" << endl;
-    o << endl;
-    o << "\\1-grams:" << endl;
-    o << "-1\t3\t0" << endl;
-    o << "-10\t4\t0" << endl;
-    o << "-100\t</s>\t0" << endl;
-    o << "0\t<s>\t0" << endl;
-    o << endl;
-    o << "\\2-grams:" << endl;
-    o << "-1000\t3 4\t0" << endl;
-    o << "-10000\t4 </s>\t0" << endl;
-    o << endl;
-    o << "\\3-grams:" << endl;
-    o << "-100000\t3 4 </s>" << endl;
-    o << endl;
-    o << "\\end\\" << endl;
+    o << std::endl;
+    o << "\\data\\" << std::endl;
+    o << "ngram 1=4" << std::endl;
+    o << "ngram 2=2" << std::endl;
+    o << "ngram 3=1" << std::endl;
+    o << std::endl;
+    o << "\\1-grams:" << std::endl;
+    o << "-1\t3\t0" << std::endl;
+    o << "-10\t4\t0" << std::endl;
+    o << "-100\t</s>\t0" << std::endl;
+    o << "0\t<s>\t0" << std::endl;
+    o << std::endl;
+    o << "\\2-grams:" << std::endl;
+    o << "-1000\t3 4\t0" << std::endl;
+    o << "-10000\t4 </s>\t0" << std::endl;
+    o << std::endl;
+    o << "\\3-grams:" << std::endl;
+    o << "-100000\t3 4 </s>" << std::endl;
+    o << std::endl;
+    o << "\\end\\" << std::endl;
     o.close();
   }
   //Build here the resulting lattice with the expected value
@@ -382,7 +382,7 @@ TEST (fstutils, extractngrams ) {
   fst::extractNGrams<fst::StdArc> (a, ng, 5);
   std::stringstream ss;
   for (uint k = 0; k < ng.size(); ++k)
-    ss << ng[k] << endl;
+    ss << ng[k] << std::endl;
   std::string ngrams =
     "1\n1 2\n1 2 3\n1 2 3 4\n1 2 6\n1 2 6 7\n1 5\n1 5 4\n2\n2 3\n2 3 4\n2 6\n2 6 7\n3\n3 4\n4\n5\n5 4\n6\n6 7\n7\n";
   EXPECT_TRUE (ngrams == ss.str() );
@@ -430,12 +430,12 @@ TEST ( fstutils, relabelutil) {
   EXPECT_EQ (Equivalent (rb (b), a),
              true);
   ///Now lets replace a couple of symbols in the openfst way --
-  std::vector<pair <fst::StdArc::Label, fst::StdArc::Label> > ipairs;
-  std::vector<pair <fst::StdArc::Label, fst::StdArc::Label> >  opairs;
-  ipairs.push_back (pair <fst::StdArc::Label, fst::StdArc::Label> (3, 3000 ) );
-  ipairs.push_back (pair <fst::StdArc::Label, fst::StdArc::Label> (4, 4000 ) );
-  opairs.push_back (pair <fst::StdArc::Label, fst::StdArc::Label> (3, 3000) );
-  opairs.push_back (pair <fst::StdArc::Label, fst::StdArc::Label> (4, 4000) );
+  std::vector<std::pair <fst::StdArc::Label, fst::StdArc::Label> > ipairs;
+  std::vector<std::pair <fst::StdArc::Label, fst::StdArc::Label> >  opairs;
+  ipairs.push_back (std::pair <fst::StdArc::Label, fst::StdArc::Label> (3, 3000 ) );
+  ipairs.push_back (std::pair <fst::StdArc::Label, fst::StdArc::Label> (4, 4000 ) );
+  opairs.push_back (std::pair <fst::StdArc::Label, fst::StdArc::Label> (3, 3000) );
+  opairs.push_back (std::pair <fst::StdArc::Label, fst::StdArc::Label> (4, 4000) );
   Relabel (&a, ipairs, opairs);
   //and test...
   EXPECT_EQ (Equivalent (rb.addIPL (3, 3000).addOPL (3, 3000).addIPL (4,

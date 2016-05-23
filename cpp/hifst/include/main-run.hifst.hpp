@@ -165,7 +165,7 @@ class SingleThreadedHifstTask: public ucam::util::TaskInterface<DataT<ArcT>  > {
                    d.originalsentence );
       grammartask->chainrun ( d );        //Run translation!
       if ( fileoutput != NULL )
-        *fileoutput << *d.translation << endl;
+        *fileoutput << *d.translation << std::endl;
       if ( finished ) break;
     }
     if ( fileoutput != NULL )
@@ -339,7 +339,7 @@ class MultiThreadedHifstTask: public ucam::util::TaskInterface<DataT<ArcT> > {
     if ( textoutput_ == "" ) return false;
     boost::scoped_ptr<oszfstream> fileoutput ( new oszfstream ( textoutput_ ) );
     for ( unsigned k = 0; k < translations.size(); ++k )
-      *fileoutput << *translations[k] << endl;
+      *fileoutput << *translations[k] << std::endl;
     return false;
   };
 

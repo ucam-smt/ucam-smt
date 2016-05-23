@@ -376,7 +376,7 @@ private:
   bool useWidMap_;
   bool intRefs_;
   boost::mutex mutex;
-  vector< LRUCache > bleuStatsCache;
+  std::vector< LRUCache > bleuStatsCache;
   unsigned int chits_;
   unsigned int cmisses_;
   bool useCache_;
@@ -399,7 +399,7 @@ private:
   // n.b. not to be multithreaded - references are loaded only once by main
   SentenceIdx LoadIntRefExternalTokenizer(std::string const &s) {
     string si;
-    (*intOut) << s << endl;
+    (*intOut) << s << std::endl;
     getline(*normalIn, si);
     std::istringstream is(si);
     SentenceIdx rs;
@@ -454,7 +454,7 @@ private:
     } 
     string si;
     mutex.lock();
-    (*intOut) << os.str() << endl;
+    (*intOut) << os.str() << std::endl;
     getline(*normalIn, si);
     mutex.unlock();
     std::istringstream is(si);

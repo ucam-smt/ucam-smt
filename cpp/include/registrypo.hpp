@@ -71,7 +71,7 @@ inline void parseOptionsGeneric ( bpo::options_description& desc
                                           argv ).options ( cmdline_options ).positional ( p ).run(), *vm );
   bpo::notify ( *vm );
   if ( vm->count ( HifstConstants::kHelp.c_str() ) ) {
-    cout << cmdline_options << "\n";
+    std::cout << cmdline_options << "\n";
     exit ( EXIT_SUCCESS );
   }
   if ( config_file != "" ) {
@@ -108,7 +108,7 @@ class RegistryPO {
   std::string dump ( const std::string& decorator_start = "",
                      const std::string& decorator_end = "" )  {
     std::stringstream ss;
-    ss << decorator_start << endl;
+    ss << decorator_start << std::endl;
     for ( bpo::variables_map::iterator itx = vm_.begin(); itx != vm_.end();
           ++itx ) {
       if ( !print<std::string> ( ss, itx ) )
@@ -276,9 +276,9 @@ class RegistryPO {
    * \returns value splitted by commas into a set of strings.
    */
 
-  inline unordered_set<std::string> getSetString ( const std::string& key ) const {
+  inline std::unordered_set<std::string> getSetString ( const std::string& key ) const {
     std::vector<std::string> vaux = getVectorString ( key );
-    unordered_set<std::string> saux;
+    std::unordered_set<std::string> saux;
     for ( uint k = 0; k < vaux.size(); ++k )
       saux.insert ( vaux[k] );
     return saux;
@@ -291,9 +291,9 @@ class RegistryPO {
    */
 
   template<typename NumberT>
-  inline unordered_set<NumberT> getSetNumber ( const std::string& key ) const {
+  inline std::unordered_set<NumberT> getSetNumber ( const std::string& key ) const {
     std::vector<std::string> vaux = getVectorString ( key );
-    unordered_set<NumberT> saux;
+    std::unordered_set<NumberT> saux;
     for ( uint k = 0; k < vaux.size(); ++k )
       saux.insert ( toNumber<NumberT> (vaux[k]) );
     return saux;
@@ -305,10 +305,10 @@ class RegistryPO {
    * \returns unordered set indexed by position (starting at 1).
    */
 
-  unordered_map<uint, std::string> getMappedIndexString ( const std::string& key )
+  std::unordered_map<uint, std::string> getMappedIndexString ( const std::string& key )
   const {
     std::vector <std::string> aux = getVectorString ( key );
-    unordered_map<uint, std::string> mraux;
+    std::unordered_map<uint, std::string> mraux;
     for ( uint k = 0; k < aux.size(); ++k )
       mraux[k + 1] = aux[k]; //Note that mapped indices always start from 1
     return mraux;
@@ -320,10 +320,10 @@ class RegistryPO {
    * \returns unordered_map indexed by string returning position (starting at 1).
    */
 
-  inline unordered_map<std::string, uint> getMappedStringIndex (
+  inline std::unordered_map<std::string, uint> getMappedStringIndex (
     const std::string& key ) const {
     std::vector <std::string> aux = getVectorString ( key );
-    unordered_map<std::string, uint> miraux;
+    std::unordered_map<std::string, uint> miraux;
     for ( uint k = 0; k < aux.size(); ++k ) {
       miraux[aux[k]] = k + 1; //Note that mapped inverse indices always start from 1
     }
@@ -337,10 +337,10 @@ class RegistryPO {
    * \returns unordered_map indexed by string returning position (starting at 1).
    */
 
-  unordered_map<std::string, uint> getPairMappedStringUInt (
+  std::unordered_map<std::string, uint> getPairMappedStringUInt (
     const std::string& key ) const {
     std::vector <std::string> aux = getVectorString ( key );
-    unordered_map<std::string, uint> mraux;
+    std::unordered_map<std::string, uint> mraux;
     if ( !USER_CHECK ( ! ( aux.size() % 2 ),
                        "Values are expected to come by pairs string,uint,string,uint,..." ) )
       return mraux;
@@ -364,9 +364,9 @@ class RegistryPO {
       ssaux << any_cast<T> ( itx->second.value() );
       if ( ssaux.str() != "" )
         ss << "\t\t+" << itx->first << "=" << any_cast<T> ( itx->second.value() ) <<
-           endl;
+           std::endl;
       else
-        ss << "\t\t+" << itx->first << endl;
+        ss << "\t\t+" << itx->first << std::endl;
       return true;
     }
     return false;

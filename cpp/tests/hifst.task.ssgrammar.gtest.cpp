@@ -55,11 +55,11 @@ struct DataForSentenceSpecificGrammarTask {
   unsigned sidx;
   std::string sentence;
   uh::GrammarData *grammar;
-  unordered_map<std::string, std::vector< pair <unsigned, unsigned> > >
+  unordered_map<std::string, std::vector< std::pair <unsigned, unsigned> > >
   hpinstances;
   uh::SentenceSpecificGrammarData *ssgd;
   std::auto_ptr<uf::StatsData> stats;
-  unordered_set<std::string> tvcb;
+  std::unordered_set<std::string> tvcb;
 };
 
 ///Basic test for TextTask class.
@@ -78,14 +78,14 @@ TEST ( HifstSentenceSpecificGrammarTask, basic_test ) {
   boost::scoped_ptr< uh::GrammarTask<DataForSentenceSpecificGrammarTask> > gt (
     new  uh::GrammarTask<DataForSentenceSpecificGrammarTask> ( rg ) );
   std::stringstream ss;
-  ss << "X 3 3 0" << endl << "S S_X S_X 0" << endl;
-  ss << "X 4 4 0" << endl << "X 5 5 0" << endl;
-  ss << "X 2 2 0" << endl;
-  ss << "X 3_4 3_4 0" << endl << "X 3_X1_5 3_X1_5 0" << endl;
+  ss << "X 3 3 0" << std::endl << "S S_X S_X 0" << std::endl;
+  ss << "X 4 4 0" << std::endl << "X 5 5 0" << std::endl;
+  ss << "X 2 2 0" << std::endl;
+  ss << "X 3_4 3_4 0" << std::endl << "X 3_X1_5 3_X1_5 0" << std::endl;
   //No rule for 1.
   //Instead, these two will apply on that word, as defined by grid instance pattern
-  ss << "S X1 X1 0" << endl;
-  ss << "S M1 M1 0" << endl;
+  ss << "S X1 X1 0" << std::endl;
+  ss << "S M1 M1 0" << std::endl;
   gt->load ( ss );
   boost::scoped_ptr< DataForSentenceSpecificGrammarTask> dor (
     new DataForSentenceSpecificGrammarTask );
@@ -98,19 +98,19 @@ TEST ( HifstSentenceSpecificGrammarTask, basic_test ) {
   d.grammar->patterns.insert ( "w_X_w" );
   d.grammar->patterns.insert ( "X_X" );
   d.sentence = "1 3 4 5 2 " + uu::toString ( OOVID );
-  d.hpinstances["1"].push_back ( pair<unsigned, unsigned> ( 0, 0 ) );
-  d.hpinstances["3"].push_back ( pair<unsigned, unsigned> ( 1, 0 ) );
-  d.hpinstances["4"].push_back ( pair<unsigned, unsigned> ( 2, 0 ) );
-  d.hpinstances["5"].push_back ( pair<unsigned, unsigned> ( 3, 0 ) );
-  d.hpinstances["2"].push_back ( pair<unsigned, unsigned> ( 4, 0 ) );
-  d.hpinstances[uu::toString ( OOVID )].push_back ( pair<unsigned, unsigned> ( 5,
+  d.hpinstances["1"].push_back ( std::pair<unsigned, unsigned> ( 0, 0 ) );
+  d.hpinstances["3"].push_back ( std::pair<unsigned, unsigned> ( 1, 0 ) );
+  d.hpinstances["4"].push_back ( std::pair<unsigned, unsigned> ( 2, 0 ) );
+  d.hpinstances["5"].push_back ( std::pair<unsigned, unsigned> ( 3, 0 ) );
+  d.hpinstances["2"].push_back ( std::pair<unsigned, unsigned> ( 4, 0 ) );
+  d.hpinstances[uu::toString ( OOVID )].push_back ( std::pair<unsigned, unsigned> ( 5,
       0 ) );
-  d.hpinstances["3_4"].push_back ( pair<unsigned, unsigned> ( 1, 1 ) );
-  d.hpinstances["3_X_5"].push_back ( pair<unsigned, unsigned> ( 1, 2 ) );
-  d.hpinstances["X_X"].push_back ( pair<unsigned, unsigned> ( 1, 1 ) );
+  d.hpinstances["3_4"].push_back ( std::pair<unsigned, unsigned> ( 1, 1 ) );
+  d.hpinstances["3_X_5"].push_back ( std::pair<unsigned, unsigned> ( 1, 2 ) );
+  d.hpinstances["X_X"].push_back ( std::pair<unsigned, unsigned> ( 1, 1 ) );
   //This one repeated on purpose. hpinstances are repeated if accepted for different spans, but ssgrammar shouldn't have repeated rules
-  d.hpinstances["X_X"].push_back ( pair<unsigned, unsigned> ( 1, 1 ) );
-  d.hpinstances["X"].push_back ( pair<unsigned, unsigned> ( 0, 0 ) );
+  d.hpinstances["X_X"].push_back ( std::pair<unsigned, unsigned> ( 1, 1 ) );
+  d.hpinstances["X"].push_back ( std::pair<unsigned, unsigned> ( 0, 0 ) );
   boost::scoped_ptr< uh::SentenceSpecificGrammarTask<DataForSentenceSpecificGrammarTask> >
   ssgt ( new uh::SentenceSpecificGrammarTask<DataForSentenceSpecificGrammarTask>
          ( rg ) );
@@ -166,7 +166,7 @@ TEST ( HifstSentenceSpecificGrammarTask, basic_test ) {
   //Rules should only appear once per position. Example:
   EXPECT_EQ ( d.ssgd->rulesWithRhsSpan2OrMore[1]["S"].size(), 1 );
   //Testing existence of rules
-  unordered_set<std::string> aux;
+  std::unordered_set<std::string> aux;
   aux.insert ( d.ssgd->getRule ( d.ssgd->rulesWithRhsSpan2OrMore[1]["S"][0] ) );
   aux.insert ( d.ssgd->getRule ( d.ssgd->rulesWithRhsSpan2OrMore[1]["3"][0] ) );
   aux.insert ( d.ssgd->getRule ( d.ssgd->rulesWithRhsSpan2OrMore[1]["3"][1] ) );
@@ -179,7 +179,7 @@ TEST ( HifstSentenceSpecificGrammarTask, data ) {
   uh::SentenceSpecificGrammarData gd ;
   uh::GrammarTask<DataForSentenceSpecificGrammarTask> gt ( "", "" );
   std::stringstream ss;
-  ss << "XT 35_47_T T_43_55_58 0.450" << endl << "ST ST_XT ST_XT 0.370" << endl;
+  ss << "XT 35_47_T T_43_55_58 0.450" << std::endl << "ST ST_XT ST_XT 0.370" << std::endl;
   gt.load ( ss );
   gd.grammar = gt.getGrammarData();
   gd.extrarules[0] = "S S_X S_X 0.37";

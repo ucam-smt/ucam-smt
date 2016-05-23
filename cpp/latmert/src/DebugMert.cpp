@@ -27,14 +27,14 @@ MertList const DebugMertAlgorithm::ComputeLatticeEnvelope (TupleArcFst* vec,
     ++lit;
   }
   if ( ! identical) {
-    cout << "TGMERT: " << endl;
+    std::cout << "TGMERT: " << std::endl;
     for (MertIter tgit = tgList.begin(); tgit != tgList.end(); ++tgit) {
-      cout << tgit->x << "\t"  << tgit->t << endl;
+      std::cout << tgit->x << "\t"  << tgit->t << std::endl;
     }
-    cout << "LMERT: " << endl;
+    std::cout << "LMERT: " << std::endl;
     for (std::vector<MertLine>::iterator lit = lList.begin(); lit != lList.end();
          ++lit) {
-      cout << lit->x << "\t"  << lit->t << endl;
+      std::cout << lit->x << "\t"  << lit->t << std::endl;
     }
   }
   return tgList;

@@ -99,15 +99,15 @@ class LmbrTask: public ucam::util::TaskInterface<Data> {
             rg.get<unsigned> (maxorder)
            ) {
     if (minorder_ <  1 || maxorder_ <  1) {
-      cerr << "error: 'minorder' and/or 'maxorder' < 1 \n";
+      std::cerr << "error: 'minorder' and/or 'maxorder' < 1 \n";
       exit (1);
     }
     if (minorder_ > 10 || maxorder_ > 10) {
-      cerr << "error: 'minorder' and/or 'maxorder' > 10\n";
+      std::cerr << "error: 'minorder' and/or 'maxorder' > 10\n";
       exit (1);
     }
     if (minorder_ > maxorder_) {
-      cerr << "error: 'minorder' > 'maxorder'\n";
+      std::cerr << "error: 'minorder' > 'maxorder'\n";
       exit (1);
     }
     LINFO ( "min order=" << minorder_ );

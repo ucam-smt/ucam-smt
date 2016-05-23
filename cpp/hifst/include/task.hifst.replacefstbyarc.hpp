@@ -100,8 +100,8 @@ class ManualReplaceFstByArc {
   /// Alignment mode
   // bool aligner_;
   /// Set of unique non-terminals. Cells representing theses non-terminals will be replaced
-  unordered_set<std::string> replacefstbyarc_;
-  unordered_set<std::string> replacefstbyarcexceptions_;
+  std::unordered_set<std::string> replacefstbyarc_;
+  std::unordered_set<std::string> replacefstbyarcexceptions_;
   grammar_inversecategories_t vcat_;
   /// Minimum number of states
   std::size_t const minns_;
@@ -115,7 +115,7 @@ class ManualReplaceFstByArc {
    * \param min_numstates  Number of states minimum threshold
    */
   ManualReplaceFstByArc ( grammar_inversecategories_t const& vcat,
-                          unordered_set<std::string> const& replacefstbyarc,
+                          std::unordered_set<std::string> const& replacefstbyarc,
                           bool alignmode,
                           std::size_t min_numstates = std::numeric_limits<std::size_t>::max()
                         )
@@ -126,8 +126,8 @@ class ManualReplaceFstByArc {
   {};
 
   ManualReplaceFstByArc ( grammar_inversecategories_t const& vcat,
-                          unordered_set<std::string> const& replacefstbyarc,
-                          unordered_set<std::string> const& replacefstbyarcexceptions,
+                          std::unordered_set<std::string> const& replacefstbyarc,
+                          std::unordered_set<std::string> const& replacefstbyarcexceptions,
                           bool alignmode,
                           std::size_t min_numstates = std::numeric_limits<std::size_t>::max()
                           )

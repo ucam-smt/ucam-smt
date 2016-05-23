@@ -161,7 +161,7 @@ class WordPenaltyMapper {
  public:
   ///Constructor
   explicit WordPenaltyMapper ( typename Arc::Weight wp,
-                               unordered_set<typename Arc::Label> epsilons) :
+                               std::unordered_set<typename Arc::Label> epsilons) :
     epsilons_ (epsilons),
     wp_ ( wp ) {
   };
@@ -188,7 +188,7 @@ class WordPenaltyMapper {
 
   ///Specialized functor that modifies arc weights.
   typename Arc::Weight wp_;
-  unordered_set<typename Arc::Label> epsilons_;
+  std::unordered_set<typename Arc::Label> epsilons_;
 
 };
 

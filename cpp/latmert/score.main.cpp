@@ -27,6 +27,6 @@ int main (int argc, char **argv) {
   std::vector<std::string> refFilenames = InitRefDataFilenames (argc, argv);
   TuneSet lats;
   lats.Initialize (false);
-  cout << "Error " << (*scorers[FLAGS_error_function]) (refFilenames, lats,
-       lambda) << endl;
+  std::cout << "Error " << (*scorers[FLAGS_error_function]) (refFilenames, lats,
+       lambda) << std::endl;
 }

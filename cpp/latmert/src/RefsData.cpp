@@ -105,7 +105,7 @@ std::vector<std::vector<std::string> > LoadRefFiles (std::vector<std::string>
   for (unsigned int r = 0; r < files.size(); ++r) {
     std::ifstream ifs (files[r].c_str() );
     if (!ifs.good() ) {
-      cerr << "ERROR: unable to open file " << files[r] << '\n';
+      std::cerr << "ERROR: unable to open file " << files[r] << '\n';
       exit (1);
     }
     std::string line;
@@ -143,7 +143,7 @@ void IntegerEncRefs::LoadRefData (std::vector<std::string> files) {
 IntegerEncRefs::ErrorStats IntegerEncRefs::ComputeErrorStats (Sid sid,
     Sentence h) const {
   if (sid + 1 > refsData.size() ) {
-    cerr << "ERROR: no references loaded for sentence s=" << sid << '\n';
+    std::cerr << "ERROR: no references loaded for sentence s=" << sid << '\n';
     exit (1);
   }
   return refsData[sid].ComputeBleuStats (h);

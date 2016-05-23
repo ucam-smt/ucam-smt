@@ -206,7 +206,7 @@ struct SentenceSpecificGrammarData {
   ///Determines whether a rule is allowed within the vocabulary. If the rule is sentence-specific (i.e. created due to oov or feedback,etc)
   ///this method will always return true.
   inline const bool isAcceptedByVocabulary ( const std::size_t idx,
-      const unordered_set<std::string>& vcb ) {
+      const std::unordered_set<std::string>& vcb ) {
     if ( extrarules.find ( idx ) == extrarules.end() )
       return grammar->isAcceptedByVocabulary ( idx, vcb );
     return true;

@@ -40,7 +40,7 @@ inline float ZPosInfinity() {
 
 template<class Arc >
 inline void extractSourceVocabulary ( const fst::VectorFst<Arc>& myfst,
-                                      unordered_set<std::string> *vcb ) {
+                                      std::unordered_set<std::string> *vcb ) {
   USER_CHECK ( vcb, "NULL pointer not accepted" );
   using fst::StateIterator;
   using fst::VectorFst;
@@ -65,7 +65,7 @@ inline void extractSourceVocabulary ( const fst::VectorFst<Arc>& myfst,
 
 template<class Arc >
 inline void extractSourceVocabulary ( const fst::VectorFst<Arc>& myfst,
-                                      unordered_set<unsigned> *vcb, 
+                                      std::unordered_set<unsigned> *vcb, 
                                       unsigned offset = 0) {
   USER_CHECK ( vcb, "NULL pointer not accepted" );
   using fst::StateIterator;
@@ -89,7 +89,7 @@ inline void extractSourceVocabulary ( const fst::VectorFst<Arc>& myfst,
 
 template<class Arc>
 void extractTargetVocabulary ( const fst::VectorFst<Arc>& myfst,
-                               unordered_set<std::string> *vcb ) {
+                               std::unordered_set<std::string> *vcb ) {
   USER_CHECK ( vcb, "NULL pointer not accepted" );
   typedef typename Arc::StateId StateId;
   using fst::StateIterator;
@@ -284,7 +284,7 @@ inline void printstrings ( const fst::VectorFst<Arc>& pcostslat,
   for ( unsigned k = 0; k < cost.size(); ++k ) {
     c = Times ( c, cost[k] );
   }
-  *hyps << c << endl;
+  *hyps << c << std::endl;
 };
 
 ///Struct for priority queue comparison

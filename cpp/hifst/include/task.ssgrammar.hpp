@@ -107,7 +107,7 @@ class SentenceSpecificGrammarTask: public ucam::util::TaskInterface<Data> {
   ///\todo Include extra created rules. For this, the ssgrammar must be appropriately sorted, so that we can just append the new rules at the end.
   void writessgrammar ( const std::string& filename ) {
     FORCELINFO ( "Saving ssgrammar to " << filename );
-    unordered_set<unsigned> seenrules;
+    std::unordered_set<unsigned> seenrules;
     ucam::util::oszfstream o ( filename );
     for ( ssgrammar_rulesmap_t::iterator itx = ssgd_.rulesWithRhsSpan1.begin();
           itx != ssgd_.rulesWithRhsSpan1.end();
@@ -118,7 +118,7 @@ class SentenceSpecificGrammarTask: public ucam::util::TaskInterface<Data> {
         for ( unsigned k = 0; k < itx2->second.size(); ++k ) {
           if ( seenrules.find ( itx2->second[k] ) != seenrules.end() ) continue;
           seenrules.insert ( itx2->second[k] );
-          o << ssgd_.grammar->getRule ( itx2->second[k] ) << endl;
+          o << ssgd_.grammar->getRule ( itx2->second[k] ) << std::endl;
         }
       }
     }
@@ -132,7 +132,7 @@ class SentenceSpecificGrammarTask: public ucam::util::TaskInterface<Data> {
         for ( unsigned k = 0; k < itx2->second.size(); ++k ) {
           if ( seenrules.find ( itx2->second[k] ) != seenrules.end() ) continue;
           seenrules.insert ( itx2->second[k] );
-          o << ssgd_.grammar->getRule ( itx2->second[k] ) << endl;
+          o << ssgd_.grammar->getRule ( itx2->second[k] ) << std::endl;
         }
       }
     }
@@ -177,7 +177,7 @@ class SentenceSpecificGrammarTask: public ucam::util::TaskInterface<Data> {
                ", number of instances at which this was found: (x,span): " <<
                itx->second.size() );
       ///Note that we are not using span, therefore we discard repeated ones here
-      unordered_set<unsigned> seenx;
+      std::unordered_set<unsigned> seenx;
       if ( getSize ( itx->first ) == 1 ) {
         for ( unsigned k = 0; k < itx->second.size(); ++k ) {
           unsigned& x = itx->second[k].first;
@@ -219,7 +219,7 @@ class SentenceSpecificGrammarTask: public ucam::util::TaskInterface<Data> {
 
   void addRuleIndicesRHS ( const std::string& needle
                            , const int pos, ssgrammar_firstelementmap_t& rules
-                           , const unordered_set<std::string>& vcb ) {
+                           , const std::unordered_set<std::string>& vcb ) {
     USER_CHECK ( pos >= 0, "pos needs to be positive" );
     LDEBUG ( "**Adding indices for rules" );
     const GrammarData& g = *ssgd_.grammar;

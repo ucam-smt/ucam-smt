@@ -54,15 +54,15 @@ class SpeedStatsTask: public ucam::util::TaskInterface<Data> {
     FORCELINFO ( "Writing stats to "  << statsoutput_ ( d.sidx ) );
     oszfstream o ( statsoutput_ ( d.sidx ) );
     o << "=================================================================" <<
-      endl;
-    o << "Sentence " << d.sidx << ": Time (ms):" << endl;
+      std::endl;
+    o << "Sentence " << d.sidx << ": Time (ms):" << std::endl;
     writeSpeedStats ( o );
     o << "-----------------------------------------------------------------" <<
-      endl;
-    o << "Other:" << endl;
-    o << d_->stats->message << endl;
+      std::endl;
+    o << "Other:" << std::endl;
+    o << d_->stats->message << std::endl;
     o << "=================================================================" <<
-      endl;
+      std::endl;
     o.close();
     return false;
   };

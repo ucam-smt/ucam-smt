@@ -121,7 +121,7 @@ class LoadSparseWeightFlowerLatticeTask: public ucam::util::TaskInterface<DataT>
     previousfile_ = filename;
   }
 
-  virtual void gatherRuleIds(unordered_set<unsigned> &idxrules
+  virtual void gatherRuleIds(std::unordered_set<unsigned> &idxrules
                              , bool filterbyalilats
                              , ucam::util::IntegerPatternAddress &alilats
                              , ucam::util::RegistryPO const &rg ) {
@@ -165,7 +165,7 @@ class LoadSparseWeightFlowerLatticeTask: public ucam::util::TaskInterface<DataT>
 
     FORCELINFO ( "loading grammar from " << filename );
     if ( directload ( filename ) ) return true;
-    unordered_set<unsigned> idxrules;
+    std::unordered_set<unsigned> idxrules;
     gatherRuleIds(idxrules, filterbyalilats_, alilats_, rg_ );
     this->initStructure();
 
@@ -263,7 +263,7 @@ class LoadSparseWeightsTask: public LoadSparseWeightFlowerLatticeTask<DataT> {
 
   virtual void closeStructure() {}
 
-  virtual void gatherRuleIds(unordered_set<unsigned> &idxrules
+  virtual void gatherRuleIds(std::unordered_set<unsigned> &idxrules
                              , bool filterbyalilats
                              , ucam::util::IntegerPatternAddress &alilats
                              , ucam::util::RegistryPO const &rg ) {

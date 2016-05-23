@@ -89,7 +89,7 @@ class SingleThreadedHifstClientTask: public ucam::util::TaskInterface<Data> {
       run ( d );
       FORCELINFO ( *d.translation );
       if ( fileoutput != NULL )
-        *fileoutput << *d.translation << endl;
+        *fileoutput << *d.translation << std::endl;
       if ( finished ) break;
     }
     delete fileoutput;

@@ -29,7 +29,7 @@ typename RefData::ErrorStats::Error ComputeError (RefData& refData,
     }
     TupleArcFst* fst = lats.GetVectorLattice (*sit, opts.useCache);
     if (!fst) {
-      cerr << "ERROR: invalid vector lattice for sentence s=" << *sit
+      std::cerr << "ERROR: invalid vector lattice for sentence s=" << *sit
            << '\n';
       exit (1);
     }

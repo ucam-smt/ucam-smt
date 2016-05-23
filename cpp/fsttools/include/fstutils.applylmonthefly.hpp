@@ -290,7 +290,7 @@ template<class ArcT>
 struct ApplyLanguageModelOnTheFlyInterface {
   virtual VectorFst<ArcT> *run(VectorFst<ArcT> const& fst) = 0;
   virtual VectorFst<ArcT> *run(VectorFst<ArcT> const& fst
-                               , unordered_set<typename ArcT::Label> const &epsilons) = 0;
+                               , std::unordered_set<typename ArcT::Label> const &epsilons) = 0;
   virtual VectorFst<ArcT> *run(const VectorFst<ArcT>& fst
                                , unsigned srcSize
                                , std::vector< std::vector<unsigned> >  &srcWindows) =0;
@@ -321,7 +321,7 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
   static const ull sid = 1000000000;
   /// m12state=<m1state,m2state>
   unordered_map<uint64_t
-                , pair<StateId, typename KenLMModelT::State > > statemap_;
+                , std::pair<StateId, typename KenLMModelT::State > > statemap_;
   /// history, lmstate
 
   unordered_map<basic_string<unsigned>
@@ -333,7 +333,7 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
   queue<StateId> qc_;
 
   ///Arc labels to be treated as epsilons, i.e. transparent to the language model.
-  unordered_set<Label> epsilons_;
+  std::unordered_set<Label> epsilons_;
 
   KenLMModelT& lmmodel_;
   const typename KenLMModelT::Vocabulary& vocab_;
@@ -377,7 +377,7 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
    * \param lmscale      Language model scale
    */
   ApplyLanguageModelOnTheFly ( KenLMModelT& model
-                               , unordered_set<Label>& epsilons
+                               , std::unordered_set<Label>& epsilons
                                , bool natlog
                                , float lmscale
                                , float lmwp
@@ -428,7 +428,7 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
     return this->operator()(fst);
   }
   VectorFst<Arc> *run(const VectorFst<Arc>& fst
-                      , unordered_set<Label> const &epsilons) {
+                      , std::unordered_set<Label> const &epsilons) {
     epsilons_ = epsilons;    // this may be necessary e.g. for pdts
     return this->run(fst);
   }
@@ -478,14 +478,14 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
     VectorFst<Arc> *composed = new VectorFst<Arc>;
     ///Initialize and push with first state
     typename KenLMModelT::State bs = lmmodel_.NullContextState();
-    pair<StateId, bool> nextp = add ( composed, bs, fst.Start(), fst.Final ( fst.Start() ) );
+    std::pair<StateId, bool> nextp = add ( composed, bs, fst.Start(), fst.Final ( fst.Start() ) );
     qc_.push ( nextp.first );
     composed->SetStart ( nextp.first );
     while ( qc_.size() ) {
       LDEBUG("queue size=" << qc_.size());
       StateId s = qc_.front();
       qc_.pop();
-      pair<StateId, const typename KenLMModelT::State> p = get ( s );
+      std::pair<StateId, const typename KenLMModelT::State> p = get ( s );
       StateId& s1 = p.first;
       const typename KenLMModelT::State s2 = p.second;
 
@@ -502,7 +502,7 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
           nextlmstate = s2;
           wp = 0; //We don't count epsilon labels
          }
-        pair<StateId, bool> nextp = add ( composed, nextlmstate
+        std::pair<StateId, bool> nextp = add ( composed, nextlmstate
                                           , a1.nextstate
                                           , fst.Final ( a1.nextstate ) );
         StateId& newstate = nextp.first;
@@ -528,7 +528,7 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
    * \brief Adds a state.
    * \return true if the state requested has already been visited, false otherwise.
    */
-  inline pair <StateId, bool> add ( fst::VectorFst<Arc> *composed, typename KenLMModelT::State& m2nextstate,
+  inline std::pair <StateId, bool> add ( fst::VectorFst<Arc> *composed, typename KenLMModelT::State& m2nextstate,
                                     StateId m1nextstate, Weight m1stateweight ) {
     static StateId lm = 0;
     getIdx ( m2nextstate );
@@ -541,15 +541,15 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
     if ( stateexistence_.find ( compound ) == stateexistence_.end() ) {
       LDEBUG ( "New State!" );
       statemap_[composed->NumStates()] =
-        pair<StateId, const typename KenLMModelT::State > ( m1nextstate, m2nextstate );
+        std::pair<StateId, const typename KenLMModelT::State > ( m1nextstate, m2nextstate );
       composed->AddState();
       LDEBUG("Added..." << composed->NumStates() << "," << m1nextstate << "," << printDebug(m2nextstate));
       if ( m1stateweight != mw_ ( ZPosInfinity() ) ) composed->SetFinal (
           composed->NumStates() - 1, m1stateweight );
       stateexistence_[compound] = composed->NumStates() - 1;
-      return pair<StateId, bool> ( composed->NumStates() - 1, false );
+      return std::pair<StateId, bool> ( composed->NumStates() - 1, false );
     }
-    return pair<StateId, bool> ( stateexistence_[compound], true );
+    return std::pair<StateId, bool> ( stateexistence_[compound], true );
   };
 
   /**
@@ -566,7 +566,7 @@ class ApplyLanguageModelOnTheFly : public ApplyLanguageModelOnTheFlyInterface<Ar
   };
 
   ///Map from output state to input lattice + language model state
-  inline pair<StateId, typename KenLMModelT::State > get ( StateId state ) {
+  inline std::pair<StateId, typename KenLMModelT::State > get ( StateId state ) {
     LDEBUG("get");
     return statemap_[state];
   };

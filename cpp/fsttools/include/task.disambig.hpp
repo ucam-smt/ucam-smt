@@ -137,7 +137,7 @@ private:
 		 && d_->klm[lmkey_].size() == 1
                  , "You need to load ONE recasing Language Model!" );
     fst::MakeWeight<Arc> mw;
-    unordered_set<Label> epsilons;
+    std::unordered_set<Label> epsilons;
     ///We want the language model to ignore these guys:
     epsilons.insert ( DR );
     epsilons.insert ( OOV );
