@@ -31,6 +31,7 @@ libraryDependencies ++= Seq(
 		    "commons-httpclient" % "commons-httpclient" % "3.1",
 		    "commons-io" % "commons-io" % "2.4",
 		    "com.google.guava" % "guava" % "11.0.2",
+		    "com.google.protobuf" % "protobuf-java" % "2.5.0",
 		    "log4j" % "log4j" % "1.2.16",
 		    "org.slf4j" % "slf4j-log4j12" % "1.7.5",
 		    "org.codehaus.jackson" % "jackson-jaxrs" % "1.9.13",
