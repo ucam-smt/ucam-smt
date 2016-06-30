@@ -21,6 +21,8 @@ inline void init_param_options ( int argc, const char* argv[],
 	"Fst(s) to count strings (use ? for multiple instances) " )
       ( kLmertInitialParams.c_str(), po::value<std::string>(),
 	"Initial parameter value (lambda)" )
+      ( kLmertDirection.c_str(), po::value<std::string>()->default_value(""),
+	"Direction used for a single line search" )
       ( kLmertWordRefs.c_str(), po::value<std::string>(), "MERT reference translations words" )
       ( kLmertIntRefs.c_str(), po::value<std::string>(), "MERT reference translations ints" )
       ( kLmertMinGamma.c_str(), po::value<float>()->default_value ( 0.000005f ),
@@ -36,7 +38,7 @@ inline void init_param_options ( int argc, const char* argv[],
       ( kLmertExternalTokenizer.c_str(), po::value<std::string>(), "external tokenization command" )
       ( kLmertWMap.c_str(), po::value<std::string>(), "Maps idx to word; for use with word references" )
       ( kLmertBleuCacheSize.c_str(), po::value<int>()->default_value(10000), "number of hyps per sentence for which to LRU cache Bleu stats");
-
+      
     // \todo is this option supported?
     // ( kHifstSemiring.c_str(),
     //   po::value<std::string>()->default_value ( "stdarc" ),

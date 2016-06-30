@@ -6,6 +6,7 @@
 namespace HifstConstants {
 
 std::string const kLmertInitialParams="initial_params";
+std::string const kLmertDirection="direction";
 std::string const kLmertWordRefs="word_refs";
 std::string const kLmertIntRefs="int_refs";
 std::string const kLmertMinGamma="min_gamma";
@@ -16,6 +17,7 @@ std::string const kLmertWriteParams="write_params";
 std::string const kLmertExternalTokenizer="external_tokenizer";
 std::string const kLmertWMap="word_map";
 std::string const kLmertBleuCacheSize="bleu_cache_size";
+std::string const kLmertSingleSearch="single_search";
 }
 
 #endif

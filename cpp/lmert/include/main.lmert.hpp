@@ -25,6 +25,7 @@
 #include <lmert.hpp>
 #include <lineoptimize.hpp>
 #include <randomlinesearch.hpp>
+#include <singlelinesearch.hpp>
 
 #include <main.lmert.init_param_options.hpp>
 

@@ -27,7 +27,12 @@ int main ( int argc,  const char* argv[] ) {
   BleuScorer bleuScorer(refFiles, extTok, bleuCacheSize, intRefs, wMap);
   TuneSet< TupleArc32 > tuneSet(rg);
   PARAMS32 lambda = ParseParamString<float>(rg.getString(kLmertInitialParams));
-  RandomLineSearch< TupleArc32 > rls(rg, tuneSet, bleuScorer, lambda);
+  if(rg.getString(kLmertDirection).size() > 0){
+    PARAMS32 direction = ParseParamString<float>(rg.getString(kLmertDirection));
+    SingleLineSearch< TupleArc32 > rls(rg, tuneSet, bleuScorer, lambda, direction);
+  }else{
+    RandomLineSearch< TupleArc32 > rls(rg, tuneSet, bleuScorer, lambda);
+  }
   LINFO(bleuScorer.CacheStats());
   FORCELINFO (argv[0] << " finished!");
 }
