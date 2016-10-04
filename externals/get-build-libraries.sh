@@ -6,7 +6,8 @@ OPENFSTVERSION=1.5.2
 
 download() {
     if [ ! -e gtest-$GTESTVERSION ]; then
-        wget https://googletest.googlecode.com/files/gtest-$GTESTVERSION.zip;
+    #   no longer available.  The one in github is not identical (requires cmake)
+    #   wget https://googletest.googlecode.com/files/gtest-$GTESTVERSION.zip;
         unzip gtest-$GTESTVERSION.zip ;
     fi
     if [ ! -e openfst-$OPENFSTVERSION ]; then
@@ -19,6 +20,8 @@ download() {
         mv download boost_$BOOSTVERSION.tar.gz
         tar zxvf boost_$BOOSTVERSION.tar.gz
     fi
+    # ensure correct permissions always set up.
+    chmod -R 755 .
 }
 
 
@@ -33,7 +36,7 @@ installExternals() {
             cd gtest-$GTESTVERSION;
             ./configure --enable-static --prefix=$PWD/INSTALL_DIR;
             make
-# NOT supported for gtest-1.6.0 , gtest-1.7.0
+# unsupported install for gtest-1.6.0 , gtest-1.7.0 in googletest, no longer available in the github version
 #           make install
             mkdir -p INSTALL_DIR/include INSTALL_DIR/lib
             cp -a include/* INSTALL_DIR/include
