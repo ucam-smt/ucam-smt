@@ -29,8 +29,8 @@ test_0001_hifst_chopgrammar(){
 	--stats.hifst.write=$BASEDIR/cykgrid --stats.hifst.cykgrid.enable=yes  &> /dev/null
 
 )
-    if diff $BASEDIR/cykgrid $REFDIR/cykgrid ; then echo ; else echo 0; return ; fi
-    if fstequivalent $BASEDIR/trans.fst $REFDIR/trans.fst ; then echo ; else echo 0; return ; fi
+    if diff $BASEDIR/cykgrid $REFDIR/cykgrid ; then echo -e ""; else echo 0; return ; fi
+    if fstequivalent $BASEDIR/trans.fst $REFDIR/trans.fst ; then echo -e ""; else echo 0; return ; fi
    
 # Ok!
     echo 1
@@ -48,14 +48,19 @@ test_0002_hifst_multiple_nt_grammar(){
 	--stats.hifst.cykgrid.enable=yes \
 	--stats.hifst.cykgrid.cellwidth=55 \
 	--cykparser.hrmaxheight=20 --patternstoinstances.maxspan=20 \
+	--hifst.lattice.optimize=yes \
 	--logger.verbose  &> /dev/null
 
 )
     if diff $BASEDIR/cykgrid.0002 $REFDIR/cykgrid.0002 ; then echo ; else echo 0; return ; fi
     rm -Rf tmp; mkdir -p tmp;
-    cat $BASEDIR/trans.0002.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/trans.0002.test.fst;
-    cat $REFDIR/trans.0002.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/trans.0002.ref.fst;
-    if fstequivalent tmp/trans.0002.test.fst tmp/trans.0002.ref.fst; then echo ; else echo 0; return ; fi
+
+    # cat $BASEDIR/trans.0002.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/trans.0002.test.fst;
+    # cat $REFDIR/trans.0002.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/trans.0002.ref.fst;
+    # if fstequivalent tmp/trans.0002.test.fst tmp/trans.0002.ref.fst; then echo ; else echo 0; return ; fi
+    # unweighted, so we can do:
+    cat $BASEDIR/trans.0002.fst | fstprint | fstcompile --acceptor > $BASEDIR/trans.0002.trop.fst
+    if fstequivalent $BASEDIR/trans.0002.trop.fst $REFDIR/trans.0002.trop-rdm.fst; then echo ; else echo 0; return ; fi
 # Ok!
     echo 1
 }

@@ -111,8 +111,9 @@ test_0011_align_sparse() {
     for k in `seq $seqrange`; do
  	mkdir -p tmp;
 ### Note: fstproject - openfst 1.3.1  fails
-	zcat $BASEDIR/alilats/$k.fst.gz | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.test.fst;
-	zcat $REFDIR/alilats/$k.fst.gz | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.ref.fst;
+
+	zcat $BASEDIR/alilats/$k.fst.gz | fstprint | sed -e 's:,.*$::g' | fstcompile | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.test.fst;
+	zcat $REFDIR/alilats/$k.fst.gz | fstprint | sed -e 's:,.*$::g' | fstcompile | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.ref.fst;
 	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ;
     done
 
@@ -246,7 +247,6 @@ test_0016_align_convert_lats_to_veclats_2lm() {
 
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
-
 runtests
 
 

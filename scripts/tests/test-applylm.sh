@@ -56,10 +56,8 @@ test_0003_applylm_lexstd_execute(){
     mkdir -p tmp; 
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
-	if [ ! -e $BASEDIR/$k.fst ]; then echo 0; return; fi;
-	if [ "`cat $BASEDIR/$k.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
-	fstproject --project_output $BASEDIR/$k.lex.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.lex.fst
-	if fstequivalent tmp/$k.lex.fst $REFDIR/$k.lex.fst; then echo -e ""; else echo 0;  return; fi ;
+	if [ ! -e $BASEDIR/$k.lex.fst ]; then echo 0; return; fi;
+	if fstequivalent $BASEDIR/$k.lex.fst $REFDIR/$k.lex.fst; then echo -e ""; else echo 0;  return; fi ;
     done
 
     echo 1
@@ -79,9 +77,7 @@ test_0004_applylm_lexstd_rmlmcost_execute(){
     seqrange=`echo $range | sed -e 's:\:: :g'`
     for k in `seq $seqrange`; do 
 	if [ ! -e $BASEDIR/$k.lex2.fst ]; then echo 0; return; fi;
-	if [ "`cat $BASEDIR/$k.lex2.fst | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi;
-	fstproject --project_output $BASEDIR/$k.lex2.fst | fstrmepsilon | fstdeterminize | fstminimize > tmp/$k.lex2.fst
-	if fstequivalent tmp/$k.lex2.fst $REFDIR/$k.lex2.fst; then echo -e ""; else echo 0;  return; fi ;
+	if fstequivalent $BASEDIR/$k.lex2.fst $REFDIR/$k.lex2.fst; then echo -e ""; else echo 0;  return; fi ;
     done
 
     echo 1
@@ -285,6 +281,5 @@ test_0011_applylm_multithreaded_execute(){
 ################### STEP 2
 ################### RUN ALL TESTS AND PRINT MESSAGES
 runtests
-
 
 

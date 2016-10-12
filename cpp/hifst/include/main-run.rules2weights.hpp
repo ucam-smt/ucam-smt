@@ -67,7 +67,7 @@ struct RulesToWeightsMapperObject {
       wm[it.Value().first] += it.Value().second.Value();
     }
     // finally create the weights ...
-    Weight nw(arc.weight.DefaultValue()); // new weights;
+    Weight nw;
     for (std::map<int, float>::const_iterator itx = wm.begin()
 	   ; itx != wm.end()
 	   ; ++itx ) {

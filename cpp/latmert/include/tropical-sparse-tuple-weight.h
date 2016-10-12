@@ -49,8 +49,10 @@ class TropicalSparseTupleWeight: public
     SparsePowerWeight<W> (sw) {
   }
 
-  TropicalSparseTupleWeight (W w) :
-    SparsePowerWeight<W> (w) {
+
+  TropicalSparseTupleWeight ( const W& w ) :
+    SparsePowerWeight<W>() {
+      this->SetDefaultValue(w);
   }
 
   inline static std::string GetPrecisionString() {
@@ -77,12 +79,12 @@ class TropicalSparseTupleWeight: public
   }
 
   static const TropicalSparseTupleWeight<T>& Zero() {
-    static TropicalSparseTupleWeight<T> zero (W::Zero() );
+    static TropicalSparseTupleWeight<T> zero = SparsePowerWeight<TropicalWeightTpl<T>>::Zero();
     return zero;
   }
 
   static const TropicalSparseTupleWeight<T>& One() {
-    static TropicalSparseTupleWeight<T> one (W::One() );
+    static TropicalSparseTupleWeight<T> one = SparsePowerWeight<TropicalWeightTpl<T>>::One(); 
     return one;
   }
 

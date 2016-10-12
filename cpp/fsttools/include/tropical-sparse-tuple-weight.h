@@ -22,7 +22,8 @@
  * \author Rory Waite
  */
 
-# include <params.hpp>
+#include <fst/sparse-power-weight.h>
+#include <params.hpp>
 
 namespace fst {
 
@@ -59,11 +60,13 @@ class TropicalSparseTupleWeight: public
   }
 
   TropicalSparseTupleWeight ( const SparsePowerWeight<W>& sw ) :
-    SparsePowerWeight<W> ( sw ) {
+    SparsePowerWeight<W> (sw ) {
+
   }
 
-  TropicalSparseTupleWeight ( W w ) :
-    SparsePowerWeight<W> ( w ) {
+  TropicalSparseTupleWeight ( const W& w ) :
+    SparsePowerWeight<W>() {
+      this->SetDefaultValue(w);
   }
 
   inline static std::string GetPrecisionString() {
@@ -90,12 +93,12 @@ class TropicalSparseTupleWeight: public
   }
 
   static const TropicalSparseTupleWeight<T>& Zero() {
-    static TropicalSparseTupleWeight<T> zero ( W::Zero() );
+    static TropicalSparseTupleWeight<T> zero = SparsePowerWeight<TropicalWeightTpl<T>>::Zero();
     return zero;
   }
 
   static const TropicalSparseTupleWeight<T>& One() {
-    static TropicalSparseTupleWeight<T> one ( W::One() );
+    static TropicalSparseTupleWeight<T> one = SparsePowerWeight<TropicalWeightTpl<T>>::One(); 
     return one;
   }
 
@@ -180,46 +183,6 @@ inline TropicalSparseTupleWeight<T> Divide (
   SparseTupleWeightMap ( &ret, w1, w2, operator_mapper );
   return ret;
 };
-
-/*
-
-template<typename W>
-struct StdToTropicalSparseMapper {
-  explicit StdToTropicalSparseMapper(uint k_ = 1) :
-      k_(k_) {
-  }
-  ;
-
-  TropicalSparseTupleWeight<W> operator()(W w) {
-    TropicalSparseTupleWeight<W> sparse;
-    sparse.push(k_, w);
-    return sparse;
-  }
-
-private:
-  uint k_;
-};
-
-struct Expand {
-
-  TropicalSparseTupleWeight<double> operator()(
-      const TropicalSparseTupleWeight<float>& w32) const {
-    TropicalSparseTupleWeight<double> result;
-    for (SparseTupleWeightIterator<TropicalWeight, int> it(w32); !it.Done();
-        it.Next()) {
-      result.Push(it.Value().first,
-          TropicalWeightTpl<double>(it.Value().second.Value()));
-    }
-    return result;
-
-  }
-}
-;
-
-typedef GeneralMapper<ArcTpl<TropicalSparseTupleWeight<float> >,
-    ArcTpl<TropicalSparseTupleWeight<double> >, Expand> ExpandMapper;
-
-*/
 
 ///Map functor used with generic weight mapper
 template<typename T>

@@ -44,6 +44,8 @@ if [ ! -z $NPLM_LIB ]; then LD_LIBRARY_PATH+=:$NPLM_LIB; fi
 runtests() {
 
     echo "RUNNING TESTS IN `basename $0`"
+    echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+    echo "PATH=$PATH"
     echo "============================================================"
     
     total=0

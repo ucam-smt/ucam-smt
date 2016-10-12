@@ -96,16 +96,16 @@ test_0010_translate() {
 
 test_0011_align() {
 
-(  #set -x
+( 
     $hifst \
         --grammar.load=$grammar \
         --source.load=$tstidx  \
-        --referencefilter.load=$BASEDIR/lats/?.fst.gz \
+        --referencefilter.load=$REFDIR/lats/?.fst.gz \
         --referencefilter.prunereferenceshortestpath=2 \
         --hifst.lattice.store=$BASEDIR/alilats/?.fst.gz  \
         --hifst.localprune.enable=yes  --hifst.localprune.conditions=X,1,1,9,M,1,1,9,V,1,1,9 \
         --hifst.prune=9  \
-	--hifst.alilatsmode=yes    &>/dev/null
+	--hifst.alilatsmode=yes &>/dev/null
 )
 
  
@@ -115,13 +115,11 @@ test_0011_align() {
 
 	mkdir -p tmp; 
 ### Note: fstproject - openfst 1.3.1  fails
-	zcat $BASEDIR/alilats/$k.fst.gz | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.test.fst; 
-	zcat $REFDIR/alilats/$k.fst.gz | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.ref.fst;	
+### Note: fstdeterminize and others on openfst 1.5.*  fails, so project first to tropical
+### => relies on fstprint to work fine :)
+	zcat $BASEDIR/alilats/$k.fst.gz | fstprint | sed -e 's:,.*$::g' | fstcompile | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.test.fst; 
+	zcat $REFDIR/alilats/$k.fst.gz | fstprint | sed -e 's:,.*$::g' | fstcompile | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.ref.fst;	
 	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ; 	
-
-
-#	if [ "`zcat $BASEDIR/alilats/$k.fst.gz | fstprint | md5sum`" == "" ] ; then echo 0; return ; fi; 
-#	if [ "`zcat $BASEDIR/alilats/$k.fst.gz | fstprint | md5sum`" != "`zcat $REFDIR/alilats/$k.fst.gz | fstprint | md5sum`" ] ; then echo 0; return ; fi; 
     done
 
 ###Success
@@ -270,19 +268,17 @@ test_0016_translate_nthreads() {
 
 test_0017_align_nthreads() {
 
-(  # set -x
+( # set -x
     $hifst --nthreads=4 \
         --grammar.load=$grammar \
         --source.load=$tstidx  \
-        --referencefilter.load=$BASEDIR/lats-nth/?.fst.gz \
+        --referencefilter.load=$REFDIR/lats/?.fst.gz \
         --referencefilter.prunereferenceshortestpath=2 \
         --hifst.lattice.store=$BASEDIR/alilats-nth/?.fst.gz  \
         --hifst.localprune.enable=yes  --hifst.localprune.conditions=X,1,1,9,M,1,1,9,V,1,1,9 \
         --hifst.prune=9  \
-	--hifst.alilatsmode=yes    &>/dev/null
-
+	--hifst.alilatsmode=yes  &>/dev/null
 #        --lm.scales=1 --lm.load=$languagemodel \
-
 )
 
  
@@ -292,8 +288,10 @@ test_0017_align_nthreads() {
 
 	mkdir -p tmp; 
 ### Note: fstproject - openfst 1.3.1  fails
-	zcat $BASEDIR/alilats-nth/$k.fst.gz | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.test.fst; 
-	zcat $REFDIR/alilats/$k.fst.gz | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.ref.fst;	
+### Note: fstdeterminize and others on openfst 1.5.*  fails, so project first to tropical
+### => relies on fstprint to work fine :)
+	zcat $BASEDIR/alilats-nth/$k.fst.gz | fstprint | sed -e 's:,.*$::g' | fstcompile | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.test.fst; 
+	zcat $REFDIR/alilats/$k.fst.gz | fstprint | sed -e 's:,.*$::g' | fstcompile | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.ref.fst;	
 	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ; 	
 
     done
@@ -640,8 +638,11 @@ test_0030_align_with_links() {
      seqrange=`echo $range | sed -e 's:\:: :g'`
      for k in `seq $seqrange`; do
  	mkdir -p tmp;
- 	zcat $BASEDIR/alilats.affiliation/$k.fst.gz | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.test.fst;
- 	zcat $REFDIR/alilats.affiliation/$k.fst.gz | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.ref.fst;
+### Note: fstproject - openfst 1.3.1  fails
+### Note: fstdeterminize and others on openfst 1.5.*  fails, so project first to tropical
+### => relies on fstprint to work fine :)
+ 	zcat $BASEDIR/alilats.affiliation/$k.fst.gz | fstprint | sed -e 's:,.*$::g' | fstcompile | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.test.fst;
+ 	zcat $REFDIR/alilats.affiliation/$k.fst.gz | fstprint | sed -e 's:,.*$::g' | fstcompile | fstproject | fstrmepsilon | fstdeterminize | fstminimize | fstrmepsilon > tmp/$k.ref.fst;
  	if fstequivalent tmp/$k.ref.fst tmp/$k.test.fst; then echo -e ""; else echo 0; return; fi ;
      done
 ###Success
