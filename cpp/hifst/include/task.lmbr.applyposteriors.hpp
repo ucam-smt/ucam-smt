@@ -127,6 +127,24 @@ class ApplyPosteriors {
     return fstmax;
   };
 
+  /// Print n-gram posteriors
+  void printNgramPosteriors() {
+    if (util::silent::get()) {
+      return;
+    }
+    for (unsigned n = maxorder_; n >= minorder_; --n) {
+      for (NGramList::const_iterator it = hs_ngrams_[n].begin();
+           it != hs_ngrams_[n].end(); ++it) {
+        fst::NGram w = it->first;
+        fst::StdArc::Weight p = 0;
+        if (posteriors_.find (w) != posteriors_.end() ) p = posteriors_[w][0][0] *
+              theta_
+              (n).Value();
+        LINFO ("n-gram posterior " << w << " : " << std::fixed << std::setprecision (10) << p);
+      }
+    }
+  }
+
   //Private methods
  private:
   ///Get State given an ngram.

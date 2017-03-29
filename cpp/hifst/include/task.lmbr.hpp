@@ -192,6 +192,8 @@ class LmbrTask: public ucam::util::TaskInterface<Data> {
       cp (scaledfst.get() );
       NGramToPosteriorsMapper& pst = cp.getPosteriors();
       ApplyPosteriors ap (ngrams, pst, theta_);
+      //Print posteriors
+      ap.printNgramPosteriors();
       fst::Map (*fsthyp, &lmbroutput_, fst::RmWeightMapper<fst::StdArc>() );
       boost::scoped_ptr<fst::VectorFst<fst::StdArc> > lmbrlat (ap (lmbroutput_) );
       fst::VectorFst<fst::StdArc> original (*lmbrlat);
