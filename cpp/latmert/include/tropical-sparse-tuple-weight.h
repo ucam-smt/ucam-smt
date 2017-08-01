@@ -61,8 +61,7 @@ class TropicalSparseTupleWeight: public
       return "";
     }
     size *= CHAR_BIT;
-    std::string result;
-    Int64ToStr (size, &result);
+    std::string result = std::to_string(size);
     return result;
   }
 

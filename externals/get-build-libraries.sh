@@ -2,7 +2,7 @@
 
 GTESTVERSION=1.7.0
 BOOSTVERSION=1_59_0
-OPENFSTVERSION=1.5.4
+OPENFSTVERSION=1.6.3
 
 download() {
     if [ ! -e gtest-$GTESTVERSION ]; then
